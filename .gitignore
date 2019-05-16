@@ -1,0 +1,4 @@
+.php_cs.cache
+build
+config/credentials.ini
+vendor

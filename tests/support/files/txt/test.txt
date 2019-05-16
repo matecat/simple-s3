@@ -1,0 +1,2 @@
+This is nothing but a simple text for test the php Client for S3.
+It's a light weight file only for demo purposes.

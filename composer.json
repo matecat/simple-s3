@@ -1,0 +1,34 @@
+{
+  "name": "mauretto78/simple-s3",
+  "type": "library",
+  "description": "Simple S3 Client",
+  "keywords": ["AWS", "SDK", "S3", "php"],
+  "homepage": "https://github.com/mauretto78/simple-s3",
+  "license": "MIT",
+  "support": {
+    "issues": "https://github.com/mauretto78/simple-s3/issues"
+  },
+  "authors": [
+    {
+      "name": "Mauro Cassani",
+      "email": "maurocassani1978@gmail.com",
+      "homepage": "https://github.com/mauretto78"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "SimpleS3\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": { "SimpleS3\\Tests\\": "tests/" }
+  },
+  "require": {
+    "php": "^5.6 || ^7.0",
+    "aws/aws-sdk-php": "^3.93"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.7",
+    "friendsofphp/php-cs-fixer": "^2.3"
+  }
+}
