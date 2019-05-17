@@ -26,7 +26,7 @@ $s3Client = new Client(
 
 You MUST provide your ```$access_key_id``` and ```$secret_key```, plus an optional ```$config``` array.
 
-Please refer to the official AWS SDK'documentation:
+Please refer to the official documentation:
 
 [Configuration for the AWS SDK for PHP Version 3](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/guide_configuration.html#credentials)
 
@@ -53,7 +53,7 @@ The Client comes with a ```S3BucketNameValidator``` class which throws you an ``
 
 ## Logging
 
-You can inject your logger. Please note that your logger MUST be PSR-3 compliant:
+In order to log Client calls, you can inject your logger. Please note that your logger MUST be PSR-3 compliant:
 
 ```php
 ...
