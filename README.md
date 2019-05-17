@@ -40,7 +40,7 @@ Here is the list of Client's public methods:
 * `deleteFile` - delete a file
 * `getBucketSize` get the size (in Bytes) of files in a bucket
 * `getFile` - get all informations for a file
-* `getFilesFromABucket` get an array of files in a bucket
+* `getFilesInABucket` get an array of files in a bucket
 * `getPublicFileLink` - get the public link to download the file
 
 ## Bucket name restrictions and limitations
