@@ -78,14 +78,14 @@ final class S3BucketNameValidator
             $errors[] = 'The string ends with a -';
         }
 
-        $notAllowedCharacterCombinations = [
+        $notAllowedCombos = [
                 '..',
                 '-.',
                 '.-'
         ];
 
-        foreach ($notAllowedCharacterCombinations as $allowedCharacterCombination) {
-            if (strpos($string, $allowedCharacterCombination)) {
+        foreach ($notAllowedCombos as $notAllowedCombo) {
+            if (strpos($string, $notAllowedCombo)) {
                 $errors[] = 'The string contains a not allowed character combination';
             }
         }

@@ -66,8 +66,8 @@ final class ClientFactory
      */
     private static function createConfigArray($accessKeyId, $secretKey, array $config)
     {
-        $credentials             = new Credentials($accessKeyId, $secretKey);
-        $config[ 'credentials' ] = $credentials;
+        $credentials = new Credentials($accessKeyId, $secretKey);
+        $config['credentials'] = $credentials;
 
         return $config;
     }

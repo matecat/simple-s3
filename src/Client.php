@@ -157,7 +157,7 @@ final class Client
     {
         $size = 0;
 
-        foreach ($this->getFilesInABucket($bucketName) as $key => $file) {
+        foreach ($this->getFilesInABucket($bucketName) as $file) {
             $size += $file['@metadata']['headers']['content-length'];
         }
 
@@ -310,16 +310,16 @@ final class Client
     /**
      * Log the exception or continue with default behaviour
      *
-     * @param \Exception $e
+     * @param \Exception $exception
      *
      * @throws \Exception
      */
-    private function logExceptionOrContinue(\Exception $e)
+    private function logExceptionOrContinue(\Exception $exception)
     {
         if (null !== $this->logger) {
-            $this->logger->error($e->getMessage());
+            $this->logger->error($exception->getMessage());
         } else {
-            throw $e; // continue with the default behaviour
+            throw $exception; // continue with the default behaviour
         }
     }
 }

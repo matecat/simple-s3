@@ -34,14 +34,14 @@ Please refer to the official documentation:
 
 Here is the list of Client's public methods:
 
-* `clearBucket` - clear a bucket from all files
-* `createBucketIfItDoesNotExist` . create a bucket if it does not exists
-* `deleteBucket` - delete a bucket
-* `deleteFile` - delete a file
-* `getBucketSize` get the size (in Bytes) of files in a bucket
-* `getFile` - get all informations for a file
-* `getFilesInABucket` get an array of files in a bucket
-* `getPublicFileLink` - get the public link to download the file
+*   `clearBucket` - clear a bucket from all files
+*   `createBucketIfItDoesNotExist` . create a bucket if it does not exists
+*   `deleteBucket` - delete a bucket
+*   `deleteFile` - delete a file
+*   `getBucketSize` get the size (in Bytes) of files in a bucket
+*   `getFile` - get all informations for a file
+*   `getFilesInABucket` get an array of files in a bucket
+*   `getPublicFileLink` - get the public link to download the file
 
 ## Bucket name restrictions and limitations
 

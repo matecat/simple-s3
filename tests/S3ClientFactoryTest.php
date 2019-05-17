@@ -12,7 +12,7 @@ class S3ClientFactoryTest extends PHPUnit_Framework_TestCase
     public function test_it_throw_an_exception_if_wrong_configuration_is_passed()
     {
         $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $client = ClientFactory::create(
+        ClientFactory::create(
             $config['ACCESS_KEY_ID'],
             $config['SECRET_KEY'],
             [
