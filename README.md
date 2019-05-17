@@ -53,7 +53,7 @@ The Client comes with a ```S3BucketNameValidator``` class which throws you an ``
 
 ## Logging
 
-If you want to log Client errors, you can inject your logger. Please note that your logger MUST be PSR-3 compliant:
+You can inject your logger. Please note that your logger MUST be PSR-3 compliant:
 
 ```php
 ...

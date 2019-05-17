@@ -66,9 +66,13 @@ final class Client
     {
         if (false === $this->hasBucket($bucketName)) {
             try {
-                return $this->s3->createBucket([
+                $bucket = $this->s3->createBucket([
                     'Bucket' => $bucketName
                 ]);
+
+                $this->logInfo(sprintf('Bucket \'%s\' was successfully created', $bucketName));
+
+                return $bucket;
             } catch (S3Exception $e) {
                 $this->logExceptionOrContinue($e);
             }
@@ -103,9 +107,13 @@ final class Client
     {
         if ($this->hasBucket($bucketName)) {
             try {
-                return $this->s3->deleteBucket([
+                $delete = $this->s3->deleteBucket([
                     'Bucket' => $bucketName
                 ]);
+
+                $this->logInfo(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+
+                return $delete;
             } catch (S3Exception $e) {
                 $this->logExceptionOrContinue($e);
             }
@@ -134,6 +142,8 @@ final class Client
             }
         }
 
+        $this->logInfo(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
+
         return $deleted;
     }
 
@@ -147,9 +157,11 @@ final class Client
     {
         $size = 0;
 
-        foreach ( $this->getFilesInABucket($bucketName) as $key => $file){
+        foreach ($this->getFilesInABucket($bucketName) as $key => $file) {
             $size += $file['@metadata']['headers']['content-length'];
         }
+
+        $this->logInfo(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
 
         return $size;
     }
@@ -164,10 +176,14 @@ final class Client
     public function deleteFile($bucketName, $keyname)
     {
         try {
-            return $this->s3->deleteObject([
+            $delete = $this->s3->deleteObject([
                 'Bucket' => $bucketName,
                 'Key'    => $keyname
             ]);
+
+            $this->logInfo(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyname, $bucketName));
+
+            return $delete;
         } catch (S3Exception $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -183,10 +199,14 @@ final class Client
     public function getFile($bucketName, $keyname)
     {
         try {
-            return $this->s3->getObject([
+            $file = $this->s3->getObject([
                 'Bucket' => $bucketName,
                 'Key'    => $keyname
             ]);
+
+            $this->logInfo(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
+
+            return $file;
         } catch (S3Exception $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -198,7 +218,7 @@ final class Client
      * @return array
      * @throws \Exception
      */
-    public function getFilesInABucket( $bucketName)
+    public function getFilesInABucket($bucketName)
     {
         try {
             $results = $this->s3->getPaginator('ListObjects', [
@@ -212,6 +232,8 @@ final class Client
                     $filesArray[$object[ 'Key' ]] = $this->getFile($bucketName, $object[ 'Key' ]);
                 }
             }
+
+            $this->logInfo(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
             return $filesArray;
         } catch (S3Exception $e) {
@@ -227,7 +249,7 @@ final class Client
      * @return \Psr\Http\Message\UriInterface
      * @throws \Exception
      */
-    public function getPublicFileLink( $bucketName, $keyname, $expires = '+1 hour')
+    public function getPublicFileLink($bucketName, $keyname, $expires = '+1 hour')
     {
         try {
             $cmd = $this->s3->getCommand('GetObject', [
@@ -235,7 +257,10 @@ final class Client
                 'Key'    => $keyname
             ]);
 
-            return $this->s3->createPresignedRequest($cmd, $expires)->getUri();
+            $link = $this->s3->createPresignedRequest($cmd, $expires)->getUri();
+            $this->logInfo(sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
+
+            return $link;
         } catch (\InvalidArgumentException $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -263,9 +288,22 @@ final class Client
         );
 
         try {
-            return $uploader->upload();
+            $upload = $uploader->upload();
+            $this->logInfo(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
+
+            return $upload;
         } catch (MultipartUploadException $e) {
             $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
+     * @param $message
+     */
+    private function logInfo($message)
+    {
+        if (null !== $this->logger) {
+            $this->logger->info($message);
         }
     }
 
@@ -281,7 +319,7 @@ final class Client
         if (null !== $this->logger) {
             $this->logger->error($e->getMessage());
         } else {
-            throw $e; // default behaviour
+            throw $e; // continue with the default behaviour
         }
     }
 }

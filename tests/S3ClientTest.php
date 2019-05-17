@@ -1,6 +1,8 @@
 <?php
 
 use Aws\Result;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use SimpleS3\Client;
 use SimpleS3\Exceptions\InvalidS3BucketNameException;
 use SimpleS3\Helper\S3BucketNameValidator;
@@ -38,6 +40,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
                 'region' => $config['REGION'],
             ]
         );
+
+        $logger = new Logger('channel-test');
+        $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
+        $this->s3Client->addLogger($logger);
+
         $this->bucket      = S3BucketNameValidator::generateFromString('mauretto78-bucket-test');
         $this->keyname     = 'test.txt';
     }
