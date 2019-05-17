@@ -57,18 +57,23 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param      $bucketName
+     * @param null $lifeCycleDays
      *
      * @return Result
      * @throws \Exception
      */
-    public function createBucketIfItDoesNotExist($bucketName)
+    public function createBucketIfItDoesNotExist( $bucketName, $lifeCycleDays = null)
     {
         if (false === $this->hasBucket($bucketName)) {
             try {
                 $bucket = $this->s3->createBucket([
                     'Bucket' => $bucketName
                 ]);
+
+                if(null !== $lifeCycleDays){
+                    $this->setBucketLifecycle($bucketName, $lifeCycleDays);
+                }
 
                 $this->logInfo(sprintf('Bucket \'%s\' was successfully created', $bucketName));
 
@@ -81,6 +86,50 @@ final class Client
 
     /**
      * @param $bucketName
+     * @param $ttl
+     *
+     * @throws \Exception
+     */
+    private function setBucketLifecycle($bucketName, $lifeCycleDays)
+    {
+        try {
+            $this->s3->putBucketLifecycle([
+                'Bucket' => $bucketName,
+                'LifecycleConfiguration' => [
+                    'Rules' => [
+                        [
+                            'Expiration' => [
+                                'Date' => $this->getExpiringDate($lifeCycleDays),
+                            ],
+                            'ID' => 'unique_id',
+                            'Status' => 'Enabled',
+                            'Prefix' => ''
+                        ],
+                    ],
+                ],
+            ]);
+        } catch (\InvalidArgumentException $exception) {
+            $this->logExceptionOrContinue($exception);
+        }
+    }
+
+    /**
+     * @param $ttl
+     *
+     * @return string (it MUST be at midnight GMT like '2019-12-31 T00:00:00.000Z')
+     * @throws \Exception
+     */
+    private function getExpiringDate($lifeCycleDays)
+    {
+        $expiringDate = new \DateTime();
+        $expiringDate->modify('+'.(int)$lifeCycleDays.'days');
+        $expiringDate->setTimezone(new \DateTimeZone('GMT'));
+
+        return $expiringDate->format('Y-m-d \T00:00:00.000\Z');
+    }
+
+    /**
+     * @param $bucketName
      *
      * @return bool
      */
@@ -88,8 +137,8 @@ final class Client
     {
         $buckets = $this->s3->listBuckets();
 
-        foreach ($buckets[ 'Buckets' ] as $bucket) {
-            if ($bucket[ 'Name' ] === $bucketName) {
+        foreach ($buckets['Buckets'] as $bucket) {
+            if ($bucket['Name'] === $bucketName) {
                 return true;
             }
         }
@@ -164,6 +213,27 @@ final class Client
         $this->logInfo(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
 
         return $size;
+    }
+
+    /**
+     * @param $bucketName
+     *
+     * @return Result
+     * @throws \Exception
+     */
+    public function getBucketLifeCycle($bucketName)
+    {
+        try {
+            $result = $this->s3->getBucketLifecycle([
+                'Bucket' => $bucketName
+            ]);
+
+            $this->logInfo(sprintf('LifeCycle of \'%s\' bucket was successfully obtained', $bucketName));
+
+            return $result['Rules'][0]['Expiration']['Date'];
+        } catch (S3Exception $e) {
+            $this->logExceptionOrContinue($e);
+        }
     }
 
     /**
@@ -267,16 +337,17 @@ final class Client
     }
 
     /**
-     * @param $bucketName
-     * @param $keyname
-     * @param $source
+     * @param      $bucketName
+     * @param      $keyname
+     * @param      $source
+     * @param null $lifeCycleDays
      *
      * @return Result
      * @throws \Exception
      */
-    public function uploadFile($bucketName, $keyname, $source)
+    public function uploadFile($bucketName, $keyname, $source, $lifeCycleDays = null)
     {
-        $this->createBucketIfItDoesNotExist($bucketName);
+        $this->createBucketIfItDoesNotExist($bucketName, $lifeCycleDays);
 
         $uploader = new MultipartUploader(
             $this->s3,

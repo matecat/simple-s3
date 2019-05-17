@@ -38,6 +38,7 @@ Here is the list of Client's public methods:
 *   `createBucketIfItDoesNotExist` . create a bucket if it does not exists
 *   `deleteBucket` - delete a bucket
 *   `deleteFile` - delete a file
+*   `getBucketLifeCycle` get the expiring date of a bucket
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getFile` - get all informations for a file
 *   `getFilesInABucket` get an array of files in a bucket

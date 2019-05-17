@@ -1,5 +1,6 @@
 <?php
 
+use Aws\Api\DateTimeResult;
 use Aws\Result;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -51,6 +52,18 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
+     */
+    public function test_the_client_creates_a_bucket()
+    {
+        $this->s3Client->createBucketIfItDoesNotExist($this->bucket, 5);
+
+        $this->assertInstanceOf(DateTimeResult::class, $this->s3Client->getBucketLifeCycle($this->bucket));
+    }
+
+    /**
+     * @test
+     * @throws Exception
      */
     public function test_the_client_uploads_a_file()
     {
@@ -67,6 +80,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
      */
     public function test_the_client_gets_the_bucket_size()
     {
@@ -76,6 +90,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
      */
     public function test_the_client_gets_a_file()
     {
@@ -88,6 +103,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
      */
     public function test_the_client_gets_the_download_link_for_a_file()
     {
@@ -98,6 +114,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
      */
     public function test_the_client_gets_files_in_a_bucket()
     {
@@ -115,6 +132,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @throws Exception
      */
     public function test_the_client_deletes_all_the_files()
     {
@@ -126,5 +144,17 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($file[ 'DeleteMarker' ], false);
             $this->assertEquals($file[ '@metadata' ][ 'statusCode' ], 204);
         }
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_deletes_the_bucket()
+    {
+        $delete = $this->s3Client->deleteBucket($this->bucket);
+
+        $this->assertEquals($delete[ 'DeleteMarker' ], false);
+        $this->assertEquals($delete[ '@metadata' ][ 'statusCode' ], 204);
     }
 }
