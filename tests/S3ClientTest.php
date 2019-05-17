@@ -61,6 +61,15 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function test_the_client_gets_the_bucket_size()
+    {
+        $size = $this->s3Client->getBucketSize($this->bucket);
+        $this->assertEquals(114, $size);
+    }
+
+    /**
+     * @test
+     */
     public function test_the_client_gets_a_file()
     {
         $file = $this->s3Client->getFile($this->bucket, $this->keyname);
@@ -85,7 +94,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_files_in_a_bucket()
     {
-        $files = $this->s3Client->getFilesFromABucket($this->bucket);
+        $files = $this->s3Client->getFilesInABucket($this->bucket);
 
         $this->assertTrue(is_array($files));
         $this->assertCount(1, $files);

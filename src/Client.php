@@ -139,6 +139,23 @@ final class Client
 
     /**
      * @param $bucketName
+     *
+     * @return int|mixed
+     * @throws \Exception
+     */
+    public function getBucketSize($bucketName)
+    {
+        $size = 0;
+
+        foreach ( $this->getFilesInABucket($bucketName) as $key => $file){
+            $size += $file['@metadata']['headers']['content-length'];
+        }
+
+        return $size;
+    }
+
+    /**
+     * @param $bucketName
      * @param $keyname
      *
      * @return Result
@@ -181,7 +198,7 @@ final class Client
      * @return array
      * @throws \Exception
      */
-    public function getFilesFromABucket($bucketName)
+    public function getFilesInABucket( $bucketName)
     {
         try {
             $results = $this->s3->getPaginator('ListObjects', [
@@ -192,7 +209,7 @@ final class Client
 
             foreach ($results as $result) {
                 foreach ($result[ 'Contents' ] as $object) {
-                    $filesArray[] = $this->getFile($bucketName, $object[ 'Key' ]);
+                    $filesArray[$object[ 'Key' ]] = $this->getFile($bucketName, $object[ 'Key' ]);
                 }
             }
 
