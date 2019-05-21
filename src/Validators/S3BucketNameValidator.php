@@ -1,15 +1,9 @@
 <?php
 
-namespace SimpleS3\Helper;
-
-use SimpleS3\Exceptions\InvalidS3BucketNameException;
+namespace SimpleS3\Validators;
 
 /**
  * Class S3BucketNameHelper
- *
- * User: Mauro Cassani
- * Date: 15/05/19
- * Time: 10:00
  *
  * This class check and create a valid Amazon S3 Bucket Name
  *
@@ -22,35 +16,20 @@ use SimpleS3\Exceptions\InvalidS3BucketNameException;
  * - The bucket name cannot contain underscores, end with a dash, have consecutive periods, or use dashes adjacent to periods.
  * - The bucket name cannot be formatted as an IP address (198.51.100.24).
  *
+ * Complete reference:
+ *
  * https://docs.aws.amazon.com/en_us/awscloudtrail/latest/userguide/cloudtrail-s3-bucket-naming-requirements.html
  *
  * @package SimpleS3
  */
-final class S3BucketNameValidator
+final class S3BucketNameValidator extends AbstractS3NameValidator
 {
-    const SEPARATOR = '-';
-
-    /**
-     * @param $string
-     *
-     * @return string
-     * @throws InvalidS3BucketNameException
-     */
-    public static function generateFromString($string)
-    {
-        if (count($errors = self::validate($string)) > 0) {
-            throw new InvalidS3BucketNameException(self::renderErrors($string, $errors));
-        }
-
-        return $string;
-    }
-
     /**
      * @param $string
      *
      * @return array
      */
-    private static function validate($string)
+    public static function validate($string)
     {
         $errors = [];
 
@@ -91,21 +70,5 @@ final class S3BucketNameValidator
         }
 
         return $errors;
-    }
-
-    /**
-     * @param $string
-     * @param $errors
-     *
-     * @return string
-     */
-    private static function renderErrors($string, $errors)
-    {
-        $message = sprintf('%s is not a valid S3 bucket name', $string);
-        $message .= ' [';
-        $message .= implode(',', $errors);
-        $message .= ']';
-
-        return $message;
     }
 }

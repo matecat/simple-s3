@@ -5,8 +5,8 @@ use Aws\Result;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use SimpleS3\Client;
-use SimpleS3\Exceptions\InvalidS3BucketNameException;
-use SimpleS3\Helper\S3BucketNameValidator;
+use SimpleS3\Exceptions\InvalidS3NameException;
+use SimpleS3\Validators\S3BucketNameValidator;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -26,7 +26,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     private $bucket;
 
     /**
-     * @throws InvalidS3BucketNameException
+     * @throws Exception
      */
     protected function setUp()
     {
@@ -46,8 +46,17 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
         $this->s3Client->addLogger($logger);
 
-        $this->bucket      = S3BucketNameValidator::generateFromString('mauretto78-bucket-test');
+        $this->bucket      = 'mauretto78-bucket-test';
         $this->keyname     = 'test.txt';
+    }
+
+    /**
+     * @test
+     * @expectedException \SimpleS3\Exceptions\InvalidS3NameException
+     */
+    public function test_the_client_creates_a_bucket_with_an_invalid_name()
+    {
+        $this->s3Client->createBucketIfItDoesNotExist('172.0.0.1');
     }
 
     /**
@@ -59,6 +68,17 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->s3Client->createBucketIfItDoesNotExist($this->bucket, 5);
 
         $this->assertInstanceOf(DateTimeResult::class, $this->s3Client->getBucketLifeCycle($this->bucket));
+    }
+
+    /**
+     * @test
+     * @expectedException \SimpleS3\Exceptions\InvalidS3NameException
+     */
+    public function test_the_client_uploads_a_file_with_an_invalid_name()
+    {
+        $source = __DIR__ . '/support/files/txt/test.txt';
+
+        $this->s3Client->uploadFile($this->bucket, '{invalid name}', $source);
     }
 
     /**

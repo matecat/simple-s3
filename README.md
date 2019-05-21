@@ -26,7 +26,7 @@ $s3Client = new Client(
 
 You MUST provide your ```$access_key_id``` and ```$secret_key```, plus an optional ```$config``` array.
 
-Please refer to the official documentation:
+For further details please refer to the official documentation:
 
 [Configuration for the AWS SDK for PHP Version 3](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/guide_configuration.html#credentials)
 
@@ -43,14 +43,23 @@ Here is the list of Client's public methods:
 *   `getFile` - get all informations for a file
 *   `getFilesInABucket` get an array of files in a bucket
 *   `getPublicFileLink` - get the public link to download the file
+*   `uploadFile` - upload an object to a bucket
 
-## Bucket name restrictions and limitations
+## Naming validation for buckets and objects
 
 Please refer to the official AWS policy:
 
-[Bucket Restrictions and Limitations](https://docs.aws.amazon.com/en_us/AmazonS3/latest/dev/BucketRestrictions.html)
+*   [Bucket naming restrictions and limitations](https://docs.aws.amazon.com/en_us/AmazonS3/latest/dev/BucketRestrictions.html)
+*   [Object safe naming rules](https://docs.aws.amazon.com/en_us/AmazonS3/latest/dev/UsingMetadata.html)
 
-The Client comes with a ```S3BucketNameValidator``` class which throws you an ```InvalidS3BucketNameException``` if the name is not compliant with the AWS rule conventions. 
+The Client comes with two validators:
+ 
+*    ```S3BucketNameValidator``` 
+*    ```S3ObjectSafeNameValidator``` 
+ 
+These two classes throws you an ```InvalidS3BucketNameException``` if the name is not compliant with the AWS rule conventions. 
+
+Validators are invoked in Client's ```createBucketIfItDoesNotExist``` and ```uploadFile``` methods.
 
 ## Logging
 

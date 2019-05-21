@@ -8,6 +8,9 @@ use Aws\S3\Exception\S3Exception;
 use Aws\S3\MultipartUploader;
 use Aws\S3\S3Client;
 use Psr\Log\LoggerInterface;
+use SimpleS3\Exceptions\InvalidS3NameException;
+use SimpleS3\Validators\S3BucketNameValidator;
+use SimpleS3\Validators\S3ObjectSafeNameValidator;
 
 /**
  * Class clientFactory
@@ -63,15 +66,19 @@ final class Client
      * @return Result
      * @throws \Exception
      */
-    public function createBucketIfItDoesNotExist( $bucketName, $lifeCycleDays = null)
+    public function createBucketIfItDoesNotExist($bucketName, $lifeCycleDays = null)
     {
+        if (false === S3BucketNameValidator::isValid($bucketName)) {
+            throw new InvalidS3NameException(sprintf('%s is not a valid bucket name. ['.implode(', ', S3BucketNameValidator::validate($bucketName)).']', $bucketName));
+        }
+
         if (false === $this->hasBucket($bucketName)) {
             try {
                 $bucket = $this->s3->createBucket([
                     'Bucket' => $bucketName
                 ]);
 
-                if(null !== $lifeCycleDays){
+                if (null !== $lifeCycleDays) {
                     $this->setBucketLifecycle($bucketName, $lifeCycleDays);
                 }
 
@@ -348,6 +355,10 @@ final class Client
     public function uploadFile($bucketName, $keyname, $source, $lifeCycleDays = null)
     {
         $this->createBucketIfItDoesNotExist($bucketName, $lifeCycleDays);
+
+        if (false === S3ObjectSafeNameValidator::isValid($keyname)) {
+            throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
+        }
 
         $uploader = new MultipartUploader(
             $this->s3,
