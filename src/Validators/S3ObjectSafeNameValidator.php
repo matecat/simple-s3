@@ -12,6 +12,8 @@ namespace SimpleS3\Validators;
  * You can use any UTF-8 character in an object key name. However, using certain characters in key names may cause problems with some applications and protocols.
  * The following guidelines help you maximize compliance with DNS, web-safe characters, XML parsers, and other APIs.
  *
+ * Allowed characters:
+ *
  * *** Alphanumeric characters ***
  * - 0-9
  * - a-z
@@ -27,7 +29,7 @@ namespace SimpleS3\Validators;
  * - (
  * - )
  *
- * Directory separator / is allowed.
+ * Directory separator / is also allowed.
  *
  * Complete reference:
  *
@@ -46,9 +48,7 @@ final class S3ObjectSafeNameValidator extends AbstractS3NameValidator
     {
         $errors = [];
 
-        $pattern = '/^[a-zA-Z 0-9\/\!\-\_\.\'\*\(\)]*$/';
-
-        if (!preg_match($pattern, $string)) {
+        if (!preg_match('/^[a-zA-Z 0-9\/\!\-\_\.\'\*\(\)]*$/', $string)) {
             $errors[] = 'The string contains a not allowed character';
         }
 
