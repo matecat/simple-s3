@@ -43,6 +43,8 @@ Here is the list of Client's public methods:
 *   `getFile` - get all informations for a file
 *   `getFilesInABucket` get an array of files in a bucket
 *   `getPublicFileLink` - get the public link to download the file
+*   `hasBucket` - check if a bucket exists
+*   `hasFile` - check if a file exists
 *   `uploadFile` - upload an object to a bucket
 
 ## Naming validation for buckets and objects

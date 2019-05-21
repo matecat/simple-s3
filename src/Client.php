@@ -60,6 +60,33 @@ final class Client
     }
 
     /**
+     * @param $bucketName
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function clearBucket($bucketName)
+    {
+        $deleted = [];
+
+        if ($this->hasBucket($bucketName)) {
+            $results = $this->s3->getPaginator('ListObjects', [
+                    'Bucket' => $bucketName
+            ]);
+
+            foreach ($results as $result) {
+                foreach ($result[ 'Contents' ] as $object) {
+                    $deleted[] = $this->deleteFile($bucketName, $object[ 'Key' ]);
+                }
+            }
+        }
+
+        $this->logInfo(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
+
+        return $deleted;
+    }
+
+    /**
      * @param      $bucketName
      * @param null $lifeCycleDays
      *
@@ -101,19 +128,19 @@ final class Client
     {
         try {
             $this->s3->putBucketLifecycle([
-                'Bucket' => $bucketName,
-                'LifecycleConfiguration' => [
-                    'Rules' => [
-                        [
-                            'Expiration' => [
-                                'Date' => $this->getExpiringDate($lifeCycleDays),
+                    'Bucket' => $bucketName,
+                    'LifecycleConfiguration' => [
+                            'Rules' => [
+                                    [
+                                            'Expiration' => [
+                                                    'Date' => $this->getBucketExpiringDate($lifeCycleDays),
+                                            ],
+                                            'ID' => 'unique_id',
+                                            'Status' => 'Enabled',
+                                            'Prefix' => ''
+                                    ],
                             ],
-                            'ID' => 'unique_id',
-                            'Status' => 'Enabled',
-                            'Prefix' => ''
-                        ],
                     ],
-                ],
             ]);
         } catch (\InvalidArgumentException $exception) {
             $this->logExceptionOrContinue($exception);
@@ -126,31 +153,13 @@ final class Client
      * @return string (it MUST be at midnight GMT like '2019-12-31 T00:00:00.000Z')
      * @throws \Exception
      */
-    private function getExpiringDate($lifeCycleDays)
+    private function getBucketExpiringDate( $lifeCycleDays)
     {
         $expiringDate = new \DateTime();
         $expiringDate->modify('+'.(int)$lifeCycleDays.'days');
         $expiringDate->setTimezone(new \DateTimeZone('GMT'));
 
         return $expiringDate->format('Y-m-d \T00:00:00.000\Z');
-    }
-
-    /**
-     * @param $bucketName
-     *
-     * @return bool
-     */
-    private function hasBucket($bucketName)
-    {
-        $buckets = $this->s3->listBuckets();
-
-        foreach ($buckets['Buckets'] as $bucket) {
-            if ($bucket['Name'] === $bucketName) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -164,7 +173,7 @@ final class Client
         if ($this->hasBucket($bucketName)) {
             try {
                 $delete = $this->s3->deleteBucket([
-                    'Bucket' => $bucketName
+                        'Bucket' => $bucketName
                 ]);
 
                 $this->logInfo(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
@@ -178,29 +187,46 @@ final class Client
 
     /**
      * @param $bucketName
+     * @param $keyname
      *
-     * @return array
+     * @return Result
      * @throws \Exception
      */
-    public function clearBucket($bucketName)
+    public function deleteFile($bucketName, $keyname)
     {
-        $deleted = [];
-
-        if ($this->hasBucket($bucketName)) {
-            $results = $this->s3->getPaginator('ListObjects', [
-                'Bucket' => $bucketName
+        try {
+            $delete = $this->s3->deleteObject([
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyname
             ]);
 
-            foreach ($results as $result) {
-                foreach ($result[ 'Contents' ] as $object) {
-                    $deleted[] = $this->deleteFile($bucketName, $object[ 'Key' ]);
-                }
-            }
+            $this->logInfo(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyname, $bucketName));
+
+            return $delete;
+        } catch (S3Exception $e) {
+            $this->logExceptionOrContinue($e);
         }
+    }
 
-        $this->logInfo(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
+    /**
+     * @param $bucketName
+     *
+     * @return Result
+     * @throws \Exception
+     */
+    public function getBucketLifeCycle($bucketName)
+    {
+        try {
+            $result = $this->s3->getBucketLifecycle([
+                    'Bucket' => $bucketName
+            ]);
 
-        return $deleted;
+            $this->logInfo(sprintf('LifeCycle of \'%s\' bucket was successfully obtained', $bucketName));
+
+            return $result['Rules'][0]['Expiration']['Date'];
+        } catch (S3Exception $e) {
+            $this->logExceptionOrContinue($e);
+        }
     }
 
     /**
@@ -224,50 +250,6 @@ final class Client
 
     /**
      * @param $bucketName
-     *
-     * @return Result
-     * @throws \Exception
-     */
-    public function getBucketLifeCycle($bucketName)
-    {
-        try {
-            $result = $this->s3->getBucketLifecycle([
-                'Bucket' => $bucketName
-            ]);
-
-            $this->logInfo(sprintf('LifeCycle of \'%s\' bucket was successfully obtained', $bucketName));
-
-            return $result['Rules'][0]['Expiration']['Date'];
-        } catch (S3Exception $e) {
-            $this->logExceptionOrContinue($e);
-        }
-    }
-
-    /**
-     * @param $bucketName
-     * @param $keyname
-     *
-     * @return Result
-     * @throws \Exception
-     */
-    public function deleteFile($bucketName, $keyname)
-    {
-        try {
-            $delete = $this->s3->deleteObject([
-                'Bucket' => $bucketName,
-                'Key'    => $keyname
-            ]);
-
-            $this->logInfo(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyname, $bucketName));
-
-            return $delete;
-        } catch (S3Exception $e) {
-            $this->logExceptionOrContinue($e);
-        }
-    }
-
-    /**
-     * @param $bucketName
      * @param $keyname
      *
      * @return Result
@@ -277,8 +259,8 @@ final class Client
     {
         try {
             $file = $this->s3->getObject([
-                'Bucket' => $bucketName,
-                'Key'    => $keyname
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyname
             ]);
 
             $this->logInfo(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
@@ -299,7 +281,7 @@ final class Client
     {
         try {
             $results = $this->s3->getPaginator('ListObjects', [
-                'Bucket' => $bucketName
+                    'Bucket' => $bucketName
             ]);
 
             $filesArray = [];
@@ -330,8 +312,8 @@ final class Client
     {
         try {
             $cmd = $this->s3->getCommand('GetObject', [
-                'Bucket' => $bucketName,
-                'Key'    => $keyname
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyname
             ]);
 
             $link = $this->s3->createPresignedRequest($cmd, $expires)->getUri();
@@ -341,6 +323,27 @@ final class Client
         } catch (\InvalidArgumentException $e) {
             $this->logExceptionOrContinue($e);
         }
+    }
+
+    /**
+     * @param $bucketName
+     *
+     * @return bool
+     */
+    public function hasBucket($bucketName)
+    {
+        return $this->s3->doesBucketExist($bucketName);
+    }
+
+    /**
+     * @param $bucketName
+     * @param $keyname
+     *
+     * @return bool
+     */
+    public function hasFile($bucketName, $keyname)
+    {
+        return $this->s3->doesObjectExist($bucketName, $keyname);
     }
 
     /**

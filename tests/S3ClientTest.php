@@ -5,8 +5,6 @@ use Aws\Result;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use SimpleS3\Client;
-use SimpleS3\Exceptions\InvalidS3NameException;
-use SimpleS3\Validators\S3BucketNameValidator;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -96,6 +94,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($upload[ 'Bucket' ], $this->bucket);
         $this->assertEquals($upload[ 'Key' ], $this->keyname);
         $this->assertEquals($upload[ '@metadata' ][ 'statusCode' ], 200);
+
+        $this->assertTrue($this->s3Client->hasFile($this->bucket, $this->keyname));
     }
 
     /**
