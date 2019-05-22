@@ -35,6 +35,8 @@ For further details please refer to the official documentation:
 Here is the list of Client's public methods:
 
 *   `clearBucket` - clear a bucket from all files
+*   `copyFile` - copy a file from a bucket to another one
+*   `copyInBatch` - copy in batch files from a bucket to another one
 *   `createBucketIfItDoesNotExist` . create a bucket if it does not exists
 *   `deleteBucket` - delete a bucket
 *   `deleteFile` - delete a file
