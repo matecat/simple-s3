@@ -557,6 +557,44 @@ final class Client
     }
 
     /**
+     * @param      $bucketName
+     * @param      $keyname
+     * @param      $body
+     * @param null $lifeCycleDays
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function uploadItemFromBody($bucketName, $keyname, $body, $lifeCycleDays = null)
+    {
+        $this->createBucketIfItDoesNotExist($bucketName, $lifeCycleDays);
+
+        if (false === S3ObjectSafeNameValidator::isValid($keyname)) {
+            throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
+        }
+
+        try {
+            $result = $this->s3->putObject([
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyname,
+                    'Body'   => $body
+            ]);
+
+            if(($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200){
+                $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
+
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyname, $bucketName), 'warning');
+
+            return false;
+        } catch (\InvalidArgumentException $e) {
+            $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
      * @param $message
      */
     private function log($message, $level = 'info')

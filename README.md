@@ -48,7 +48,8 @@ Here is the list of Client's public methods:
 *   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
 *   `hasItem` - check if an item exists
-*   `uploadItem` - upload an item to a bucket
+*   `uploadItem` - upload an item to a bucket from a file
+*   `uploadItemFromBody` - upload an item to a bucket from the body content
 
 ## Naming validation for buckets and objects
 

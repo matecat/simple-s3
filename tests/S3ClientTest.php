@@ -102,6 +102,21 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
+    public function test_the_client_uploads_an_item_from_content()
+    {
+        $itemKey = 'item-from-body.txt';
+        $itemContent = 'This is a simple text';
+
+        $upload = $this->s3Client->uploadItemFromBody($this->bucket, $itemKey, $itemContent);
+
+        $this->assertTrue($upload);
+        $this->assertTrue($this->s3Client->hasItem($this->bucket, $itemKey));
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
     public function test_the_client_copy_items_in_batch()
     {
         $input = [
@@ -131,7 +146,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_gets_the_bucket_size()
     {
         $size = $this->s3Client->getBucketSize($this->bucket);
-        $this->assertEquals(228, $size);
+        $this->assertEquals(249, $size);
     }
 
     /**
@@ -167,7 +182,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $items = $this->s3Client->getItemsInABucket($this->bucket);
 
         $this->assertTrue(is_array($items));
-        $this->assertCount(3, $items);
+        $this->assertCount(4, $items);
 
         foreach ($items as $item) {
             $this->assertInstanceOf(ResultInterface::class, $item);
