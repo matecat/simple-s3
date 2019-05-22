@@ -64,12 +64,12 @@ final class Client
     /**
      * @param $bucketName
      *
-     * @return array
+     * @return bool
      * @throws \Exception
      */
     public function clearBucket($bucketName)
     {
-        $deleted = [];
+        $errors = [];
 
         if ($this->hasBucket($bucketName)) {
             $results = $this->s3->getPaginator('ListObjects', [
@@ -78,14 +78,20 @@ final class Client
 
             foreach ($results as $result) {
                 foreach ($result['Contents'] as $object) {
-                    $deleted[] = $this->deleteFile($bucketName, $object['Key']);
+                    if(false === $delete = $this->deleteFile($bucketName, $object['Key'])){
+                        $errors[] = $delete;
+                    }
                 }
             }
         }
 
-        $this->logInfo(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
+        if(count($errors) === 0){
+            $this->log(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
 
-        return $deleted;
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -136,7 +142,7 @@ final class Client
             }
 
             if(count($errors) === 0){
-                $this->logInfo(sprintf('Copy in batch from %s to %s was succeded without errors', $input['source_bucket'], $input['target_bucket']));
+                $this->log(sprintf('Copy in batch from %s to %s was succeded without errors', $input['source_bucket'], $input['target_bucket']));
 
                 return true;
             }
@@ -168,21 +174,27 @@ final class Client
      * @param $targetBucketName
      * @param $targetKeyname
      *
-     * @return ResultInterface
+     * @return bool
      * @throws \Exception
      */
     public function copyFile($sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname)
     {
         try {
-            $delete = $this->s3->copyObject([
+            $copied = $this->s3->copyObject([
                 'Bucket' => $targetBucketName,
                 'Key'    => $targetKeyname,
                 'CopySource'    => $sourceBucket.'/'.$sourceKeyname,
             ]);
 
-            $this->logInfo(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
+            if(($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200){
+                $this->log(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
 
-            return $delete;
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
+
+            return false;
         } catch (S3Exception $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -192,7 +204,7 @@ final class Client
      * @param      $bucketName
      * @param null $lifeCycleDays
      *
-     * @return ResultInterface
+     * @return bool
      * @throws \Exception
      */
     public function createBucketIfItDoesNotExist($bucketName, $lifeCycleDays = null)
@@ -211,9 +223,15 @@ final class Client
                     $this->setBucketLifecycle($bucketName, $lifeCycleDays);
                 }
 
-                $this->logInfo(sprintf('Bucket \'%s\' was successfully created', $bucketName));
+                if(($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200){
+                    $this->log(sprintf('Bucket \'%s\' was successfully created', $bucketName));
 
-                return $bucket;
+                    return true;
+                }
+
+                $this->log(sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName),'warning');
+
+                return false;
             } catch (S3Exception $e) {
                 $this->logExceptionOrContinue($e);
             }
@@ -267,7 +285,7 @@ final class Client
     /**
      * @param $bucketName
      *
-     * @return ResultInterface
+     * @return bool
      * @throws \Exception
      */
     public function deleteBucket($bucketName)
@@ -275,12 +293,18 @@ final class Client
         if ($this->hasBucket($bucketName)) {
             try {
                 $delete = $this->s3->deleteBucket([
-                        'Bucket' => $bucketName
+                    'Bucket' => $bucketName
                 ]);
 
-                $this->logInfo(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+                if(($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204){
+                    $this->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
-                return $delete;
+                    return true;
+                }
+
+                $this->log(sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
+
+                return false;
             } catch (S3Exception $e) {
                 $this->logExceptionOrContinue($e);
             }
@@ -291,7 +315,7 @@ final class Client
      * @param $bucketName
      * @param $keyname
      *
-     * @return ResultInterface
+     * @return bool
      * @throws \Exception
      */
     public function deleteFile($bucketName, $keyname)
@@ -302,9 +326,15 @@ final class Client
                     'Key'    => $keyname
             ]);
 
-            $this->logInfo(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyname, $bucketName));
+            if(($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204){
+                $this->log(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyname, $bucketName));
 
-            return $delete;
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyname, $bucketName), 'warning');
+
+            return false;
         } catch (S3Exception $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -323,7 +353,7 @@ final class Client
                     'Bucket' => $bucketName
             ]);
 
-            $this->logInfo(sprintf('LifeCycle of \'%s\' bucket was successfully obtained', $bucketName));
+            $this->log(sprintf('LifeCycle of \'%s\' bucket was successfully obtained', $bucketName));
 
             return $result['Rules'][0]['Expiration']['Date'];
         } catch (S3Exception $e) {
@@ -345,7 +375,7 @@ final class Client
             $size += $file['@metadata']['headers']['content-length'];
         }
 
-        $this->logInfo(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
+        $this->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
 
         return $size;
     }
@@ -365,7 +395,7 @@ final class Client
                     'Key'    => $keyname
             ]);
 
-            $this->logInfo(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
+            $this->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
 
             return $file;
         } catch (S3Exception $e) {
@@ -394,7 +424,7 @@ final class Client
                 }
             }
 
-            $this->logInfo(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+            $this->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
             return $filesArray;
         } catch (S3Exception $e) {
@@ -419,7 +449,7 @@ final class Client
             ]);
 
             $link = $this->s3->createPresignedRequest($cmd, $expires)->getUri();
-            $this->logInfo(sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
+            $this->log(sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
 
             return $link;
         } catch (\InvalidArgumentException $e) {
@@ -454,7 +484,7 @@ final class Client
      * @param      $source
      * @param null $lifeCycleDays
      *
-     * @return ResultInterface
+     * @return bool
      * @throws \Exception
      */
     public function uploadFile($bucketName, $keyname, $source, $lifeCycleDays = null)
@@ -476,9 +506,16 @@ final class Client
 
         try {
             $upload = $uploader->upload();
-            $this->logInfo(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
 
-            return $upload;
+            if(($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200){
+                $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
+
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyname, $bucketName), 'warning');
+
+            return false;
         } catch (MultipartUploadException $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -487,10 +524,10 @@ final class Client
     /**
      * @param $message
      */
-    private function logInfo($message)
+    private function log($message, $level = 'info')
     {
         if (null !== $this->logger) {
-            $this->logger->info($message);
+            $this->logger->{$level}($message);
         }
     }
 

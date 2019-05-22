@@ -2,6 +2,7 @@
 
 use Aws\Api\DateTimeResult;
 use Aws\Result;
+use Aws\ResultInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use SimpleS3\Client;
@@ -87,18 +88,13 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        /** @var Result $upload */
         $upload = $this->s3Client->uploadFile($this->bucket, $this->keyname, $source);
 
-        $this->assertInstanceOf(Result::class, $upload);
-        $this->assertEquals($upload['Bucket'], $this->bucket);
-        $this->assertEquals($upload['Key'], $this->keyname);
-        $this->assertEquals($upload['@metadata']['statusCode'], 200);
-
+        $this->assertTrue($upload);
         $this->assertTrue($this->s3Client->hasFile($this->bucket, $this->keyname));
 
         $copied = $this->s3Client->copyFile($this->bucket, $this->keyname, $this->bucket, $this->keyname.'(1)');
-        $this->assertEquals($copied['@metadata']['statusCode'], 200);
+        $this->assertTrue($copied);
     }
 
     /**
@@ -146,8 +142,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $file = $this->s3Client->getFile($this->bucket, $this->keyname);
 
         $this->assertInstanceOf(Result::class, $file);
-        $this->assertEquals($file[ 'ContentType' ], 'text/plain');
-        $this->assertEquals($file[ '@metadata' ][ 'statusCode' ], 200);
+        $this->assertEquals($file['ContentType'], 'text/plain');
+        $this->assertEquals($file['@metadata']['statusCode'], 200);
     }
 
     /**
@@ -173,7 +169,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertCount(2, $files);
 
         foreach ($files as $file) {
-            $this->assertInstanceOf(Result::class, $file);
+            $this->assertInstanceOf(ResultInterface::class, $file);
             $this->assertEquals($file[ 'ContentType' ], 'text/plain');
             $this->assertEquals($file[ '@metadata' ][ 'statusCode' ], 200);
         }
@@ -188,18 +184,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $files = $this->s3Client->clearBucket($this->bucket);
         $filesCopied = $this->s3Client->clearBucket($this->bucket.'-copied');
 
-        $this->assertCount(2, $files);
-        $this->assertCount(2, $filesCopied);
-
-        foreach ($files as $file) {
-            $this->assertEquals($file['DeleteMarker'], false);
-            $this->assertEquals($file['@metadata']['statusCode'], 204);
-        }
-
-        foreach ($filesCopied as $fileCopied) {
-            $this->assertEquals($fileCopied['DeleteMarker'], false);
-            $this->assertEquals($fileCopied['@metadata']['statusCode'], 204);
-        }
+        $this->assertTrue($files);
+        $this->assertTrue($filesCopied);
     }
 
     /**
@@ -211,9 +197,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $delete = $this->s3Client->deleteBucket($this->bucket);
         $deleteCopied = $this->s3Client->deleteBucket($this->bucket.'-copied');
 
-        $this->assertEquals($delete['DeleteMarker'], false);
-        $this->assertEquals($delete['@metadata']['statusCode'], 204);
-        $this->assertEquals($deleteCopied['DeleteMarker'], false);
-        $this->assertEquals($deleteCopied['@metadata']['statusCode'], 204);
+        $this->assertTrue($delete);
+        $this->assertTrue($deleteCopied);
     }
 }
