@@ -91,6 +91,8 @@ final class Client
             return true;
         }
 
+        $this->log(sprintf('Something went wrong while clearing bucket \'%s\'', $bucketName), 'warning');
+
         return false;
     }
 
@@ -142,10 +144,12 @@ final class Client
             }
 
             if(count($errors) === 0){
-                $this->log(sprintf('Copy in batch from %s to %s was succeded without errors', $input['source_bucket'], $input['target_bucket']));
+                $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $input['source_bucket'], $input['target_bucket']));
 
                 return true;
             }
+
+            $this->log(sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $input['source_bucket'], $input['target_bucket']), 'warning');
 
             return false;
         } catch (\Exception $e) {
