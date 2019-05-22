@@ -83,7 +83,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_uploads_a_file()
+    public function test_the_client_uploads_and_then_copy_a_file()
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
@@ -91,11 +91,40 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $upload = $this->s3Client->uploadFile($this->bucket, $this->keyname, $source);
 
         $this->assertInstanceOf(Result::class, $upload);
-        $this->assertEquals($upload[ 'Bucket' ], $this->bucket);
-        $this->assertEquals($upload[ 'Key' ], $this->keyname);
-        $this->assertEquals($upload[ '@metadata' ][ 'statusCode' ], 200);
+        $this->assertEquals($upload['Bucket'], $this->bucket);
+        $this->assertEquals($upload['Key'], $this->keyname);
+        $this->assertEquals($upload['@metadata']['statusCode'], 200);
 
         $this->assertTrue($this->s3Client->hasFile($this->bucket, $this->keyname));
+
+        $copied = $this->s3Client->copyFile($this->bucket, $this->keyname, $this->bucket, $this->keyname.'(1)');
+        $this->assertEquals($copied['@metadata']['statusCode'], 200);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_copy_files_in_batch()
+    {
+        $input = [
+            'source_bucket' => $this->bucket,
+            'target_bucket' => $this->bucket.'-copied',
+            'files' => [
+                'source' => [
+                    $this->keyname,
+                    $this->keyname.'(1)',
+                ],
+                'target' => [
+                    $this->keyname,
+                    $this->keyname.'(1)',
+                ],
+            ],
+        ];
+
+        $copied = $this->s3Client->copyInBatch($input);
+
+        $this->assertTrue($copied);
     }
 
     /**
@@ -105,7 +134,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_gets_the_bucket_size()
     {
         $size = $this->s3Client->getBucketSize($this->bucket);
-        $this->assertEquals(114, $size);
+        $this->assertEquals(228, $size);
     }
 
     /**
@@ -141,7 +170,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $files = $this->s3Client->getFilesInABucket($this->bucket);
 
         $this->assertTrue(is_array($files));
-        $this->assertCount(1, $files);
+        $this->assertCount(2, $files);
 
         foreach ($files as $file) {
             $this->assertInstanceOf(Result::class, $file);
@@ -157,12 +186,19 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_all_the_files()
     {
         $files = $this->s3Client->clearBucket($this->bucket);
+        $filesCopied = $this->s3Client->clearBucket($this->bucket.'-copied');
 
-        $this->assertCount(1, $files);
+        $this->assertCount(2, $files);
+        $this->assertCount(2, $filesCopied);
 
         foreach ($files as $file) {
-            $this->assertEquals($file[ 'DeleteMarker' ], false);
-            $this->assertEquals($file[ '@metadata' ][ 'statusCode' ], 204);
+            $this->assertEquals($file['DeleteMarker'], false);
+            $this->assertEquals($file['@metadata']['statusCode'], 204);
+        }
+
+        foreach ($filesCopied as $fileCopied) {
+            $this->assertEquals($fileCopied['DeleteMarker'], false);
+            $this->assertEquals($fileCopied['@metadata']['statusCode'], 204);
         }
     }
 
@@ -173,8 +209,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_the_bucket()
     {
         $delete = $this->s3Client->deleteBucket($this->bucket);
+        $deleteCopied = $this->s3Client->deleteBucket($this->bucket.'-copied');
 
-        $this->assertEquals($delete[ 'DeleteMarker' ], false);
-        $this->assertEquals($delete[ '@metadata' ][ 'statusCode' ], 204);
+        $this->assertEquals($delete['DeleteMarker'], false);
+        $this->assertEquals($delete['@metadata']['statusCode'], 204);
+        $this->assertEquals($deleteCopied['DeleteMarker'], false);
+        $this->assertEquals($deleteCopied['@metadata']['statusCode'], 204);
     }
 }

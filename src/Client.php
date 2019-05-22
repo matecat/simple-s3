@@ -2,8 +2,10 @@
 
 namespace SimpleS3;
 
+use Aws\CommandPool;
+use Aws\Exception\AwsException;
 use Aws\Exception\MultipartUploadException;
-use Aws\Result;
+use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\MultipartUploader;
 use Aws\S3\S3Client;
@@ -75,8 +77,8 @@ final class Client
             ]);
 
             foreach ($results as $result) {
-                foreach ($result[ 'Contents' ] as $object) {
-                    $deleted[] = $this->deleteFile($bucketName, $object[ 'Key' ]);
+                foreach ($result['Contents'] as $object) {
+                    $deleted[] = $this->deleteFile($bucketName, $object['Key']);
                 }
             }
         }
@@ -87,10 +89,110 @@ final class Client
     }
 
     /**
+     * @param array $input
+     *
+     * Example:
+     * $input = [
+     *      'source_bucket' => 'ORIGINAL-BUCKET',
+     *      'target_bucket' => 'TARGET-BUCKET',
+     *      'files' => [
+     *          'source' => [
+     *              'keyname-1',
+     *              'keyname-2',
+     *          ],
+     *          'target' => [
+     *              'keyname-3',
+     *              'keyname-4',
+     *          ],
+     *      ],
+     * ];
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function copyInBatch(array $input)
+    {
+        $this->validateInputArray($input);
+        $this->createBucketIfItDoesNotExist($input['target_bucket']);
+
+        $batch = [];
+        $errors = [];
+
+        foreach ($input['files']['source'] as $key => $file){
+            $batch[] = $this->s3->getCommand('CopyObject', [
+                'Bucket'     => $input['target_bucket'],
+                'Key'        => (isset($input['files']['target'][$key])) ? $input['files']['target'][$key] : $file,
+                'CopySource' => $input['source_bucket'].'/'.$file,
+            ]);
+        }
+
+        try {
+            $results = CommandPool::batch($this->s3, $batch);
+            foreach($results as $result) {
+                if ($result instanceof AwsException) {
+                    $errors[] = $result;
+                    $this->logExceptionOrContinue($result);
+                }
+            }
+
+            if(count($errors) === 0){
+                $this->logInfo(sprintf('Copy in batch from %s to %s was succeded without errors', $input['source_bucket'], $input['target_bucket']));
+
+                return true;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
+     * @param $input
+     */
+    private function validateInputArray($input)
+    {
+        if (
+            !isset($input['source_bucket']) or
+            !isset($input['target_bucket']) or
+            !isset($input['files']['source']
+        )
+        ) {
+            throw new \InvalidArgumentException( 'malformed input array' );
+        }
+    }
+
+    /**
+     * @param $sourceBucket
+     * @param $sourceKeyname
+     * @param $targetBucketName
+     * @param $targetKeyname
+     *
+     * @return ResultInterface
+     * @throws \Exception
+     */
+    public function copyFile($sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname)
+    {
+        try {
+            $delete = $this->s3->copyObject([
+                'Bucket' => $targetBucketName,
+                'Key'    => $targetKeyname,
+                'CopySource'    => $sourceBucket.'/'.$sourceKeyname,
+            ]);
+
+            $this->logInfo(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
+
+            return $delete;
+        } catch (S3Exception $e) {
+            $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
      * @param      $bucketName
      * @param null $lifeCycleDays
      *
-     * @return Result
+     * @return ResultInterface
      * @throws \Exception
      */
     public function createBucketIfItDoesNotExist($bucketName, $lifeCycleDays = null)
@@ -128,19 +230,19 @@ final class Client
     {
         try {
             $this->s3->putBucketLifecycle([
-                    'Bucket' => $bucketName,
-                    'LifecycleConfiguration' => [
-                            'Rules' => [
-                                    [
-                                            'Expiration' => [
-                                                    'Date' => $this->getBucketExpiringDate($lifeCycleDays),
-                                            ],
-                                            'ID' => 'unique_id',
-                                            'Status' => 'Enabled',
-                                            'Prefix' => ''
-                                    ],
+                'Bucket' => $bucketName,
+                'LifecycleConfiguration' => [
+                    'Rules' => [
+                        [
+                            'Expiration' => [
+                                    'Date' => $this->getBucketExpiringDate($lifeCycleDays),
                             ],
+                            'ID' => 'unique_id',
+                            'Status' => 'Enabled',
+                            'Prefix' => ''
+                        ],
                     ],
+                ],
             ]);
         } catch (\InvalidArgumentException $exception) {
             $this->logExceptionOrContinue($exception);
@@ -165,7 +267,7 @@ final class Client
     /**
      * @param $bucketName
      *
-     * @return Result
+     * @return ResultInterface
      * @throws \Exception
      */
     public function deleteBucket($bucketName)
@@ -189,7 +291,7 @@ final class Client
      * @param $bucketName
      * @param $keyname
      *
-     * @return Result
+     * @return ResultInterface
      * @throws \Exception
      */
     public function deleteFile($bucketName, $keyname)
@@ -211,7 +313,7 @@ final class Client
     /**
      * @param $bucketName
      *
-     * @return Result
+     * @return ResultInterface
      * @throws \Exception
      */
     public function getBucketLifeCycle($bucketName)
@@ -252,7 +354,7 @@ final class Client
      * @param $bucketName
      * @param $keyname
      *
-     * @return Result
+     * @return ResultInterface
      * @throws \Exception
      */
     public function getFile($bucketName, $keyname)
@@ -352,7 +454,7 @@ final class Client
      * @param      $source
      * @param null $lifeCycleDays
      *
-     * @return Result
+     * @return ResultInterface
      * @throws \Exception
      */
     public function uploadFile($bucketName, $keyname, $source, $lifeCycleDays = null)
