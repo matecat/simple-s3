@@ -35,19 +35,20 @@ For further details please refer to the official documentation:
 Here is the list of Client's public methods:
 
 *   `clearBucket` - clear a bucket from all files
-*   `copyFile` - copy a file from a bucket to another one
-*   `copyInBatch` - copy in batch files from a bucket to another one
+*   `copyItem` - copy an item from a bucket to another one
+*   `copyInBatch` - copy in batch items from a bucket to another one
 *   `createBucketIfItDoesNotExist` . create a bucket if it does not exists
+*   `createFolder` . create an empty folder in a bucket if it does not exists
 *   `deleteBucket` - delete a bucket
-*   `deleteFile` - delete a file
+*   `deleteItem` - delete an item
 *   `getBucketLifeCycle` get the expiring date of a bucket
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
-*   `getFile` - get all informations for a file
-*   `getFilesInABucket` get an array of files in a bucket
-*   `getPublicFileLink` - get the public link to download the file
+*   `getItem` - get all informations for an item
+*   `getItemsInABucket` get an array of items in a bucket
+*   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
-*   `hasFile` - check if a file exists
-*   `uploadFile` - upload an object to a bucket
+*   `hasItem` - check if an item exists
+*   `uploadItem` - upload an item to a bucket
 
 ## Naming validation for buckets and objects
 

@@ -67,33 +67,34 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->s3Client->createBucketIfItDoesNotExist($this->bucket, 5);
 
         $this->assertInstanceOf(DateTimeResult::class, $this->s3Client->getBucketLifeCycle($this->bucket));
+        $this->assertTrue($this->s3Client->createFolder($this->bucket, 'folder'));
     }
 
     /**
      * @test
      * @expectedException \SimpleS3\Exceptions\InvalidS3NameException
      */
-    public function test_the_client_uploads_a_file_with_an_invalid_name()
+    public function test_the_client_uploads_a_item_with_an_invalid_name()
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $this->s3Client->uploadFile($this->bucket, '{invalid name}', $source);
+        $this->s3Client->uploadItem($this->bucket, '{invalid name}', $source);
     }
 
     /**
      * @test
      * @throws Exception
      */
-    public function test_the_client_uploads_and_then_copy_a_file()
+    public function test_the_client_uploads_and_then_copy_a_item()
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $upload = $this->s3Client->uploadFile($this->bucket, $this->keyname, $source);
+        $upload = $this->s3Client->uploadItem($this->bucket, $this->keyname, $source);
 
         $this->assertTrue($upload);
-        $this->assertTrue($this->s3Client->hasFile($this->bucket, $this->keyname));
+        $this->assertTrue($this->s3Client->hasItem($this->bucket, $this->keyname));
 
-        $copied = $this->s3Client->copyFile($this->bucket, $this->keyname, $this->bucket, $this->keyname.'(1)');
+        $copied = $this->s3Client->copyItem($this->bucket, $this->keyname, $this->bucket, $this->keyname.'(1)');
         $this->assertTrue($copied);
     }
 
@@ -101,7 +102,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_copy_files_in_batch()
+    public function test_the_client_copy_items_in_batch()
     {
         $input = [
             'source_bucket' => $this->bucket,
@@ -137,22 +138,22 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_a_file()
+    public function test_the_client_gets_a_item()
     {
-        $file = $this->s3Client->getFile($this->bucket, $this->keyname);
+        $item = $this->s3Client->getItem($this->bucket, $this->keyname);
 
-        $this->assertInstanceOf(Result::class, $file);
-        $this->assertEquals($file['ContentType'], 'text/plain');
-        $this->assertEquals($file['@metadata']['statusCode'], 200);
+        $this->assertInstanceOf(Result::class, $item);
+        $this->assertEquals($item['ContentType'], 'text/plain');
+        $this->assertEquals($item['@metadata']['statusCode'], 200);
     }
 
     /**
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_the_download_link_for_a_file()
+    public function test_the_client_gets_the_download_link_for_a_item()
     {
-        $link = $this->s3Client->getPublicFileLink($this->bucket, $this->keyname);
+        $link = $this->s3Client->getPublicItemLink($this->bucket, $this->keyname);
 
         $this->assertContains('This is nothing but a simple text for test the php Client for S3.', file_get_contents($link));
     }
@@ -161,17 +162,16 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_files_in_a_bucket()
+    public function test_the_client_gets_items_in_a_bucket()
     {
-        $files = $this->s3Client->getFilesInABucket($this->bucket);
+        $items = $this->s3Client->getItemsInABucket($this->bucket);
 
-        $this->assertTrue(is_array($files));
-        $this->assertCount(2, $files);
+        $this->assertTrue(is_array($items));
+        $this->assertCount(3, $items);
 
-        foreach ($files as $file) {
-            $this->assertInstanceOf(ResultInterface::class, $file);
-            $this->assertEquals($file[ 'ContentType' ], 'text/plain');
-            $this->assertEquals($file[ '@metadata' ][ 'statusCode' ], 200);
+        foreach ($items as $item) {
+            $this->assertInstanceOf(ResultInterface::class, $item);
+            $this->assertEquals($item['@metadata']['statusCode'], 200);
         }
     }
 
@@ -179,13 +179,13 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_deletes_all_the_files()
+    public function test_the_client_deletes_all_the_items()
     {
-        $files = $this->s3Client->clearBucket($this->bucket);
-        $filesCopied = $this->s3Client->clearBucket($this->bucket.'-copied');
+        $items = $this->s3Client->clearBucket($this->bucket);
+        $itemsCopied = $this->s3Client->clearBucket($this->bucket.'-copied');
 
-        $this->assertTrue($files);
-        $this->assertTrue($filesCopied);
+        $this->assertTrue($items);
+        $this->assertTrue($itemsCopied);
     }
 
     /**

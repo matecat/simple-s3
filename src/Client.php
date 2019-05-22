@@ -120,7 +120,7 @@ final class Client
      */
     public function copyInBatch(array $input)
     {
-        $this->validateInputArray($input);
+        $this->validateCopyInBatchInputArray($input);
         $this->createBucketIfItDoesNotExist($input['target_bucket']);
 
         $batch = [];
@@ -160,7 +160,7 @@ final class Client
     /**
      * @param $input
      */
-    private function validateInputArray($input)
+    private function validateCopyInBatchInputArray( $input)
     {
         if (
             !isset($input['source_bucket']) or
@@ -181,7 +181,7 @@ final class Client
      * @return bool
      * @throws \Exception
      */
-    public function copyFile($sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname)
+    public function copyItem( $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname)
     {
         try {
             $copied = $this->s3->copyObject([
@@ -239,6 +239,37 @@ final class Client
             } catch (S3Exception $e) {
                 $this->logExceptionOrContinue($e);
             }
+        }
+    }
+
+    /**
+     * @param $bucketName
+     * @param $keyname
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function createFolder($bucketName, $keyname)
+    {
+        try {
+            $folder = $this->s3->putObject([
+                'Bucket' => $bucketName,
+                'Key'    => $keyname.'/',
+                'Body'   => '',
+                'ACL'    => 'public-read'
+            ]);
+
+            if(($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200){
+                $this->log(sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyname, $bucketName));
+
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyname, $bucketName),'warning');
+
+            return false;
+        } catch (S3Exception $e){
+            $this->logExceptionOrContinue($e);
         }
     }
 
@@ -375,7 +406,7 @@ final class Client
     {
         $size = 0;
 
-        foreach ($this->getFilesInABucket($bucketName) as $file) {
+        foreach ( $this->getItemsInABucket($bucketName) as $file) {
             $size += $file['@metadata']['headers']['content-length'];
         }
 
@@ -391,7 +422,7 @@ final class Client
      * @return ResultInterface
      * @throws \Exception
      */
-    public function getFile($bucketName, $keyname)
+    public function getItem( $bucketName, $keyname)
     {
         try {
             $file = $this->s3->getObject([
@@ -413,7 +444,7 @@ final class Client
      * @return array
      * @throws \Exception
      */
-    public function getFilesInABucket($bucketName)
+    public function getItemsInABucket( $bucketName)
     {
         try {
             $results = $this->s3->getPaginator('ListObjects', [
@@ -424,7 +455,7 @@ final class Client
 
             foreach ($results as $result) {
                 foreach ($result[ 'Contents' ] as $object) {
-                    $filesArray[$object[ 'Key' ]] = $this->getFile($bucketName, $object[ 'Key' ]);
+                    $filesArray[$object[ 'Key' ]] = $this->getItem($bucketName, $object[ 'Key' ]);
                 }
             }
 
@@ -444,7 +475,7 @@ final class Client
      * @return \Psr\Http\Message\UriInterface
      * @throws \Exception
      */
-    public function getPublicFileLink($bucketName, $keyname, $expires = '+1 hour')
+    public function getPublicItemLink( $bucketName, $keyname, $expires = '+1 hour')
     {
         try {
             $cmd = $this->s3->getCommand('GetObject', [
@@ -477,7 +508,7 @@ final class Client
      *
      * @return bool
      */
-    public function hasFile($bucketName, $keyname)
+    public function hasItem( $bucketName, $keyname)
     {
         return $this->s3->doesObjectExist($bucketName, $keyname);
     }
@@ -491,7 +522,7 @@ final class Client
      * @return bool
      * @throws \Exception
      */
-    public function uploadFile($bucketName, $keyname, $source, $lifeCycleDays = null)
+    public function uploadItem( $bucketName, $keyname, $source, $lifeCycleDays = null)
     {
         $this->createBucketIfItDoesNotExist($bucketName, $lifeCycleDays);
 
