@@ -493,7 +493,7 @@ final class Client
             'Standard',
         ];
 
-        if($tier and !in_array($tier, $allowedTiers)){
+        if ($tier and !in_array($tier, $allowedTiers)) {
             throw new \InvalidArgumentException(sprintf('%s is not a valid tier value. Allowed values are: ['.implode(',', $allowedTiers).']', $tier));
         }
 
@@ -538,7 +538,7 @@ final class Client
      */
     public function setBucketLifecycleConfiguration($bucketName, $lifeCycleDays = -1, $objectLifeCycleDays = -1, $storageClass = null)
     {
-        if($objectLifeCycleDays > $lifeCycleDays){
+        if ($objectLifeCycleDays > $lifeCycleDays) {
             throw new \InvalidArgumentException('Object lifecycle CANNOT be greater than bucket lifecycle');
         }
 
@@ -550,7 +550,7 @@ final class Client
             'DEEP_ARCHIVE',
         ];
 
-        if($storageClass and !in_array($storageClass, $allowedStorageClasses)){
+        if ($storageClass and !in_array($storageClass, $allowedStorageClasses)) {
             throw new \InvalidArgumentException('Invalid storage class name. Allowed values: ['.implode(',', $allowedStorageClasses).']');
         }
 
@@ -568,13 +568,13 @@ final class Client
                 ],
             ];
 
-            if($lifeCycleDays > 0) {
+            if ($lifeCycleDays > 0) {
                 $settings['LifecycleConfiguration']['Rules'][0]['Expiration'] = [
                     'Days' => $lifeCycleDays,
                 ];
             }
 
-            if($objectLifeCycleDays > 0){
+            if ($objectLifeCycleDays > 0) {
                 $settings['LifecycleConfiguration']['Rules'][0]['Transitions'][] = [
                     'Days' => $objectLifeCycleDays,
                     'StorageClass' => ($storageClass) ? $storageClass : 'GLACIER'
@@ -612,12 +612,12 @@ final class Client
             [
                 'bucket' => $bucketName,
                 'key'    => $keyname,
-                'before_initiate' => function(CommandInterface $command) use ($source, $storageClass) {
-                    if(extension_loaded('fileinfo')){
+                'before_initiate' => function (CommandInterface $command) use ($source, $storageClass) {
+                    if (extension_loaded('fileinfo')) {
                         $command['ContentType'] = mime_content_type($source);
                     }
 
-                    if($storageClass){
+                    if ($storageClass) {
                         $command['StorageClass'] = $storageClass;
                     }
                 }
@@ -667,7 +667,7 @@ final class Client
                 'Body'   => $body
             ];
 
-            if($storageClass){
+            if ($storageClass) {
                 $config['StorageClass'] = $storageClass;
             }
 
@@ -704,7 +704,7 @@ final class Client
                 'DEEP_ARCHIVE',
         ];
 
-        if($storageClass and !in_array($storageClass, $allowedStorageClasses)){
+        if ($storageClass and !in_array($storageClass, $allowedStorageClasses)) {
             throw new \InvalidArgumentException('is not a valid StorageClass. Allowed classes are: ['.implode(',', $allowedStorageClasses).']');
         }
     }
