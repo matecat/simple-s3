@@ -132,7 +132,7 @@ final class Client
             $batch[] = $this->s3->getCommand('CopyObject', [
                 'Bucket'     => $input['target_bucket'],
                 'Key'        => (isset($input['files']['target'][$key])) ? $input['files']['target'][$key] : $file,
-                'CopySource' => $input['source_bucket'].'/'.$file,
+                'CopySource' => $input['source_bucket'] . DIRECTORY_SEPARATOR . $file,
             ]);
         }
 
@@ -189,7 +189,7 @@ final class Client
             $copied = $this->s3->copyObject([
                 'Bucket' => $targetBucketName,
                 'Key'    => $targetKeyname,
-                'CopySource'    => $sourceBucket.'/'.$sourceKeyname,
+                'CopySource'    => $sourceBucket. DIRECTORY_SEPARATOR .$sourceKeyname,
             ]);
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
@@ -256,7 +256,7 @@ final class Client
         try {
             $folder = $this->s3->putObject([
                 'Bucket' => $bucketName,
-                'Key'    => $keyname.'/',
+                'Key'    => $keyname . DIRECTORY_SEPARATOR,
                 'Body'   => '',
                 'ACL'    => 'public-read'
             ]);
@@ -411,7 +411,7 @@ final class Client
             ];
 
             if($prefix){
-                $config['Delimiter'] = '/';
+                $config['Delimiter'] = DIRECTORY_SEPARATOR;
                 $config['Prefix'] = $prefix;
             }
 
