@@ -5,10 +5,15 @@ namespace SimpleS3;
 use Aws\CommandPool;
 use Aws\Exception\AwsException;
 use Aws\Exception\MultipartUploadException;
+use Aws\Glacier\Exception\GlacierException;
+use Aws\Glacier\GlacierClient;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\MultipartUploader;
 use Aws\S3\S3Client;
+use Exception;
+use GuzzleHttp\Psr7\CachingStream;
+use GuzzleHttp\Psr7\Stream;
 use Psr\Log\LoggerInterface;
 use SimpleS3\Exceptions\InvalidS3NameException;
 use SimpleS3\Validators\S3BucketNameValidator;
@@ -78,14 +83,14 @@ final class Client
 
             foreach ($results as $result) {
                 foreach ($result['Contents'] as $object) {
-                    if(false === $delete = $this->deleteFile($bucketName, $object['Key'])){
+                    if (false === $delete = $this->deleteFile($bucketName, $object['Key'])) {
                         $errors[] = $delete;
                     }
                 }
             }
         }
 
-        if(count($errors) === 0){
+        if (count($errors) === 0) {
             $this->log(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
 
             return true;
@@ -126,7 +131,7 @@ final class Client
         $batch = [];
         $errors = [];
 
-        foreach ($input['files']['source'] as $key => $file){
+        foreach ($input['files']['source'] as $key => $file) {
             $batch[] = $this->s3->getCommand('CopyObject', [
                 'Bucket'     => $input['target_bucket'],
                 'Key'        => (isset($input['files']['target'][$key])) ? $input['files']['target'][$key] : $file,
@@ -136,14 +141,14 @@ final class Client
 
         try {
             $results = CommandPool::batch($this->s3, $batch);
-            foreach($results as $result) {
+            foreach ($results as $result) {
                 if ($result instanceof AwsException) {
                     $errors[] = $result;
                     $this->logExceptionOrContinue($result);
                 }
             }
 
-            if(count($errors) === 0){
+            if (count($errors) === 0) {
                 $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $input['source_bucket'], $input['target_bucket']));
 
                 return true;
@@ -160,7 +165,7 @@ final class Client
     /**
      * @param $input
      */
-    private function validateCopyInBatchInputArray( $input)
+    private function validateCopyInBatchInputArray($input)
     {
         if (
             !isset($input['source_bucket']) or
@@ -168,7 +173,7 @@ final class Client
             !isset($input['files']['source']
         )
         ) {
-            throw new \InvalidArgumentException( 'malformed input array' );
+            throw new \InvalidArgumentException('malformed input array');
         }
     }
 
@@ -181,7 +186,7 @@ final class Client
      * @return bool
      * @throws \Exception
      */
-    public function copyItem( $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname)
+    public function copyItem($sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname)
     {
         try {
             $copied = $this->s3->copyObject([
@@ -190,7 +195,7 @@ final class Client
                 'CopySource'    => $sourceBucket.'/'.$sourceKeyname,
             ]);
 
-            if(($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200){
+            if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
 
                 return true;
@@ -206,12 +211,14 @@ final class Client
 
     /**
      * @param      $bucketName
-     * @param null $lifeCycleDays
+     * @param int  $lifeCycleDays
+     * @param int  $objectLifeCycleDays
+     * @param null $storageClass
      *
      * @return bool
      * @throws \Exception
      */
-    public function createBucketIfItDoesNotExist($bucketName, $lifeCycleDays = null)
+    public function createBucketIfItDoesNotExist($bucketName, $lifeCycleDays = -1, $objectLifeCycleDays = -1, $storageClass = null)
     {
         if (false === S3BucketNameValidator::isValid($bucketName)) {
             throw new InvalidS3NameException(sprintf('%s is not a valid bucket name. ['.implode(', ', S3BucketNameValidator::validate($bucketName)).']', $bucketName));
@@ -223,17 +230,15 @@ final class Client
                     'Bucket' => $bucketName
                 ]);
 
-                if (null !== $lifeCycleDays) {
-                    $this->setBucketLifecycle($bucketName, $lifeCycleDays);
-                }
+                $this->setBucketLifecycleConfiguration($bucketName, $lifeCycleDays, $objectLifeCycleDays, $storageClass);
 
-                if(($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200){
+                if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
                     $this->log(sprintf('Bucket \'%s\' was successfully created', $bucketName));
 
                     return true;
                 }
 
-                $this->log(sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName),'warning');
+                $this->log(sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName), 'warning');
 
                 return false;
             } catch (S3Exception $e) {
@@ -259,62 +264,18 @@ final class Client
                 'ACL'    => 'public-read'
             ]);
 
-            if(($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200){
+            if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyname, $bucketName));
 
                 return true;
             }
 
-            $this->log(sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyname, $bucketName),'warning');
+            $this->log(sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyname, $bucketName), 'warning');
 
             return false;
-        } catch (S3Exception $e){
+        } catch (S3Exception $e) {
             $this->logExceptionOrContinue($e);
         }
-    }
-
-    /**
-     * @param $bucketName
-     * @param $ttl
-     *
-     * @throws \Exception
-     */
-    private function setBucketLifecycle($bucketName, $lifeCycleDays)
-    {
-        try {
-            $this->s3->putBucketLifecycle([
-                'Bucket' => $bucketName,
-                'LifecycleConfiguration' => [
-                    'Rules' => [
-                        [
-                            'Expiration' => [
-                                    'Date' => $this->getBucketExpiringDate($lifeCycleDays),
-                            ],
-                            'ID' => 'unique_id',
-                            'Status' => 'Enabled',
-                            'Prefix' => ''
-                        ],
-                    ],
-                ],
-            ]);
-        } catch (\InvalidArgumentException $exception) {
-            $this->logExceptionOrContinue($exception);
-        }
-    }
-
-    /**
-     * @param $ttl
-     *
-     * @return string (it MUST be at midnight GMT like '2019-12-31 T00:00:00.000Z')
-     * @throws \Exception
-     */
-    private function getBucketExpiringDate( $lifeCycleDays)
-    {
-        $expiringDate = new \DateTime();
-        $expiringDate->modify('+'.(int)$lifeCycleDays.'days');
-        $expiringDate->setTimezone(new \DateTimeZone('GMT'));
-
-        return $expiringDate->format('Y-m-d \T00:00:00.000\Z');
     }
 
     /**
@@ -331,7 +292,7 @@ final class Client
                     'Bucket' => $bucketName
                 ]);
 
-                if(($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204){
+                if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
                     $this->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
                     return true;
@@ -361,7 +322,7 @@ final class Client
                     'Key'    => $keyname
             ]);
 
-            if(($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204){
+            if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
                 $this->log(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyname, $bucketName));
 
                 return true;
@@ -381,16 +342,16 @@ final class Client
      * @return ResultInterface
      * @throws \Exception
      */
-    public function getBucketLifeCycle($bucketName)
+    public function getBucketLifeCycleConfiguration($bucketName)
     {
         try {
             $result = $this->s3->getBucketLifecycle([
-                    'Bucket' => $bucketName
+                'Bucket' => $bucketName
             ]);
 
-            $this->log(sprintf('LifeCycle of \'%s\' bucket was successfully obtained', $bucketName));
+            $this->log(sprintf('LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName));
 
-            return $result['Rules'][0]['Expiration']['Date'];
+            return $result;
         } catch (S3Exception $e) {
             $this->logExceptionOrContinue($e);
         }
@@ -406,7 +367,7 @@ final class Client
     {
         $size = 0;
 
-        foreach ( $this->getItemsInABucket($bucketName) as $file) {
+        foreach ($this->getItemsInABucket($bucketName) as $file) {
             $size += $file['@metadata']['headers']['content-length'];
         }
 
@@ -422,12 +383,12 @@ final class Client
      * @return ResultInterface
      * @throws \Exception
      */
-    public function getItem( $bucketName, $keyname)
+    public function getItem($bucketName, $keyname)
     {
         try {
             $file = $this->s3->getObject([
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyname
+                'Bucket' => $bucketName,
+                'Key'    => $keyname
             ]);
 
             $this->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
@@ -444,11 +405,11 @@ final class Client
      * @return array
      * @throws \Exception
      */
-    public function getItemsInABucket( $bucketName)
+    public function getItemsInABucket($bucketName)
     {
         try {
             $results = $this->s3->getPaginator('ListObjects', [
-                    'Bucket' => $bucketName
+                'Bucket' => $bucketName
             ]);
 
             $filesArray = [];
@@ -475,12 +436,12 @@ final class Client
      * @return \Psr\Http\Message\UriInterface
      * @throws \Exception
      */
-    public function getPublicItemLink( $bucketName, $keyname, $expires = '+1 hour')
+    public function getPublicItemLink($bucketName, $keyname, $expires = '+1 hour')
     {
         try {
             $cmd = $this->s3->getCommand('GetObject', [
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyname
+                'Bucket' => $bucketName,
+                'Key'    => $keyname
             ]);
 
             $link = $this->s3->createPresignedRequest($cmd, $expires)->getUri();
@@ -508,9 +469,73 @@ final class Client
      *
      * @return bool
      */
-    public function hasItem( $bucketName, $keyname)
+    public function hasItem($bucketName, $keyname)
     {
         return $this->s3->doesObjectExist($bucketName, $keyname);
+    }
+
+    /**
+     * Set basic bucket lifecycle configuration
+     *
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html
+     *
+     * @param      $bucketName
+     * @param int  $lifeCycleDays
+     * @param int  $objectLifeCycleDays
+     * @param null $storageClass
+     *
+     * @throws Exception
+     */
+    public function setBucketLifecycleConfiguration($bucketName, $lifeCycleDays = -1, $objectLifeCycleDays = -1, $storageClass = null)
+    {
+        if($objectLifeCycleDays > $lifeCycleDays){
+            throw new \InvalidArgumentException('Object lifecycle CANNOT be greater than bucket lifecycle');
+        }
+
+        $allowedStorageClasses = [
+                'GLACIER',
+                'STANDARD_IA',
+                'ONEZONE_IA',
+                'INTELLIGENT_TIERING',
+                'DEEP_ARCHIVE',
+        ];
+
+        if($storageClass and !in_array($storageClass, $allowedStorageClasses)){
+            throw new \InvalidArgumentException('Invalid storage class name. Possible values: ['.implode(',', $allowedStorageClasses).']');
+        }
+
+        try {
+            $settings = [
+                    'Bucket' => $bucketName,
+                    'LifecycleConfiguration' => [
+                            'Rules' => [
+                                    [
+                                            'ID' => 'Lifecycle rules for bucket '.$bucketName,
+                                            'Status' => 'Enabled',
+                                            'Prefix' => '',
+                                    ],
+                            ],
+                    ],
+            ];
+
+            if($lifeCycleDays > 0) {
+                $settings['LifecycleConfiguration']['Rules'][0]['Expiration'] = [
+                        'Days' => $lifeCycleDays,
+                ];
+            }
+
+            if($objectLifeCycleDays > 0){
+                $settings['LifecycleConfiguration']['Rules'][0]['Transitions'][] = [
+                        'Days' => $objectLifeCycleDays,
+                        'StorageClass' => ($storageClass) ? $storageClass : 'GLACIER'
+                ];
+            }
+
+            $this->s3->putBucketLifecycleConfiguration($settings);
+        } catch (\InvalidArgumentException $exception) {
+            $this->logExceptionOrContinue($exception);
+        }
     }
 
     /**
@@ -522,9 +547,9 @@ final class Client
      * @return bool
      * @throws \Exception
      */
-    public function uploadItem( $bucketName, $keyname, $source, $lifeCycleDays = null)
+    public function uploadItem($bucketName, $keyname, $source)
     {
-        $this->createBucketIfItDoesNotExist($bucketName, $lifeCycleDays);
+        $this->createBucketIfItDoesNotExist($bucketName);
 
         if (false === S3ObjectSafeNameValidator::isValid($keyname)) {
             throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
@@ -542,7 +567,7 @@ final class Client
         try {
             $upload = $uploader->upload();
 
-            if(($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200){
+            if (($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
 
                 return true;
@@ -580,7 +605,7 @@ final class Client
                     'Body'   => $body
             ]);
 
-            if(($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200){
+            if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
 
                 return true;
@@ -617,6 +642,37 @@ final class Client
             $this->logger->error($exception->getMessage());
         } else {
             throw $exception; // continue with the default behaviour
+        }
+    }
+
+    /**
+     * @param        $bucketName
+     * @param        $keyname
+     * @param string $tier [Standard|Bulk|Expedited]
+     * @param null   $days
+     *
+     * @return \Aws\Result
+     * @throws \Exception
+     */
+    public function restoreItem($bucketName, $keyname, $tier = 'Expedited', $days = null)
+    {
+        try {
+            $restored = $this->s3->restoreObject([
+                'Bucket'         => $bucketName,
+                'Key'            => $keyname,
+                'RestoreRequest' => [
+                    'Days'       => $days,
+                    'GlacierJobParameters' => [
+                        'Tier'  => $tier,
+                    ],
+                ],
+            ]);
+
+            $this->log(sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
+
+            return $restored;
+        } catch (\InvalidArgumentException $e) {
+            $this->logExceptionOrContinue($e);
         }
     }
 }

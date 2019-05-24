@@ -41,13 +41,14 @@ Here is the list of Client's public methods:
 *   `createFolder` . create an empty folder in a bucket if it does not exists
 *   `deleteBucket` - delete a bucket
 *   `deleteItem` - delete an item
-*   `getBucketLifeCycle` get the expiring date of a bucket
+*   `getBucketLifeCycle` get the bucket lifecycle configuration
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getItem` - get all informations for an item
 *   `getItemsInABucket` get an array of items in a bucket
 *   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
 *   `hasItem` - check if an item exists
+*   `setBucketLifecycleConfiguration` - set basic bucket lifecycle configuration
 *   `uploadItem` - upload an item to a bucket from a file
 *   `uploadItemFromBody` - upload an item to a bucket from the body content
 
@@ -66,6 +67,16 @@ The Client comes with two validators:
 These two classes throws you an ```InvalidS3BucketNameException``` if the name is not compliant with the AWS rule conventions. 
 
 Validators are invoked in Client's ```createBucketIfItDoesNotExist``` and ```uploadFile``` methods.
+
+## Bucket lifecycle
+
+You can set the basic lifecycle for your bucket with ```setBucketLifecycleConfiguration``` method. 
+
+This method is automatically invoked when you try to create a new bucket with ```createBucketIfItDoesNotExist``` method.
+
+For further details please refer to the official documentation:
+
+[Bucket lifecycle configuration complete reference](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html)
 
 ## Logging
 

@@ -2,6 +2,7 @@
 
 namespace SimpleS3;
 
+use Aws\AwsClient;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 
@@ -45,7 +46,7 @@ use Aws\S3\S3Client;
 final class ClientFactory
 {
     /**
-     * @return S3Client
+     * @return AwsClient
      */
     public static function create(
         $accessKeyId,
