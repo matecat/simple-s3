@@ -397,24 +397,30 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param      $bucketName
+     * @param null $prefix
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getItemsInABucket($bucketName)
+    public function getItemsInABucket($bucketName, $prefix = null)
     {
         try {
-            $results = $this->s3->getPaginator('ListObjects', [
-                'Bucket' => $bucketName
-            ]);
+            $config = [
+                'Bucket' => $bucketName,
+            ];
+
+            if($prefix){
+                $config['Delimiter'] = '/';
+                $config['Prefix'] = $prefix;
+            }
+
+            $results = $this->s3->getIterator('ListObjects', $config);
 
             $filesArray = [];
 
             foreach ($results as $result) {
-                foreach ($result[ 'Contents' ] as $object) {
-                    $filesArray[$object[ 'Key' ]] = $this->getItem($bucketName, $object[ 'Key' ]);
-                }
+                $filesArray[$result[ 'Key' ]] = $this->getItem($bucketName, $result[ 'Key' ]);
             }
 
             $this->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
