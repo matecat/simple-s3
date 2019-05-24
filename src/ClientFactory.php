@@ -7,7 +7,7 @@ use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 
 /**
- * Class clientFactory
+ * Class ClientFactory
  *
  * User: Mauro Cassani
  * Date: 15/05/19

@@ -2,18 +2,15 @@
 
 namespace SimpleS3;
 
+use Aws\CommandInterface;
 use Aws\CommandPool;
 use Aws\Exception\AwsException;
 use Aws\Exception\MultipartUploadException;
-use Aws\Glacier\Exception\GlacierException;
-use Aws\Glacier\GlacierClient;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\MultipartUploader;
 use Aws\S3\S3Client;
 use Exception;
-use GuzzleHttp\Psr7\CachingStream;
-use GuzzleHttp\Psr7\Stream;
 use Psr\Log\LoggerInterface;
 use SimpleS3\Exceptions\InvalidS3NameException;
 use SimpleS3\Validators\S3BucketNameValidator;
@@ -475,6 +472,58 @@ final class Client
     }
 
     /**
+     * Send a basic restore request for an archived copy of an object back into Amazon S3
+     *
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/restore-object.html
+     *
+     * @param        $bucketName
+     * @param        $keyname
+     * @param int    $days
+     * @param string $tier
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function restoreItem($bucketName, $keyname, $days = 5, $tier = 'Expedited')
+    {
+        $allowedTiers = [
+            'Bulk',
+            'Expedited',
+            'Standard',
+        ];
+
+        if($tier and !in_array($tier, $allowedTiers)){
+            throw new \InvalidArgumentException(sprintf('%s is not a valid tier value. Allowed values are: ['.implode(',', $allowedTiers).']', $tier));
+        }
+
+        try {
+            $request = $this->s3->restoreObject([
+                'Bucket'         => $bucketName,
+                'Key'            => $keyname,
+                'RestoreRequest' => [
+                    'Days'       => $days,
+                    'GlacierJobParameters' => [
+                        'Tier'  => $tier,
+                    ],
+                ],
+            ]);
+
+            if (($request instanceof ResultInterface) and $request['@metadata']['statusCode'] === 202) {
+                $this->log(sprintf('A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyname, $bucketName));
+
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyname, $bucketName), 'warning');
+
+            return false;
+        } catch (\Exception $e) {
+            $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
      * Set basic bucket lifecycle configuration
      *
      * For a complete reference:
@@ -494,41 +543,41 @@ final class Client
         }
 
         $allowedStorageClasses = [
-                'GLACIER',
-                'STANDARD_IA',
-                'ONEZONE_IA',
-                'INTELLIGENT_TIERING',
-                'DEEP_ARCHIVE',
+            'GLACIER',
+            'STANDARD_IA',
+            'ONEZONE_IA',
+            'INTELLIGENT_TIERING',
+            'DEEP_ARCHIVE',
         ];
 
         if($storageClass and !in_array($storageClass, $allowedStorageClasses)){
-            throw new \InvalidArgumentException('Invalid storage class name. Possible values: ['.implode(',', $allowedStorageClasses).']');
+            throw new \InvalidArgumentException('Invalid storage class name. Allowed values: ['.implode(',', $allowedStorageClasses).']');
         }
 
         try {
             $settings = [
-                    'Bucket' => $bucketName,
-                    'LifecycleConfiguration' => [
-                            'Rules' => [
-                                    [
-                                            'ID' => 'Lifecycle rules for bucket '.$bucketName,
-                                            'Status' => 'Enabled',
-                                            'Prefix' => '',
-                                    ],
-                            ],
+                'Bucket' => $bucketName,
+                'LifecycleConfiguration' => [
+                    'Rules' => [
+                        [
+                            'ID' => 'Lifecycle configuration for bucket '.$bucketName,
+                            'Status' => 'Enabled',
+                            'Prefix' => '',
+                        ],
                     ],
+                ],
             ];
 
             if($lifeCycleDays > 0) {
                 $settings['LifecycleConfiguration']['Rules'][0]['Expiration'] = [
-                        'Days' => $lifeCycleDays,
+                    'Days' => $lifeCycleDays,
                 ];
             }
 
             if($objectLifeCycleDays > 0){
                 $settings['LifecycleConfiguration']['Rules'][0]['Transitions'][] = [
-                        'Days' => $objectLifeCycleDays,
-                        'StorageClass' => ($storageClass) ? $storageClass : 'GLACIER'
+                    'Days' => $objectLifeCycleDays,
+                    'StorageClass' => ($storageClass) ? $storageClass : 'GLACIER'
                 ];
             }
 
@@ -542,12 +591,12 @@ final class Client
      * @param      $bucketName
      * @param      $keyname
      * @param      $source
-     * @param null $lifeCycleDays
+     * @param null $storageClass
      *
      * @return bool
      * @throws \Exception
      */
-    public function uploadItem($bucketName, $keyname, $source)
+    public function uploadItem($bucketName, $keyname, $source, $storageClass = null)
     {
         $this->createBucketIfItDoesNotExist($bucketName);
 
@@ -555,12 +604,23 @@ final class Client
             throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
         }
 
+        $this->throwExceptionIfAWrongStorageIsProvided($storageClass);
+
         $uploader = new MultipartUploader(
             $this->s3,
             $source,
             [
                 'bucket' => $bucketName,
                 'key'    => $keyname,
+                'before_initiate' => function(CommandInterface $command) use ($source, $storageClass) {
+                    if(extension_loaded('fileinfo')){
+                        $command['ContentType'] = mime_content_type($source);
+                    }
+
+                    if($storageClass){
+                        $command['StorageClass'] = $storageClass;
+                    }
+                }
             ]
         );
 
@@ -585,25 +645,33 @@ final class Client
      * @param      $bucketName
      * @param      $keyname
      * @param      $body
-     * @param null $lifeCycleDays
+     * @param null $storageClass
      *
      * @return bool
      * @throws \Exception
      */
-    public function uploadItemFromBody($bucketName, $keyname, $body, $lifeCycleDays = null)
+    public function uploadItemFromBody($bucketName, $keyname, $body, $storageClass = null)
     {
-        $this->createBucketIfItDoesNotExist($bucketName, $lifeCycleDays);
+        $this->createBucketIfItDoesNotExist($bucketName);
 
         if (false === S3ObjectSafeNameValidator::isValid($keyname)) {
             throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
         }
 
+        $this->throwExceptionIfAWrongStorageIsProvided($storageClass);
+
         try {
-            $result = $this->s3->putObject([
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyname,
-                    'Body'   => $body
-            ]);
+            $config = [
+                'Bucket' => $bucketName,
+                'Key'    => $keyname,
+                'Body'   => $body
+            ];
+
+            if($storageClass){
+                $config['StorageClass'] = $storageClass;
+            }
+
+            $result = $this->s3->putObject($config);
 
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyname, $bucketName));
@@ -616,6 +684,28 @@ final class Client
             return false;
         } catch (\InvalidArgumentException $e) {
             $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
+     * @param $storageClass
+     *
+     * @return bool
+     */
+    private function throwExceptionIfAWrongStorageIsProvided($storageClass)
+    {
+        $allowedStorageClasses = [
+                'STANDARD',
+                'REDUCED_REDUNDANCY',
+                'STANDARD_IA',
+                'ONEZONE_IA',
+                'INTELLIGENT_TIERING',
+                'GLACIER',
+                'DEEP_ARCHIVE',
+        ];
+
+        if($storageClass and !in_array($storageClass, $allowedStorageClasses)){
+            throw new \InvalidArgumentException('is not a valid StorageClass. Allowed classes are: ['.implode(',', $allowedStorageClasses).']');
         }
     }
 
@@ -642,37 +732,6 @@ final class Client
             $this->logger->error($exception->getMessage());
         } else {
             throw $exception; // continue with the default behaviour
-        }
-    }
-
-    /**
-     * @param        $bucketName
-     * @param        $keyname
-     * @param string $tier [Standard|Bulk|Expedited]
-     * @param null   $days
-     *
-     * @return \Aws\Result
-     * @throws \Exception
-     */
-    public function restoreItem($bucketName, $keyname, $tier = 'Expedited', $days = null)
-    {
-        try {
-            $restored = $this->s3->restoreObject([
-                'Bucket'         => $bucketName,
-                'Key'            => $keyname,
-                'RestoreRequest' => [
-                    'Days'       => $days,
-                    'GlacierJobParameters' => [
-                        'Tier'  => $tier,
-                    ],
-                ],
-            ]);
-
-            $this->log(sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
-
-            return $restored;
-        } catch (\InvalidArgumentException $e) {
-            $this->logExceptionOrContinue($e);
         }
     }
 }

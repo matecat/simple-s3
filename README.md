@@ -48,6 +48,7 @@ Here is the list of Client's public methods:
 *   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
 *   `hasItem` - check if an item exists
+*   `restoreItem` - try to restore an item from archive
 *   `setBucketLifecycleConfiguration` - set basic bucket lifecycle configuration
 *   `uploadItem` - upload an item to a bucket from a file
 *   `uploadItemFromBody` - upload an item to a bucket from the body content
@@ -77,6 +78,18 @@ This method is automatically invoked when you try to create a new bucket with ``
 For further details please refer to the official documentation:
 
 [Bucket lifecycle configuration complete reference](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html)
+
+## Restoring an item
+
+You can use ```restoreItem``` to send a restore an archived object. You can choose between three retrieval options:
+
+*    ```Bulk``` (lasts 5-12 hours)
+*    ```Expedited``` (default, lasts 1-5 minutes)
+*    ```Standard``` (lasts 3-5 hours)
+
+For further details please refer to the official documentation:
+
+[Restore an archived object](https://docs.aws.amazon.com/cli/latest/reference/s3api/restore-object.html)
 
 ## Logging
 
