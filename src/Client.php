@@ -227,7 +227,9 @@ final class Client
                     'Bucket' => $bucketName
                 ]);
 
-                $this->setBucketLifecycleConfiguration($bucketName, $lifeCycleDays, $objectLifeCycleDays, $storageClass);
+                if ($lifeCycleDays > 0) {
+                    $this->setBucketLifecycleConfiguration($bucketName, $lifeCycleDays, $objectLifeCycleDays, $storageClass);
+                }
 
                 if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
                     $this->log(sprintf('Bucket \'%s\' was successfully created', $bucketName));
@@ -315,8 +317,8 @@ final class Client
     {
         try {
             $delete = $this->s3->deleteObject([
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyname
+                'Bucket' => $bucketName,
+                'Key'    => $keyname
             ]);
 
             if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
@@ -410,7 +412,7 @@ final class Client
                 'Bucket' => $bucketName,
             ];
 
-            if($prefix){
+            if ($prefix) {
                 $config['Delimiter'] = DIRECTORY_SEPARATOR;
                 $config['Prefix'] = $prefix;
             }
@@ -536,13 +538,13 @@ final class Client
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html
      *
      * @param      $bucketName
-     * @param int  $lifeCycleDays
+     * @param      $lifeCycleDays
      * @param int  $objectLifeCycleDays
      * @param null $storageClass
      *
      * @throws Exception
      */
-    public function setBucketLifecycleConfiguration($bucketName, $lifeCycleDays = -1, $objectLifeCycleDays = -1, $storageClass = null)
+    public function setBucketLifecycleConfiguration($bucketName, $lifeCycleDays, $objectLifeCycleDays = -1, $storageClass = null)
     {
         if ($objectLifeCycleDays > $lifeCycleDays) {
             throw new \InvalidArgumentException('Object lifecycle CANNOT be greater than bucket lifecycle');
@@ -569,18 +571,16 @@ final class Client
                             'ID' => 'Lifecycle configuration for bucket '.$bucketName,
                             'Status' => 'Enabled',
                             'Prefix' => '',
+                            'Expiration' => [
+                                'Days' => $lifeCycleDays,
+                            ]
                         ],
                     ],
                 ],
             ];
 
-            if ($lifeCycleDays > 0) {
-                $settings['LifecycleConfiguration']['Rules'][0]['Expiration'] = [
-                    'Days' => $lifeCycleDays,
-                ];
-            }
-
-            if ($objectLifeCycleDays > 0) {
+            // $lifeCycleDays MUST be > $objectLifeCycleDays
+            if ($objectLifeCycleDays > 0 and $lifeCycleDays > $objectLifeCycleDays) {
                 $settings['LifecycleConfiguration']['Rules'][0]['Transitions'][] = [
                     'Days' => $objectLifeCycleDays,
                     'StorageClass' => ($storageClass) ? $storageClass : 'GLACIER'
@@ -620,7 +620,7 @@ final class Client
                 'key'    => $keyname,
                 'before_initiate' => function (CommandInterface $command) use ($source, $storageClass) {
                     if (extension_loaded('fileinfo')) {
-                        $command['ContentType'] = mime_content_type($source);
+                        $command['ContentType'] = Helpers\File::getMimeType($source);
                     }
 
                     if ($storageClass) {
@@ -646,6 +646,8 @@ final class Client
             $this->logExceptionOrContinue($e);
         }
     }
+
+
 
     /**
      * @param      $bucketName

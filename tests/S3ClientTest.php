@@ -73,7 +73,17 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_creates_a_bucket_with_an_invalid_storage_configuration()
     {
-        $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'3', -1, 5, 'NOT_EXSISTING_STORAGE');
+        $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'3', 2000, 5, 'NOT_EXSISTING_STORAGE');
+    }
+
+    /**
+     * @test
+     */
+    public function test_the_client_creates_a_bucket_without_lifecycle_configuration()
+    {
+        $created = $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'4');
+
+        $this->assertTrue($created);
     }
 
     /**
@@ -255,10 +265,12 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $deleteCopied = $this->s3Client->deleteBucket($this->bucket.'-copied');
         $deleteCopied2 = $this->s3Client->deleteBucket($this->bucket.'2');
         $deleteCopied3 = $this->s3Client->deleteBucket($this->bucket.'3');
+        $deleteCopied4 = $this->s3Client->deleteBucket($this->bucket.'4');
 
         $this->assertTrue($delete);
         $this->assertTrue($deleteCopied);
         $this->assertTrue($deleteCopied2);
         $this->assertTrue($deleteCopied3);
+        $this->assertTrue($deleteCopied4);
     }
 }
