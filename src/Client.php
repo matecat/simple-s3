@@ -499,9 +499,9 @@ final class Client
     public function openItem($bucketName, $keyname)
     {
         try {
-
             $url = $this->getPublicItemLink($bucketName, $keyname);
-            $content = file_get_contents($url, false, stream_context_create([
+            $content = file_get_contents($url, false, stream_context_create(
+                [
                     'ssl' => [
                         'verify_peer' => $this->sslVerify,
                         'verify_peer_name' => $this->sslVerify
