@@ -7,7 +7,7 @@ use SimpleS3\Validators\Contracts\S3NameValidatorInterface;
 abstract class AbstractS3NameValidator implements S3NameValidatorInterface
 {
     /**
-     * @param $string
+     * @param string $string
      *
      * @return bool
      */

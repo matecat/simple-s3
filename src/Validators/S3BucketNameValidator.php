@@ -25,7 +25,7 @@ namespace SimpleS3\Validators;
 final class S3BucketNameValidator extends AbstractS3NameValidator
 {
     /**
-     * @param $string
+     * @param string $string
      *
      * @return array
      */

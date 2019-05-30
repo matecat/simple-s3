@@ -5,7 +5,7 @@ namespace SimpleS3\Validators\Contracts;
 interface S3NameValidatorInterface
 {
     /**
-     * @param $string
+     * @param string $string
      *
      * @return array
      */

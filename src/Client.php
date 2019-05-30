@@ -17,14 +17,9 @@ use SimpleS3\Validators\S3BucketNameValidator;
 use SimpleS3\Validators\S3ObjectSafeNameValidator;
 
 /**
- * Class clientFactory
- *
- * User: Mauro Cassani
- * Date: 15/05/19
- * Time: 10:00
+ * Class Client
  *
  * This class is a simple wrapper of Aws\S3\S3Client
- * It provides direct methods for upload, delete and retrieve files from S3 buckets
  *
  * @package SimpleS3
  */
@@ -43,8 +38,8 @@ final class Client
     /**
      * Client constructor.
      *
-     * @param       $accessKeyId
-     * @param       $secretKey
+     * @param string $accessKeyId
+     * @param string $secretKey
      * @param array $config
      */
     public function __construct(
@@ -64,7 +59,7 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param string $bucketName
      *
      * @return bool
      * @throws \Exception
@@ -160,7 +155,7 @@ final class Client
     }
 
     /**
-     * @param $input
+     * @param array $input
      */
     private function validateCopyInBatchInputArray($input)
     {
@@ -175,10 +170,10 @@ final class Client
     }
 
     /**
-     * @param $sourceBucket
-     * @param $sourceKeyname
-     * @param $targetBucketName
-     * @param $targetKeyname
+     * @param string $sourceBucket
+     * @param string $sourceKeyname
+     * @param string $targetBucketName
+     * @param string $targetKeyname
      *
      * @return bool
      * @throws \Exception
@@ -207,7 +202,7 @@ final class Client
     }
 
     /**
-     * @param      $bucketName
+     * @param string $bucketName
      * @param int  $lifeCycleDays
      * @param int  $objectLifeCycleDays
      * @param null $storageClass
@@ -247,8 +242,8 @@ final class Client
     }
 
     /**
-     * @param $bucketName
-     * @param $keyname
+     * @param string $bucketName
+     * @param string $keyname
      *
      * @return bool
      * @throws \Exception
@@ -278,7 +273,7 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param string $bucketName
      *
      * @return bool
      * @throws \Exception
@@ -307,8 +302,8 @@ final class Client
     }
 
     /**
-     * @param $bucketName
-     * @param $keyname
+     * @param string $bucketName
+     * @param string $keyname
      *
      * @return bool
      * @throws \Exception
@@ -336,7 +331,7 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param string $bucketName
      *
      * @return ResultInterface
      * @throws \Exception
@@ -357,7 +352,7 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param string $bucketName
      *
      * @return int|mixed
      * @throws \Exception
@@ -376,8 +371,8 @@ final class Client
     }
 
     /**
-     * @param $bucketName
-     * @param $keyname
+     * @param string $bucketName
+     * @param string $keyname
      *
      * @return ResultInterface
      * @throws \Exception
@@ -399,8 +394,8 @@ final class Client
     }
 
     /**
-     * @param      $bucketName
-     * @param null $prefix
+     * @param string $bucketName
+     * @param null|string $prefix
      *
      * @return array
      * @throws Exception
@@ -434,8 +429,8 @@ final class Client
     }
 
     /**
-     * @param        $bucketName
-     * @param        $keyname
+     * @param string $bucketName
+     * @param string $keyname
      * @param string $expires
      *
      * @return \Psr\Http\Message\UriInterface
@@ -459,7 +454,7 @@ final class Client
     }
 
     /**
-     * @param $bucketName
+     * @param string $bucketName
      *
      * @return bool
      */
@@ -469,8 +464,8 @@ final class Client
     }
 
     /**
-     * @param $bucketName
-     * @param $keyname
+     * @param string $bucketName
+     * @param string $keyname
      *
      * @return bool
      */
@@ -480,13 +475,41 @@ final class Client
     }
 
     /**
+     * Gets the content of a item in a bucket
+     *
+     * @param string $bucketName
+     * @param string $keyname
+     *
+     * @return false|string|null
+     * @throws Exception
+     */
+    public function openItem($bucketName, $keyname)
+    {
+        try {
+            $content = file_get_contents($this->getPublicItemLink($bucketName, $keyname));
+
+            if (false === $content) {
+                $this->log(sprintf('Something went wrong during getting content of \'%s\' item from \'%s\' bucket', $keyname, $bucketName), 'warning');
+
+                return null;
+            }
+
+            $this->log(sprintf('Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyname, $bucketName));
+
+            return $content;
+        } catch (\Exception $e) {
+            $this->logExceptionOrContinue($e);
+        }
+    }
+
+    /**
      * Send a basic restore request for an archived copy of an object back into Amazon S3
      *
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/restore-object.html
      *
-     * @param        $bucketName
-     * @param        $keyname
+     * @param string $bucketName
+     * @param string $keyname
      * @param int    $days
      * @param string $tier
      *
@@ -537,10 +560,10 @@ final class Client
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html
      *
-     * @param      $bucketName
-     * @param      $lifeCycleDays
+     * @param string $bucketName
+     * @param int $lifeCycleDays
      * @param int  $objectLifeCycleDays
-     * @param null $storageClass
+     * @param null|string $storageClass
      *
      * @throws Exception
      */
@@ -594,10 +617,10 @@ final class Client
     }
 
     /**
-     * @param      $bucketName
-     * @param      $keyname
-     * @param      $source
-     * @param null $storageClass
+     * @param string $bucketName
+     * @param string $keyname
+     * @param string $source
+     * @param null|string $storageClass
      *
      * @return bool
      * @throws \Exception
@@ -610,7 +633,9 @@ final class Client
             throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
         }
 
-        $this->throwExceptionIfAWrongStorageIsProvided($storageClass);
+        if (null !== $storageClass) {
+            $this->throwExceptionIfAWrongStorageIsProvided($storageClass);
+        }
 
         $uploader = new MultipartUploader(
             $this->s3,
@@ -650,10 +675,10 @@ final class Client
 
 
     /**
-     * @param      $bucketName
-     * @param      $keyname
-     * @param      $body
-     * @param null $storageClass
+     * @param string $bucketName
+     * @param string $keyname
+     * @param string $body
+     * @param null|string $storageClass
      *
      * @return bool
      * @throws \Exception
@@ -666,7 +691,9 @@ final class Client
             throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyname)).']', $keyname));
         }
 
-        $this->throwExceptionIfAWrongStorageIsProvided($storageClass);
+        if (null !== $storageClass) {
+            $this->throwExceptionIfAWrongStorageIsProvided($storageClass);
+        }
 
         try {
             $config = [
@@ -696,7 +723,7 @@ final class Client
     }
 
     /**
-     * @param $storageClass
+     * @param string $storageClass
      *
      * @return bool
      */
@@ -718,7 +745,7 @@ final class Client
     }
 
     /**
-     * @param $message
+     * @param string $message
      */
     private function log($message, $level = 'info')
     {

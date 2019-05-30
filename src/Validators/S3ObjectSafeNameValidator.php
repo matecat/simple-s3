@@ -40,7 +40,7 @@ namespace SimpleS3\Validators;
 final class S3ObjectSafeNameValidator extends AbstractS3NameValidator
 {
     /**
-     * @param $string
+     * @param string $string
      *
      * @return array
      */

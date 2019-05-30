@@ -107,7 +107,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @expectedException \SimpleS3\Exceptions\InvalidS3NameException
      */
-    public function test_the_client_uploads_a_item_with_an_invalid_name()
+    public function test_the_client_uploads_an_item_with_an_invalid_name()
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
@@ -118,7 +118,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_uploads_and_then_copy_a_item()
+    public function test_the_client_uploads_and_then_copy_an_item()
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
@@ -189,7 +189,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_a_item()
+    public function test_the_client_gets_an_item()
     {
         $item = $this->s3Client->getItem($this->bucket, $this->keyname);
 
@@ -202,11 +202,22 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_the_download_link_for_a_item()
+    public function test_the_client_gets_the_download_link_for_an_item()
     {
         $link = $this->s3Client->getPublicItemLink($this->bucket, $this->keyname);
 
         $this->assertContains('This is nothing but a simple text for test the php Client for S3.', file_get_contents($link));
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_gets_the_content_of_an_item()
+    {
+        $open = $this->s3Client->openItem($this->bucket, $this->keyname);
+
+        $this->assertContains('This is nothing but a simple text for test the php Client for S3.', $open);
     }
 
     /**

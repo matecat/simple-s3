@@ -5,7 +5,7 @@ namespace SimpleS3\Helpers;
 class File
 {
     /**
-     * @param     $filename
+     * @param string $filename
      * @param int $mode
      *
      * @return mixed|string
@@ -14,6 +14,8 @@ class File
     {
         // mode 0 = full check
         // mode 1 = extension check only
+
+        $mimetype = '';
 
         $mime_types = [
             'txt' => 'text/plain',
@@ -82,15 +84,18 @@ class File
 
         if (function_exists('finfo_open') and $mode === 0) {
             $finfo = finfo_open(FILEINFO_MIME);
-            $mimetype = finfo_file($finfo, $filename);
-            finfo_close($finfo);
+
+            if (false !== $finfo) {
+                $mimetype = finfo_file($finfo, $filename);
+                finfo_close($finfo);
+            }
 
             return $mimetype;
         }
 
         $ext = self::getExtension($filename);
 
-        if (array_key_exists($ext, $mime_types)) {
+        if (null !== $ext and array_key_exists($ext, $mime_types)) {
             return $mime_types[$ext];
         }
 
@@ -98,12 +103,17 @@ class File
     }
 
     /**
-     * @param $filename
+     * @param string $filename
      *
-     * @return string
+     * @return string|null
      */
     public static function getExtension($filename)
     {
-        return strtolower(array_pop(explode('.', $filename)));
+        $filenameArray = explode('.', $filename);
+        $filenameArray = array_pop($filenameArray);
+
+        if (null !== $filenameArray) {
+            return strtolower($filenameArray);
+        }
     }
 }

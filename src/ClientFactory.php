@@ -9,10 +9,6 @@ use Aws\S3\S3Client;
 /**
  * Class ClientFactory
  *
- * User: Mauro Cassani
- * Date: 15/05/19
- * Time: 10:00
- *
  * This class is a simple factory for S3/Client
  *
  * List of options:
@@ -46,7 +42,11 @@ use Aws\S3\S3Client;
 final class ClientFactory
 {
     /**
-     * @return AwsClient
+     * @param string $accessKeyId
+     * @param string $secretKey
+     * @param array $config
+     *
+     * @return S3Client
      */
     public static function create(
         $accessKeyId,
@@ -59,8 +59,8 @@ final class ClientFactory
     }
 
     /**
-     * @param       $accessKeyId
-     * @param       $secretKey
+     * @param string $accessKeyId
+     * @param string $secretKey
      * @param array $config
      *
      * @return array
