@@ -36,6 +36,11 @@ final class Client
     private $logger;
 
     /**
+     * @var bool
+     */
+    private $sslVerify = true;
+
+    /**
      * Client constructor.
      *
      * @param string $accessKeyId
@@ -331,6 +336,14 @@ final class Client
     }
 
     /**
+     * Disable SSL verify
+     */
+    public function disableSslVerify()
+    {
+        $this->sslVerify = false;
+    }
+
+    /**
      * @param string $bucketName
      *
      * @return ResultInterface
@@ -486,7 +499,15 @@ final class Client
     public function openItem($bucketName, $keyname)
     {
         try {
-            $content = file_get_contents($this->getPublicItemLink($bucketName, $keyname));
+
+            $url = $this->getPublicItemLink($bucketName, $keyname);
+            $content = file_get_contents($url, false, stream_context_create([
+                    'ssl' => [
+                        'verify_peer' => $this->sslVerify,
+                        'verify_peer_name' => $this->sslVerify
+                    ]
+                ]
+            ));
 
             if (false === $content) {
                 $this->log(sprintf('Something went wrong during getting content of \'%s\' item from \'%s\' bucket', $keyname, $bucketName), 'warning');
