@@ -208,14 +208,12 @@ final class Client
 
     /**
      * @param string $bucketName
-     * @param int  $lifeCycleDays
-     * @param int  $objectLifeCycleDays
-     * @param null $storageClass
+     * @param array  $lifeCycleRules
      *
      * @return bool
      * @throws \Exception
      */
-    public function createBucketIfItDoesNotExist($bucketName, $lifeCycleDays = -1, $objectLifeCycleDays = -1, $storageClass = null)
+    public function createBucketIfItDoesNotExist( $bucketName, $lifeCycleRules = [])
     {
         if (false === S3BucketNameValidator::isValid($bucketName)) {
             throw new InvalidS3NameException(sprintf('%s is not a valid bucket name. ['.implode(', ', S3BucketNameValidator::validate($bucketName)).']', $bucketName));
@@ -227,8 +225,8 @@ final class Client
                     'Bucket' => $bucketName
                 ]);
 
-                if ($lifeCycleDays > 0) {
-                    $this->setBucketLifecycleConfiguration($bucketName, $lifeCycleDays, $objectLifeCycleDays, $storageClass);
+                if (count($lifeCycleRules) > 0) {
+                    $this->setBucketLifecycleConfiguration($bucketName, $lifeCycleRules);
                 }
 
                 if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
@@ -576,63 +574,26 @@ final class Client
     }
 
     /**
-     * Set basic bucket lifecycle configuration
+     * Set bucket lifecycle configuration
      *
-     * For a complete reference:
+     * For a complete reference of bucket lifecycle rules:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html
      *
      * @param string $bucketName
-     * @param int $lifeCycleDays
-     * @param int  $objectLifeCycleDays
-     * @param null|string $storageClass
+     * @param array  $lifeCycleRules
      *
      * @throws Exception
      */
-    public function setBucketLifecycleConfiguration($bucketName, $lifeCycleDays, $objectLifeCycleDays = -1, $storageClass = null)
+    public function setBucketLifecycleConfiguration( $bucketName, $lifeCycleRules = [])
     {
-        if ($objectLifeCycleDays > $lifeCycleDays) {
-            throw new \InvalidArgumentException('Object lifecycle CANNOT be greater than bucket lifecycle');
-        }
-
-        $allowedStorageClasses = [
-            'GLACIER',
-            'STANDARD_IA',
-            'ONEZONE_IA',
-            'INTELLIGENT_TIERING',
-            'DEEP_ARCHIVE',
-        ];
-
-        if ($storageClass and !in_array($storageClass, $allowedStorageClasses)) {
-            throw new \InvalidArgumentException('Invalid storage class name. Allowed values: ['.implode(',', $allowedStorageClasses).']');
-        }
-
         try {
             $settings = [
                 'Bucket' => $bucketName,
-                'LifecycleConfiguration' => [
-                    'Rules' => [
-                        [
-                            'ID' => 'Lifecycle configuration for bucket '.$bucketName,
-                            'Status' => 'Enabled',
-                            'Prefix' => '',
-                            'Expiration' => [
-                                'Days' => $lifeCycleDays,
-                            ]
-                        ],
-                    ],
-                ],
+                'LifecycleConfiguration' => $lifeCycleRules
             ];
 
-            // $lifeCycleDays MUST be > $objectLifeCycleDays
-            if ($objectLifeCycleDays > 0 and $lifeCycleDays > $objectLifeCycleDays) {
-                $settings['LifecycleConfiguration']['Rules'][0]['Transitions'][] = [
-                    'Days' => $objectLifeCycleDays,
-                    'StorageClass' => ($storageClass) ? $storageClass : 'GLACIER'
-                ];
-            }
-
             $this->s3->putBucketLifecycleConfiguration($settings);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (\Exception $exception) {
             $this->logExceptionOrContinue($exception);
         }
     }
