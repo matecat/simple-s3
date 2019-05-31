@@ -60,28 +60,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \InvalidArgumentException
-     */
-    public function test_the_client_creates_a_bucket_with_an_invalid_lifecycle_configuration()
-    {
-        $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'2', 10, 100);
-    }
-
-    /**
-     * @test
-     * @expectedException \InvalidArgumentException
-     */
-    public function test_the_client_creates_a_bucket_with_an_invalid_storage_configuration()
-    {
-        $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'3', 2000, 5, 'NOT_EXSISTING_STORAGE');
-    }
-
-    /**
-     * @test
+     * @throws Exception
      */
     public function test_the_client_creates_a_bucket_without_lifecycle_configuration()
     {
-        $created = $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'4');
+        $created = $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'2');
 
         $this->assertTrue($created);
     }
@@ -92,13 +75,41 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_creates_a_bucket()
     {
-        $this->s3Client->createBucketIfItDoesNotExist($this->bucket, 5, 2, 'GLACIER');
+        $rules = [
+            [
+                "ID"=>  "Move rotated logs to Glacier",
+                "Prefix"=>  "rotated/",
+                "Status"=>  "Enabled",
+                "Transitions"=>  [
+                    [
+                        "Date"=>  "2015-11-10T00:00:00.000Z",
+                        "StorageClass"=>  "GLACIER"
+                    ]
+                ]
+            ],
+            [
+                "Status" => "Enabled",
+                "Prefix" => "",
+                "NoncurrentVersionTransitions"=>  [
+                    [
+                        "NoncurrentDays"=>  2,
+                        "StorageClass"=>  "GLACIER"
+                    ]
+                ],
+                "ID"=>  "Move old versions to Glacier"
+            ]
+        ];
+
+        $this->s3Client->createBucketIfItDoesNotExist($this->bucket, $rules);
 
         $configuration = $this->s3Client->getBucketLifeCycleConfiguration($this->bucket);
 
+        /** @var Aws\Api\DateTimeResult $transitionsDate */
+        $transitionsDate = $configuration['Rules'][0]['Transition']['Date'];
+
         $this->assertInstanceOf(ResultInterface::class, $configuration);
-        $this->assertEquals(5, $configuration['Rules'][0]['Expiration']['Days']);
-        $this->assertEquals(2, $configuration['Rules'][0]['Transition']['Days']);
+        $this->assertEquals("2015-11-10 00:00:00", $transitionsDate->format('Y-m-d H:i:s'));
+        $this->assertEquals("Z", $transitionsDate->getTimezone()->getName());
         $this->assertEquals('GLACIER', $configuration['Rules'][0]['Transition']['StorageClass']);
         $this->assertTrue($this->s3Client->createFolder($this->bucket, 'folder'));
     }
@@ -275,13 +286,9 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $delete = $this->s3Client->deleteBucket($this->bucket);
         $deleteCopied = $this->s3Client->deleteBucket($this->bucket.'-copied');
         $deleteCopied2 = $this->s3Client->deleteBucket($this->bucket.'2');
-        $deleteCopied3 = $this->s3Client->deleteBucket($this->bucket.'3');
-        $deleteCopied4 = $this->s3Client->deleteBucket($this->bucket.'4');
 
         $this->assertTrue($delete);
         $this->assertTrue($deleteCopied);
         $this->assertTrue($deleteCopied2);
-        $this->assertTrue($deleteCopied3);
-        $this->assertTrue($deleteCopied4);
     }
 }

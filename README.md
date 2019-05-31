@@ -50,7 +50,7 @@ Here is the list of Client's public methods:
 *   `hasItem` - check if an item exists
 *   `openItem` - get the content of an item
 *   `restoreItem` - try to restore an item from archive
-*   `setBucketLifecycleConfiguration` - set basic bucket lifecycle configuration
+*   `setBucketLifecycleConfiguration` - set bucket lifecycle configuration
 *   `uploadItem` - upload an item to a bucket from a file
 *   `uploadItemFromBody` - upload an item to a bucket from the body content
 

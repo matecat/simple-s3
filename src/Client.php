@@ -589,7 +589,9 @@ final class Client
         try {
             $settings = [
                 'Bucket' => $bucketName,
-                'LifecycleConfiguration' => $lifeCycleRules
+                'LifecycleConfiguration' => [
+                    'Rules' => $lifeCycleRules
+                ]
             ];
 
             $this->s3->putBucketLifecycleConfiguration($settings);
