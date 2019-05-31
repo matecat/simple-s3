@@ -4,7 +4,7 @@ namespace SimpleS3\Validators;
 
 use SimpleS3\Validators\Contracts\S3NameValidatorInterface;
 
-abstract class AbstractS3NameValidator implements S3NameValidatorInterface
+abstract class S3NameValidator implements S3NameValidatorInterface
 {
     /**
      * @param string $string

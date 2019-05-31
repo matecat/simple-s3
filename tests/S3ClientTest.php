@@ -1,6 +1,5 @@
 <?php
 
-use Aws\Api\DateTimeResult;
 use Aws\Result;
 use Aws\ResultInterface;
 use Monolog\Handler\StreamHandler;
@@ -55,7 +54,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_creates_a_bucket_with_an_invalid_name()
     {
-        $this->s3Client->createBucketIfItDoesNotExist('172.0.0.1');
+        $this->s3Client->createBucketIfItDoesNotExist(['bucket' => '172.0.0.1']);
     }
 
     /**
@@ -64,7 +63,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_creates_a_bucket_without_lifecycle_configuration()
     {
-        $created = $this->s3Client->createBucketIfItDoesNotExist($this->bucket.'2');
+        $created = $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $this->bucket.'2']);
 
         $this->assertTrue($created);
     }
@@ -100,9 +99,9 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->s3Client->createBucketIfItDoesNotExist($this->bucket, $rules);
+        $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $this->bucket, 'rules' => $rules]);
 
-        $configuration = $this->s3Client->getBucketLifeCycleConfiguration($this->bucket);
+        $configuration = $this->s3Client->getBucketLifeCycleConfiguration(['bucket' => $this->bucket]);
 
         /** @var Aws\Api\DateTimeResult $transitionsDate */
         $transitionsDate = $configuration['Rules'][0]['Transition']['Date'];
@@ -111,7 +110,10 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("2015-11-10 00:00:00", $transitionsDate->format('Y-m-d H:i:s'));
         $this->assertEquals("Z", $transitionsDate->getTimezone()->getName());
         $this->assertEquals('GLACIER', $configuration['Rules'][0]['Transition']['StorageClass']);
-        $this->assertTrue($this->s3Client->createFolder($this->bucket, 'folder'));
+        $this->assertTrue($this->s3Client->createFolder([
+            'bucket' => $this->bucket,
+            'key' => 'folder'
+        ]));
     }
 
     /**
@@ -122,7 +124,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $this->s3Client->uploadItem($this->bucket, '{invalid name}', $source);
+        $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => '{invalid name}', 'source' => $source]);
     }
 
     /**
@@ -133,16 +135,21 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $upload = $this->s3Client->uploadItem($this->bucket, $this->keyname, $source);
+        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $this->keyname, 'source' => $source]);
 
         $this->assertTrue($upload);
-        $this->assertTrue($this->s3Client->hasItem($this->bucket, $this->keyname));
+        $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $this->keyname]));
 
-        $copied = $this->s3Client->copyItem($this->bucket, $this->keyname, $this->bucket, $this->keyname.'(1)');
+        $copied = $this->s3Client->copyItem([
+            'source_bucket' => $this->bucket,
+            'source' => $this->keyname,
+            'target_bucket' => $this->bucket,
+            'target' => $this->keyname.'(1)'
+        ]);
         $this->assertTrue($copied);
 
-        $this->s3Client->uploadItem($this->bucket, 'folder/'.$this->keyname, $source);
-        $this->assertCount(2, $this->s3Client->getItemsInABucket($this->bucket, 'folder/'));
+        $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => 'folder/'.$this->keyname, 'source' => $source]);
+        $this->assertCount(2, $this->s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder/']));
     }
 
     /**
@@ -154,10 +161,10 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $itemKey = 'item-from-body.txt';
         $itemContent = 'This is a simple text';
 
-        $upload = $this->s3Client->uploadItemFromBody($this->bucket, $itemKey, $itemContent);
+        $upload = $this->s3Client->uploadItemFromBody(['bucket' => $this->bucket, 'key' => $itemKey, 'body' =>  $itemContent]);
 
         $this->assertTrue($upload);
-        $this->assertTrue($this->s3Client->hasItem($this->bucket, $itemKey));
+        $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $this->keyname]));
     }
 
     /**
@@ -192,7 +199,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_the_bucket_size()
     {
-        $size = $this->s3Client->getBucketSize($this->bucket);
+        $size = $this->s3Client->getBucketSize(['bucket' => $this->bucket]);
         $this->assertEquals(363, $size);
     }
 
@@ -202,7 +209,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_an_item()
     {
-        $item = $this->s3Client->getItem($this->bucket, $this->keyname);
+        $item = $this->s3Client->getItem(['bucket' => $this->bucket, 'key' => $this->keyname]);
 
         $this->assertInstanceOf(Result::class, $item);
         $this->assertEquals($item['ContentType'], 'text/plain');
@@ -215,7 +222,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_the_download_link_for_an_item()
     {
-        $link = $this->s3Client->getPublicItemLink($this->bucket, $this->keyname);
+        $link = $this->s3Client->getPublicItemLink(['bucket' => $this->bucket, 'key' => $this->keyname]);
 
         $this->assertContains('This is nothing but a simple text for test the php Client for S3.', file_get_contents($link));
     }
@@ -226,7 +233,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_the_content_of_an_item()
     {
-        $open = $this->s3Client->openItem($this->bucket, $this->keyname);
+        $open = $this->s3Client->openItem(['bucket' => $this->bucket, 'key' => $this->keyname]);
 
         $this->assertContains('This is nothing but a simple text for test the php Client for S3.', $open);
     }
@@ -237,7 +244,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_items_in_a_bucket()
     {
-        $items = $this->s3Client->getItemsInABucket($this->bucket);
+        $items = $this->s3Client->getItemsInABucket(['bucket' => $this->bucket]);
 
         $this->assertTrue(is_array($items));
         $this->assertCount(5, $items);
@@ -257,10 +264,10 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $keyname = 'file-to-be-restored-from-glacier';
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $upload = $this->s3Client->uploadItem($this->bucket, $keyname, $source, 'GLACIER');
+        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source, 'storage' => 'GLACIER']);
         $this->assertTrue($upload);
 
-        $restore = $this->s3Client->restoreItem($this->bucket, $keyname);
+        $restore = $this->s3Client->restoreItem(['bucket' => $this->bucket, 'key' => $keyname]);
         $this->assertTrue($restore);
     }
 
@@ -270,8 +277,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_deletes_all_the_items()
     {
-        $items = $this->s3Client->clearBucket($this->bucket);
-        $itemsCopied = $this->s3Client->clearBucket($this->bucket.'-copied');
+        $items = $this->s3Client->clearBucket(['bucket' => $this->bucket]);
+        $itemsCopied = $this->s3Client->clearBucket(['bucket' => $this->bucket.'-copied']);
 
         $this->assertTrue($items);
         $this->assertTrue($itemsCopied);
@@ -283,9 +290,9 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_deletes_the_bucket()
     {
-        $delete = $this->s3Client->deleteBucket($this->bucket);
-        $deleteCopied = $this->s3Client->deleteBucket($this->bucket.'-copied');
-        $deleteCopied2 = $this->s3Client->deleteBucket($this->bucket.'2');
+        $delete = $this->s3Client->deleteBucket(['bucket' => $this->bucket]);
+        $deleteCopied = $this->s3Client->deleteBucket(['bucket' => $this->bucket.'-copied']);
+        $deleteCopied2 = $this->s3Client->deleteBucket(['bucket' => $this->bucket.'2']);
 
         $this->assertTrue($delete);
         $this->assertTrue($deleteCopied);

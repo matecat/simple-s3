@@ -2,7 +2,6 @@
 
 namespace SimpleS3;
 
-use Aws\AwsClient;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 

@@ -3,8 +3,6 @@
 namespace SimpleS3\Validators;
 
 /**
- * Class S3BucketNameHelper
- *
  * This class check and create a valid Amazon S3 Bucket Name
  *
  * Amazon S3 Bucket Naming Requirements
@@ -22,7 +20,7 @@ namespace SimpleS3\Validators;
  *
  * @package SimpleS3
  */
-final class S3BucketNameValidator extends AbstractS3NameValidator
+final class S3BucketNameValidator extends S3NameValidator
 {
     /**
      * @param string $string
