@@ -26,7 +26,9 @@ class UploadItem extends CommandHandler
         $keyName = $params['key'];
         $source = $params['source'];
 
-        $this->client->createBucketIfItDoesNotExist(['bucketName' => $bucketName]);
+        if(isset($params['bucket_check']) and true === $params['bucket_check']){
+            $this->client->createBucketIfItDoesNotExist(['bucket' => $bucketName]);
+        }
 
         if (false === S3ObjectSafeNameValidator::isValid($keyName)) {
             throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyName)).']', $keyName));
