@@ -53,6 +53,7 @@ Here is the list of Client's public methods:
 *   `openItem` - get the content of an item
 *   `restoreItem` - try to restore an item from archive
 *   `setBucketLifecycleConfiguration` - set bucket lifecycle configuration
+*   `transfer` - transfer content from/to buckets
 *   `uploadItem` - upload an item to a bucket from a file
 *   `uploadItemFromBody` - upload an item to a bucket from the body content
 
