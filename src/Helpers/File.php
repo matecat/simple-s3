@@ -149,7 +149,7 @@ class File
     }
 
     /**
-     * @param $dir
+     * @param string $dir
      */
     public static function removeDir($dir)
     {
