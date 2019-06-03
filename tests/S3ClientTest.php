@@ -235,6 +235,25 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
+    public function test_the_client_downloads__an_item()
+    {
+        $saveAs = __DIR__ . '/support/files/txt/test(download).txt';
+        $download = $this->s3Client->downloadItem([
+            'bucket' => $this->bucket,
+            'key' => $this->keyname,
+            'save_as' => $saveAs
+        ]);
+
+        $this->assertTrue($download);
+        $this->assertTrue(file_exists($saveAs));
+
+        unlink($saveAs);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
     public function test_the_client_gets_the_content_of_an_item()
     {
         $open = $this->s3Client->openItem(['bucket' => $this->bucket, 'key' => $this->keyname]);

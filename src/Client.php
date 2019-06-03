@@ -23,6 +23,7 @@ use SimpleS3\Commands\CommandHandler;
  * @method bool createFolder(array $input)
  * @method bool deleteBucket(array $input)
  * @method bool deleteItem(array $input)
+ * @method bool downloadItem(array $input)
  * @method bool enableAcceleration(array $input)
  * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
  * @method int|mixed getBucketSize(array $input)

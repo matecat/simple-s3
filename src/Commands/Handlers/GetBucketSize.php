@@ -17,8 +17,18 @@ class GetBucketSize extends CommandHandler
         $bucketName = $params['bucket'];
         $size = 0;
 
-        foreach ($this->client->getItemsInABucket(['bucket' => $bucketName, 'hydrate' => true]) as $file) {
-            $size += $file['@metadata']['headers']['content-length'];
+        $config = [
+            'Bucket' => $bucketName,
+        ];
+
+        if (isset($params['prefix'])) {
+            $config['Delimiter'] = DIRECTORY_SEPARATOR;
+            $config['Prefix'] = $params['prefix'];
+        }
+
+        $objectIterator = $this->client->getConn()->getIterator('ListObjects', $config);
+        foreach ($objectIterator as $object) {
+            $size += $object['Size'];
         }
 
         $this->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));

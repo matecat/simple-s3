@@ -42,6 +42,7 @@ Here is the list of Client's public methods:
 *   `createFolder` . create an empty folder in a bucket if it does not exists
 *   `deleteBucket` - delete a bucket
 *   `deleteItem` - delete an item
+*   `downloadItem` - download an item
 *   `getBucketLifeCycle` get the bucket lifecycle configuration
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getItem` - get all informations for an item
