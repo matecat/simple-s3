@@ -99,7 +99,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $this->bucket, 'rules' => $rules]);
+        $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $this->bucket, 'rules' => $rules, 'accelerate' => true]);
 
         $configuration = $this->s3Client->getBucketLifeCycleConfiguration(['bucket' => $this->bucket]);
 
@@ -135,7 +135,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $this->keyname, 'source' => $source]);
+        $upload = $this->s3Client->uploadItem([
+            'bucket' => $this->bucket,
+            'key' => $this->keyname,
+            'source' => $source
+        ]);
 
         $this->assertTrue($upload);
         $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $this->keyname]));
@@ -148,7 +152,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         ]);
         $this->assertTrue($copied);
 
-        $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => 'folder/'.$this->keyname, 'source' => $source]);
+        $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => 'folder/'.$this->keyname, 'source' => $source, 'check_bucket' => true]);
         $this->assertCount(2, $this->s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder/']));
     }
 
@@ -161,7 +165,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $itemKey = 'item-from-body.txt';
         $itemContent = 'This is a simple text';
 
-        $upload = $this->s3Client->uploadItemFromBody(['bucket' => $this->bucket, 'key' => $itemKey, 'body' =>  $itemContent]);
+        $upload = $this->s3Client->uploadItemFromBody(['bucket' => $this->bucket, 'key' => $itemKey, 'body' =>  $itemContent, 'check_bucket' => true]);
 
         $this->assertTrue($upload);
         $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $this->keyname]));
@@ -264,7 +268,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $keyname = 'file-to-be-restored-from-glacier';
         $source = __DIR__ . '/support/files/txt/test.txt';
 
-        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source, 'storage' => 'GLACIER']);
+        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source, 'storage' => 'GLACIER', 'check_bucket' => true]);
         $this->assertTrue($upload);
 
         $restore = $this->s3Client->restoreItem(['bucket' => $this->bucket, 'key' => $keyname]);

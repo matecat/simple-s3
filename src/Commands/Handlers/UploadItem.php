@@ -14,6 +14,8 @@ use SimpleS3\Validators\S3StorageClassNameValidator;
 
 class UploadItem extends CommandHandler
 {
+    const MAX_FILESIZE = 6291456; // 6 Mb
+
     /**
      * @param array $params
      *
@@ -38,6 +40,43 @@ class UploadItem extends CommandHandler
             throw new \InvalidArgumentException(S3StorageClassNameValidator::validate($params['storage'])[0]);
         }
 
+        if(File::getSize($source) > self::MAX_FILESIZE){
+            return $this->multipartUpload($bucketName, $keyName, $source, $params);
+        }
+
+        return (new UploadItemFromBody($this->client))->handle([
+            'bucket' => $bucketName,
+            'key' =>$keyName,
+            'body' => File::open($source),
+            'storage' => (isset($params['storage'])) ? $params['storage'] : null
+        ]);
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     */
+    public function validateParams($params = [])
+    {
+        return (
+            isset($params['bucket']) and
+            isset($params['key']) and
+            isset($params['source'])
+        );
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     * @param string $source
+     * @param array $params
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function multipartUpload($bucketName, $keyName, $source, $params = [])
+    {
         $uploader = new MultipartUploader(
             $this->client->getConn(),
             $source,
@@ -71,19 +110,5 @@ class UploadItem extends CommandHandler
         } catch (MultipartUploadException $e) {
             $this->logExceptionOrContinue($e);
         }
-    }
-
-    /**
-     * @param array $params
-     *
-     * @return bool
-     */
-    public function validateParams($params = [])
-    {
-        return (
-            isset($params['bucket']) and
-            isset($params['key']) and
-            isset($params['source'])
-        );
     }
 }

@@ -23,6 +23,7 @@ use SimpleS3\Commands\CommandHandler;
  * @method bool createFolder(array $input)
  * @method bool deleteBucket(array $input)
  * @method bool deleteItem(array $input)
+ * @method bool enableAcceleration(array $input)
  * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
  * @method int|mixed getBucketSize(array $input)
  * @method ResultInterface|mixed getItem(array $input)
@@ -32,7 +33,7 @@ use SimpleS3\Commands\CommandHandler;
  * @method bool hasItem(array $input)
  * @method mixed|UriInterface openItem(array $input)
  * @method bool restoreItem(array $input)
- * @method mixed|void setBucketLifecycleConfiguration(array $input)
+ * @method bool setBucketLifecycleConfiguration(array $input)
  * @method bool uploadItem(array $input)
  * @method bool uploadItemFromBody(array $input)
  *

@@ -2,6 +2,7 @@
 
 namespace SimpleS3\Commands\Handlers;
 
+use Aws\ResultInterface;
 use Exception;
 use SimpleS3\Commands\CommandHandler;
 
@@ -15,7 +16,7 @@ class SetBucketLifecycleConfiguration extends CommandHandler
      *
      * @param array $params
      *
-     * @return mixed|void
+     * @return bool
      * @throws Exception
      */
     public function handle($params = [])
@@ -31,7 +32,17 @@ class SetBucketLifecycleConfiguration extends CommandHandler
                 ]
             ];
 
-            $this->client->getConn()->putBucketLifecycleConfiguration($settings);
+            $config = $this->client->getConn()->putBucketLifecycleConfiguration($settings);
+
+            if (($config instanceof ResultInterface) and $config['@metadata']['statusCode'] === 200) {
+                $this->log(sprintf('Lifecycle was successfully set for bucket \'%s\'', $bucketName));
+
+                return true;
+            }
+
+            $this->log(sprintf('Something went wrong during setting of lifecycle of \'%s\' bucket', $bucketName), 'warning');
+
+            return false;
         } catch (\Exception $exception) {
             $this->logExceptionOrContinue($exception);
         }

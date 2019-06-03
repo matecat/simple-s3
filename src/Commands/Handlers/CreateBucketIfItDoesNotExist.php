@@ -34,6 +34,10 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
                     $this->client->setBucketLifecycleConfiguration(['bucket' => $bucketName, 'rules' => $params['rules']]);
                 }
 
+                if (isset($params['accelerate']) and true === $params['accelerate']) {
+                    $this->client->enableAcceleration(['bucket' => $bucketName]);
+                }
+
                 if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
                     $this->log(sprintf('Bucket \'%s\' was successfully created', $bucketName));
 

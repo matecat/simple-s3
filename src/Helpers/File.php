@@ -116,4 +116,32 @@ class File
             return strtolower($filenameArray);
         }
     }
+
+    /**
+     * @param string $filename
+     *
+     * @return false|int
+     */
+    public static function getSize($filename)
+    {
+        return filesize($filename);
+    }
+
+    /**
+     * @param string $filename
+     * @param bool $sslVerify
+     *
+     * @return bool|resource
+     */
+    public static function open($filename, $sslVerify = true)
+    {
+        $context = stream_context_create([
+           'ssl' => [
+                'verify_peer' => (($sslVerify)) ? $sslVerify : true,
+                'verify_peer_name' => (($sslVerify)) ? $sslVerify : true,
+           ]
+        ]);
+
+        return fopen($filename, 'r', false, $context);
+    }
 }

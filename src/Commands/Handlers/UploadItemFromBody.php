@@ -34,6 +34,34 @@ class UploadItemFromBody extends CommandHandler
             throw new \InvalidArgumentException(S3StorageClassNameValidator::validate($params['storage'])[0]);
         }
 
+        return $this->upload($bucketName, $keyName, $body, (isset($params['storage'])) ? $params['storage'] : null);
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     */
+    public function validateParams($params = [])
+    {
+        return (
+            isset($params['bucket']) and
+            isset($params['key']) and
+            isset($params['body'])
+        );
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     * @param string $body
+     * @param null $storage
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function upload($bucketName, $keyName, $body, $storage = null)
+    {
         try {
             $config = [
                 'Bucket' => $bucketName,
@@ -41,8 +69,8 @@ class UploadItemFromBody extends CommandHandler
                 'Body'   => $body
             ];
 
-            if (isset($params['storage'])) {
-                $config['StorageClass'] = $params['storage'];
+            if (null != $storage) {
+                $config['StorageClass'] = $storage;
             }
 
             $result = $this->client->getConn()->putObject($config);
@@ -59,19 +87,5 @@ class UploadItemFromBody extends CommandHandler
         } catch (\InvalidArgumentException $e) {
             $this->logExceptionOrContinue($e);
         }
-    }
-
-    /**
-     * @param array $params
-     *
-     * @return bool
-     */
-    public function validateParams($params = [])
-    {
-        return (
-            isset($params['bucket']) and
-            isset($params['key']) and
-            isset($params['body'])
-        );
     }
 }
