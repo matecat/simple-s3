@@ -28,7 +28,7 @@ class UploadItem extends CommandHandler
         $keyName = $params['key'];
         $source = $params['source'];
 
-        if(isset($params['bucket_check']) and true === $params['bucket_check']){
+        if (isset($params['bucket_check']) and true === $params['bucket_check']) {
             $this->client->createBucketIfItDoesNotExist(['bucket' => $bucketName]);
         }
 
@@ -40,7 +40,7 @@ class UploadItem extends CommandHandler
             throw new \InvalidArgumentException(S3StorageClassNameValidator::validate($params['storage'])[0]);
         }
 
-        if(File::getSize($source) > self::MAX_FILESIZE){
+        if (File::getSize($source) > self::MAX_FILESIZE) {
             return $this->multipartUpload($bucketName, $keyName, $source, $params);
         }
 

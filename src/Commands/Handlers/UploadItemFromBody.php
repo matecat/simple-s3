@@ -22,7 +22,7 @@ class UploadItemFromBody extends CommandHandler
         $keyName = $params['key'];
         $body = $params['body'];
 
-        if(isset($params['bucket_check']) and true === $params['bucket_check']){
+        if (isset($params['bucket_check']) and true === $params['bucket_check']) {
             $this->client->createBucketIfItDoesNotExist(['bucket' => $bucketName]);
         }
 
