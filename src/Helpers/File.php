@@ -2,6 +2,9 @@
 
 namespace SimpleS3\Helpers;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
 class File
 {
     /**
@@ -143,5 +146,23 @@ class File
         ]);
 
         return fopen($filename, 'r', false, $context);
+    }
+
+    /**
+     * @param $dir
+     */
+    public static function removeDir($dir)
+    {
+        $files = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $fileinfo) {
+            $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+            $todo($fileinfo->getRealPath());
+        }
+
+        rmdir($dir);
     }
 }

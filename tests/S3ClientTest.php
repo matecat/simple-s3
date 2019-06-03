@@ -285,6 +285,22 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
+    public function test_the_client_transfer_the_content_from_a_bucket_to_filesystem()
+    {
+        $source = 's3://'.$this->bucket;
+        $dest = __DIR__ . '/support/files/transfer';
+
+        $this->s3Client->transfer(['dest' => $dest, 'source' => $source]);
+
+        $this->assertTrue(is_dir($dest));
+
+        SimpleS3\Helpers\File::removeDir($dest);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
     public function test_the_client_gets_items_in_a_bucket()
     {
         $items = $this->s3Client->getItemsInABucket(['bucket' => $this->bucket]);

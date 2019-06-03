@@ -35,6 +35,7 @@ use SimpleS3\Commands\CommandHandler;
  * @method mixed|UriInterface openItem(array $input)
  * @method bool restoreItem(array $input)
  * @method bool setBucketLifecycleConfiguration(array $input)
+ * @method bool transfer(array $input)
  * @method bool uploadItem(array $input)
  * @method bool uploadItemFromBody(array $input)
  *
