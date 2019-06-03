@@ -17,7 +17,7 @@ class GetBucketSize extends CommandHandler
         $bucketName = $params['bucket'];
         $size = 0;
 
-        foreach ($this->client->getItemsInABucket(['bucket' => $bucketName]) as $file) {
+        foreach ($this->client->getItemsInABucket(['bucket' => $bucketName, 'hydrate' => true]) as $file) {
             $size += $file['@metadata']['headers']['content-length'];
         }
 

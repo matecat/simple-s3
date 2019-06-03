@@ -32,7 +32,11 @@ class GetItemsInABucket extends CommandHandler
             $filesArray = [];
 
             foreach ($results as $result) {
-                $filesArray[$result[ 'Key' ]] = $this->client->getItem(['bucket' => $bucketName, 'key' => $result[ 'Key' ]]);
+                if (isset($params['hydrate']) and true ===$params['hydrate']) {
+                    $filesArray[$result['Key']] = $this->client->getItem(['bucket' => $bucketName, 'key' => $result[ 'Key' ]]);
+                } else {
+                    $filesArray[] = $result['Key'];
+                }
             }
 
             $this->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));

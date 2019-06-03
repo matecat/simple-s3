@@ -246,9 +246,12 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_items_in_a_bucket()
+    public function test_the_client_gets_items_in_a_bucket_with_callback()
     {
-        $items = $this->s3Client->getItemsInABucket(['bucket' => $this->bucket]);
+        $items = $this->s3Client->getItemsInABucket([
+            'bucket' => $this->bucket,
+            'hydrate' => true,
+        ]);
 
         $this->assertTrue(is_array($items));
         $this->assertCount(5, $items);
@@ -257,6 +260,23 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             $this->assertInstanceOf(ResultInterface::class, $item);
             $this->assertEquals($item['@metadata']['statusCode'], 200);
         }
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_gets_items_in_a_bucket()
+    {
+        $items = $this->s3Client->getItemsInABucket(['bucket' => $this->bucket]);
+
+        $this->assertTrue(is_array($items));
+        $this->assertCount(5, $items);
+        $this->assertEquals($items[0], 'folder/');
+        $this->assertEquals($items[1], 'folder/test.txt');
+        $this->assertEquals($items[2], 'item-from-body.txt');
+        $this->assertEquals($items[3], 'test.txt');
+        $this->assertEquals($items[4], 'test.txt(1)');
     }
 
     /**
