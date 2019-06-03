@@ -2,6 +2,7 @@
 
 namespace SimpleS3;
 
+use Aws\PsrCacheAdapter;
 use Aws\ResultInterface;
 use Aws\S3\S3Client;
 use Psr\Http\Message\UriInterface;
@@ -43,14 +44,19 @@ use SimpleS3\Commands\CommandHandler;
 final class Client
 {
     /**
-     * @var S3Client
+     * @var PsrCacheAdapter
      */
-    private $s3;
+    private $cache;
 
     /**
      * @var LoggerInterface
      */
     private $logger;
+
+    /**
+     * @var S3Client
+     */
+    private $s3;
 
     /**
      * @var bool
@@ -98,6 +104,31 @@ final class Client
         if ($commandHandler->validateParams($params)) {
             return $commandHandler->handle($params);
         }
+    }
+
+
+    /**
+     * @param PsrCacheAdapter $cache
+     */
+    public function addCache(PsrCacheAdapter $cache)
+    {
+        $this->cache = $cache;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasCache()
+    {
+        return null !== $this->cache;
+    }
+
+    /**
+     * @return PsrCacheAdapter
+     */
+    public function getCache()
+    {
+        return $this->cache;
     }
 
     /**

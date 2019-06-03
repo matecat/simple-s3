@@ -22,6 +22,40 @@ abstract class CommandHandler implements CommandHandlerInterface
     }
 
     /**
+     * @param $key
+     *
+     * @return mixed|null
+     */
+    public function getFromCache($key)
+    {
+        if (null !== $this->client->getCache()) {
+            return unserialize($this->client->getCache()->get($key));
+        }
+    }
+
+    /**
+     * @param $key
+     */
+    public function removeFromCache($key)
+    {
+        if (null !== $this->client->getCache()) {
+            $this->client->getCache()->remove($key);
+        }
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     * @param $ttl
+     */
+    public function setToCache($key, $value, $ttl)
+    {
+        if (null !== $this->client->getCache()) {
+            $this->client->getCache()->set(md5($key), serialize($value), $ttl);
+        }
+    }
+
+    /**
      * @param string $message
      * @param string $level
      */
