@@ -80,12 +80,12 @@ class CopyInBatch extends CommandHandler
             $pool->promise()->wait();
 
             if (count($errors) === 0) {
-                $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $params['target_bucket']));
+                $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']));
 
                 return true;
             }
 
-            $this->log(sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], $params['target_bucket']), 'warning');
+            $this->log(sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']), 'warning');
 
             return false;
         } catch (\Exception $e) {
