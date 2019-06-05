@@ -94,6 +94,20 @@ For further details please refer to the official documentation:
 
 [Restore an archived object](https://docs.aws.amazon.com/cli/latest/reference/s3api/restore-object.html)
 
+## Caching
+
+In order speed up data retrieval (```getItemsInABucket```), you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant:
+
+```php
+...
+
+// $cacheAdapter MUST implement Psr\Cache\CacheItemPoolInterface
+
+$redis = new Predis\Client();
+$cacheAdapter = new RedisAdapter($redis); // in this example Symfony Cache component is used
+$s3Client->addCache(new PsrCacheAdapter($cacheAdapter));
+```
+
 ## Logging
 
 In order to log Client calls, you can inject your logger. Please note that your logger MUST be PSR-3 compliant:
