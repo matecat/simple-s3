@@ -161,7 +161,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($copied);
 
         $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => 'folder/'.$this->keyname, 'source' => $source, 'check_bucket' => true]);
-        $this->assertCount(2, $this->s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder/']));
+
+        $this->assertCount(2, $this->s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder']));
     }
 
     /**
@@ -315,11 +316,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($items));
         $this->assertCount(5, $items);
-        $this->assertEquals($items[0], 'folder/');
-        $this->assertEquals($items[1], 'folder/test.txt');
-        $this->assertEquals($items[2], 'item-from-body.txt');
-        $this->assertEquals($items[3], 'test.txt');
-        $this->assertEquals($items[4], 'test.txt(1)');
+        $this->assertContains('folder', $items);
+        $this->assertContains('folder/test.txt', $items);
+        $this->assertContains('item-from-body.txt', $items);
+        $this->assertContains('test.txt', $items);
+        $this->assertContains('test.txt(1)', $items);
     }
 
     /**

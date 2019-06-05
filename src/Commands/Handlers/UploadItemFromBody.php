@@ -79,7 +79,7 @@ class UploadItemFromBody extends CommandHandler
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
 
-                if ((!isset($params['storage']))) {
+                if (null === $storage) {
                     $this->setInCache($bucketName , $keyName);
                 }
 
