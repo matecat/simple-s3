@@ -4,7 +4,6 @@
 [![license](https://img.shields.io/github/license/mauretto78/simple-s3.svg)]()
 [![Packagist](https://img.shields.io/packagist/v/mauretto78/simple-s3.svg)]()
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauretto78/simple-s3/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauretto78/simple-s3/?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0cf7b903fee24738a834390361105cf5)](https://www.codacy.com/app/mauretto78_2/simple-s3?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mauretto78/simple-s3&amp;utm_campaign=Badge_Grade)
 
 **Simple S3 Client** is a simple wrapper of the official SDK PHP Client.
 

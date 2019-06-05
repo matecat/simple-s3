@@ -5,6 +5,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 use SimpleS3\Exceptions\InvalidS3NameException;
+use SimpleS3\Helpers\File;
 use SimpleS3\Validators\S3ObjectSafeNameValidator;
 use SimpleS3\Validators\S3StorageClassNameValidator;
 
@@ -77,6 +78,10 @@ class UploadItemFromBody extends CommandHandler
 
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
                 $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+
+                if ((!isset($params['storage']))) {
+                    $this->setInCache($bucketName , $keyName);
+                }
 
                 return true;
             }

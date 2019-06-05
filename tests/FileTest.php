@@ -15,4 +15,17 @@ class FileTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_array($content));
         $this->assertCount(5000, $content);
     }
+
+    /**
+     * @test
+     */
+    public function get_file_info()
+    {
+        $path = '/usr/path/to/file.txt';
+
+        $this->assertEquals(File::getInfo($path)['dirname'], '/usr/path/to');
+        $this->assertEquals(File::getInfo($path)['basename'], 'file.txt');
+        $this->assertEquals(File::getInfo($path)['extension'], 'txt');
+        $this->assertEquals(File::getInfo($path)['filename'], 'file');
+    }
 }

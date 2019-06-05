@@ -1,10 +1,12 @@
 <?php
 
+use Aws\PsrCacheAdapter;
 use Aws\Result;
 use Aws\ResultInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use SimpleS3\Client;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -40,9 +42,15 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             ]
         );
 
+        // Inject Logger
         $logger = new Logger('channel-test');
         $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
         $this->s3Client->addLogger($logger);
+
+        // Inject Cache
+        $redis = new Predis\Client();
+        $cacheAdapter = new RedisAdapter($redis);
+        $this->s3Client->addCache(new PsrCacheAdapter($cacheAdapter));
 
         $this->bucket      = 'mauretto78-bucket-test';
         $this->keyname     = 'test.txt';

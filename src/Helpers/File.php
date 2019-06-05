@@ -200,4 +200,14 @@ class File
 
         rmdir($dir);
     }
+
+    /**
+     * @param string $path
+     *
+     * @return array
+     */
+    public static function getInfo($path)
+    {
+        return pathinfo($path);
+    }
 }

@@ -41,10 +41,11 @@ class CopyInBatch extends CommandHandler
 
         $commands = [];
         $errors = [];
+        $targetBucket = (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket'];
 
         foreach ($params['files']['source'] as $key => $file) {
             $commands[] = $this->client->getConn()->getCommand('CopyObject', [
-                    'Bucket'     => (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket'],
+                    'Bucket'     => $targetBucket,
                     'Key'        => (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file,
                     'CopySource' => $params['source_bucket'] . DIRECTORY_SEPARATOR . $file,
             ]);
@@ -62,8 +63,9 @@ class CopyInBatch extends CommandHandler
                     ResultInterface $result,
                     $iterKey,
                     PromiseInterface $aggregatePromise
-                ) {
+                ) use ($targetBucket) {
                     $this->log(sprintf('Completed copy of \'%s\'',$iterKey));
+                    $this->setInCache($targetBucket, $iterKey);
                 },
                 // Invoke this function for each failed transfer
                 'rejected' => function (
@@ -80,7 +82,7 @@ class CopyInBatch extends CommandHandler
             $pool->promise()->wait();
 
             if (count($errors) === 0) {
-                $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']));
+                $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $targetBucket));
 
                 return true;
             }

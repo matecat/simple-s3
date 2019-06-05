@@ -27,6 +27,12 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
+            if($this->client->hasCache()){
+                var_dump(
+                    $this->getFromCache($bucketName, (isset($config['Prefix'])) ? $config['Prefix']: null)
+                );
+            }
+
             $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
 
             $filesArray = [];

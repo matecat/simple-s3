@@ -31,7 +31,9 @@
     "phpunit/phpunit": "~5.7",
     "friendsofphp/php-cs-fixer": "^2.3",
     "monolog/monolog": "^1.24",
-    "phpstan/phpstan": "^0.11.8"
+    "phpstan/phpstan": "^0.11.8",
+    "symfony/cache": "^4.3",
+    "predis/predis": "^1.1"
   },"suggest": {
     "ext-fileinfo": "Allows to get info on files",
     "ext-curl": "Needed to get file content from remote url"

@@ -107,7 +107,6 @@ final class Client
         }
     }
 
-
     /**
      * @param PsrCacheAdapter $cache
      */

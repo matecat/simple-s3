@@ -26,6 +26,7 @@ class DeleteBucket extends CommandHandler
 
                 if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
                     $this->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+                    $this->removeFromCache($bucketName);
 
                     return true;
                 }

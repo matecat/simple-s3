@@ -22,36 +22,50 @@ abstract class CommandHandler implements CommandHandlerInterface
     }
 
     /**
-     * @param $key
+     * @param string $bucketName
+     * @param null $prefix
      *
-     * @return mixed|null
+     * @return mixed
      */
-    public function getFromCache($key)
+    public function getFromCache($bucketName, $prefix = null)
     {
         if (null !== $this->client->getCache()) {
-            return unserialize($this->client->getCache()->get($key));
+            return unserialize($this->client->getCache()->get(md5($bucketName)));
         }
     }
 
     /**
-     * @param $key
+     * @param string $bucketName
+     * @param string $keyName
+     * @param int $ttl
      */
-    public function removeFromCache($key)
+    public function setInCache($bucketName , $keyName, $ttl = 0)
     {
-        if (null !== $this->client->getCache()) {
-            $this->client->getCache()->remove($key);
+        if($this->client->hasCache()){
+            $keysInCache = is_array($this->getFromCache($bucketName)) ? $this->getFromCache($bucketName) : [];
+            array_push($keysInCache, $keyName);
+
+            $this->client->getCache()->set(md5($bucketName), serialize($keysInCache), $ttl);
         }
     }
 
     /**
-     * @param $key
-     * @param $value
-     * @param $ttl
+     * @param string $bucketName
+     * @param null $keyName
      */
-    public function setToCache($key, $value, $ttl)
+    public function removeFromCache($bucketName, $keyName = null)
     {
-        if (null !== $this->client->getCache()) {
-            $this->client->getCache()->set(md5($key), serialize($value), $ttl);
+        if($this->client->hasCache()){
+            if($keyName){
+                $keysInCache = is_array($this->getFromCache($bucketName)) ? $this->getFromCache($bucketName) : [];
+                $keysInCache = array_filter($keysInCache, function($element) use ($keyName) {
+                    return $element === $keyName;
+                });
+
+                $this->client->getCache()->set(md5($bucketName), serialize($keysInCache));
+            } else {
+                $this->client->getCache()->remove(md5($bucketName));
+            }
         }
     }
 

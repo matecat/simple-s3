@@ -26,9 +26,11 @@ class GetBucketSize extends CommandHandler
             $config['Prefix'] = $params['prefix'];
         }
 
-        $objectIterator = $this->client->getConn()->getIterator('ListObjects', $config);
-        foreach ($objectIterator as $object) {
-            $size += $object['Size'];
+        $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
+        foreach ($resultPaginator as $result) {
+            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++){
+                $size += $contents[$i]['Size'];
+            }
         }
 
         $this->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));

@@ -106,6 +106,11 @@ class UploadItem extends CommandHandler
 
             $this->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
+            // update cache
+            if ((!isset($params['storage']))) {
+                $this->setInCache($bucketName , $keyName);
+            }
+
             return false;
         } catch (MultipartUploadException $e) {
             $this->logExceptionOrContinue($e);
