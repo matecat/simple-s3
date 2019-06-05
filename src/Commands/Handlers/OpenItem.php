@@ -4,6 +4,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class OpenItem extends CommandHandler
 {
@@ -20,14 +21,7 @@ class OpenItem extends CommandHandler
 
         try {
             $url = $this->client->getPublicItemLink(['bucket' => $bucketName, 'key' => $keyName]);
-            $content = file_get_contents($url, false, stream_context_create(
-                [
-                    'ssl' => [
-                        'verify_peer' => $this->client->hasSslVerify(),
-                        'verify_peer_name' => $this->client->hasSslVerify()
-                    ]
-                ]
-            ));
+            $content = File::loadFile($url, $this->client->hasSslVerify());
 
             if (false === $content) {
                 $this->log(sprintf('Something went wrong during getting content of \'%s\' item from \'%s\' bucket', $keyName, $bucketName), 'warning');

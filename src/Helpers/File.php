@@ -131,6 +131,41 @@ class File
     }
 
     /**
+     * @param string $url
+     *
+     * @return bool|string
+     */
+    public static function loadFile($url, $sslVerify = true)
+    {
+        if (function_exists('curl_version') ) {
+            $ch = curl_init();
+
+            $verifyPeer = (true == $sslVerify) ? 1 : 0;
+            $verifyHost = (true == $sslVerify) ? 2 : 0;
+
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifyPeer);
+            curl_setopt($ch, CURLOPT_URL, $url);
+
+            $data = curl_exec($ch);
+            curl_close($ch);
+
+            return $data;
+        }
+
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => (($sslVerify)) ? $sslVerify : true,
+                'verify_peer_name' => (($sslVerify)) ? $sslVerify : true,
+            ]
+        ]);
+
+        return file_get_contents($url, false, $context);
+    }
+
+    /**
      * @param string $filename
      * @param bool $sslVerify
      *

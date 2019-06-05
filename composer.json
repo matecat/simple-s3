@@ -32,5 +32,8 @@
     "friendsofphp/php-cs-fixer": "^2.3",
     "monolog/monolog": "^1.24",
     "phpstan/phpstan": "^0.11.8"
+  },"suggest": {
+    "ext-fileinfo": "Allows to get info on files",
+    "ext-curl": "Needed to get file content from remote url"
   }
 }
