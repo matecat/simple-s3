@@ -27,15 +27,18 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
-            $results = $this->client->getConn()->getIterator('ListObjects', $config);
+            $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
 
             $filesArray = [];
+            foreach ($resultPaginator as $result) {
+                for ($i = 0; $i < count($contents = $result->get('Contents')); $i++){
+                    $key = $contents[$i]['Key'];
 
-            foreach ($results as $result) {
-                if (isset($params['hydrate']) and true ===$params['hydrate']) {
-                    $filesArray[$result['Key']] = $this->client->getItem(['bucket' => $bucketName, 'key' => $result[ 'Key' ]]);
-                } else {
-                    $filesArray[] = $result['Key'];
+                    if (isset($params['hydrate']) and true === $params['hydrate']) {
+                        $filesArray[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
+                    } else {
+                        $filesArray[] = $key;
+                    }
                 }
             }
 
