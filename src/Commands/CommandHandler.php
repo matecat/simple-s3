@@ -40,7 +40,7 @@ abstract class CommandHandler implements CommandHandlerInterface
 
             $array = [];
 
-            if(substr($prefix, -1) !== DIRECTORY_SEPARATOR){
+            if (substr($prefix, -1) !== DIRECTORY_SEPARATOR) {
                 $prefix .= DIRECTORY_SEPARATOR;
             }
 
@@ -63,7 +63,7 @@ abstract class CommandHandler implements CommandHandlerInterface
      */
     private function getDirName($item)
     {
-        if(File::endsWithSlash($item)){
+        if (File::endsWithSlash($item)) {
             return $item;
         }
 

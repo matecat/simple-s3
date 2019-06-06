@@ -26,7 +26,7 @@ class GetItemsInABucket extends CommandHandler
             if (isset($params['prefix'])) {
 
                 // add a final slash to prefix
-                if(false === File::endsWithSlash($params['prefix'])){
+                if (false === File::endsWithSlash($params['prefix'])) {
                     $params['prefix'] .= DIRECTORY_SEPARATOR;
                 }
 
