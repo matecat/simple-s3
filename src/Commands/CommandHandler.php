@@ -52,7 +52,7 @@ abstract class CommandHandler implements CommandHandlerInterface
                 return $array[$prefix];
             }
 
-            return $keysInCache;
+            return [];
         }
     }
 
