@@ -24,6 +24,12 @@ class GetItemsInABucket extends CommandHandler
             ];
 
             if (isset($params['prefix'])) {
+
+                // add a final slash to prefix
+                if(false === File::endsWithSlash($params['prefix'])){
+                    $params['prefix'] .= DIRECTORY_SEPARATOR;
+                }
+
                 $config['Delimiter'] = DIRECTORY_SEPARATOR;
                 $config['Prefix'] = $params['prefix'];
             }
@@ -62,11 +68,6 @@ class GetItemsInABucket extends CommandHandler
 
         foreach ($items as $key) {
             if (null != $hydrate and true === $hydrate) {
-                $fileInfo = File::getInfo($key);
-                if (!isset($fileInfo['extension'])) { // is is a dir add '/' at the end of string because on S3 the folders are stored as $folder/
-                    $key .= DIRECTORY_SEPARATOR;
-                }
-
                 $filesArray[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
             } else {
                 $filesArray[] = $key;

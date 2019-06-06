@@ -33,7 +33,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $this->s3Client    = new Client(
+        $this->s3Client = new Client(
             $config['ACCESS_KEY_ID'],
             $config['SECRET_KEY'],
             [
@@ -310,17 +310,44 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_gets_items_in_a_bucket()
+    public function test_the_client_gets_items_in_a_bucket_from_cache()
     {
-        $items = $this->s3Client->getItemsInABucket(['bucket' => $this->bucket]);
+        $items = $this->s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder']);
 
         $this->assertTrue(is_array($items));
-        $this->assertCount(5, $items);
-        $this->assertContains('folder', $items);
+        $this->assertCount(2, $items);
+        $this->assertContains('folder/', $items);
         $this->assertContains('folder/test.txt', $items);
-        $this->assertContains('item-from-body.txt', $items);
-        $this->assertContains('test.txt', $items);
-        $this->assertContains('test.txt(1)', $items);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_gets_items_in_a_bucket_from_s3()
+    {
+        // override s3Client
+        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
+        $s3Client = new Client(
+            $config['ACCESS_KEY_ID'],
+            $config['SECRET_KEY'],
+            [
+                    'version' => $config['VERSION'],
+                    'region' => $config['REGION'],
+            ]
+        );
+
+        // Inject Logger
+        $logger = new Logger('channel-test');
+        $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
+        $s3Client->addLogger($logger);
+
+        $items = $s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder']);
+
+        $this->assertTrue(is_array($items));
+        $this->assertCount(2, $items);
+        $this->assertContains('folder/', $items);
+        $this->assertContains('folder/test.txt', $items);
     }
 
     /**

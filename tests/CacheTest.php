@@ -62,7 +62,7 @@ class CacheTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($command->getFromCache(self::BUCKET_NAME, '.')[0], 'file.txt');
         $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'folder')[0], 'folder/file.txt');
         $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'folder/to')[0], 'folder/to/file.txt');
-        $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'folder/to')[1], 'folder/to/file(2).txt');
+        $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'folder/to/')[1], 'folder/to/file(2).txt');
         $this->assertEquals($command->getFromCache(self::BUCKET_NAME, '.')[1], 'file(2).txt');
         $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'another-folder')[0], 'another-folder/file.txt');
         $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'another-folder/to')[0], 'another-folder/to/file.txt');
@@ -75,10 +75,14 @@ class CacheTest extends PHPUnit_Framework_TestCase
     {
         $command = new UploadItem($this->s3Client);
 
-        $command->setInCache(self::BUCKET_NAME, 'new_folder/to');
-        $command->setInCache(self::BUCKET_NAME, 'new_folder/to/file.txt');
+        $command->setInCache(self::BUCKET_NAME, 'new_folder');
+        $command->setInCache(self::BUCKET_NAME, 'new_folder/new_file.txt');
 
-        $this->assertCount(2, $command->getFromCache(self::BUCKET_NAME, 'new_folder/to'));
+        $this->assertCount(2, $command->getFromCache(self::BUCKET_NAME, 'new_folder/'));
+        $this->assertCount(2, $command->getFromCache(self::BUCKET_NAME, 'new_folder'));
+
+        $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'new_folder/')[0], 'new_folder/');
+        $this->assertEquals($command->getFromCache(self::BUCKET_NAME, 'new_folder')[1], 'new_folder/new_file.txt');
     }
 
     /**

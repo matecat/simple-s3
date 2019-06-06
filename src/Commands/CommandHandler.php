@@ -39,6 +39,11 @@ abstract class CommandHandler implements CommandHandlerInterface
             }
 
             $array = [];
+
+            if(substr($prefix, -1) !== DIRECTORY_SEPARATOR){
+                $prefix .= DIRECTORY_SEPARATOR;
+            }
+
             foreach ($keysInCache as $item) {
                 $array[$this->getDirName($item)][] = $item;
             }
@@ -58,16 +63,13 @@ abstract class CommandHandler implements CommandHandlerInterface
      */
     private function getDirName($item)
     {
+        if(File::endsWithSlash($item)){
+            return $item;
+        }
+
         $fileInfo = File::getInfo($item);
-        if (isset($fileInfo['extension'])) {
-            return $fileInfo['dirname'];
-        }
 
-        if ($fileInfo['dirname'] === '.') {
-            return $fileInfo['filename'];
-        }
-
-        return $fileInfo['dirname'] . DIRECTORY_SEPARATOR . $fileInfo['filename'];
+        return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -79,6 +81,12 @@ abstract class CommandHandler implements CommandHandlerInterface
     {
         if ($this->client->hasCache()) {
             $keysInCache = $this->getKeysInCache($bucketName);
+
+            // is is a dir add '/' at the end of string because on S3 the folders are stored as $folder/
+            $fileInfo = File::getInfo($keyName);
+            if (!isset($fileInfo['extension']) and substr($keyName, -1) !== DIRECTORY_SEPARATOR) {
+                $keyName .= DIRECTORY_SEPARATOR;
+            }
 
             if (!in_array($keyName, $keysInCache)) {
                 array_push($keysInCache, $keyName);
@@ -124,6 +132,8 @@ abstract class CommandHandler implements CommandHandlerInterface
 
         return is_array($fromCache) ? $fromCache : [];
     }
+
+
 
     /**
      * @param string $message
