@@ -5,6 +5,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class CreateFolder extends CommandHandler
 {
@@ -19,10 +20,14 @@ class CreateFolder extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
+        if (false === File::endsWithSlash($keyName)) {
+            $keyName .= DIRECTORY_SEPARATOR;
+        }
+
         try {
             $folder = $this->client->getConn()->putObject([
                 'Bucket' => $bucketName,
-                'Key'    => $keyName . DIRECTORY_SEPARATOR,
+                'Key'    => $keyName,
                 'Body'   => '',
                 'ACL'    => 'public-read'
             ]);
