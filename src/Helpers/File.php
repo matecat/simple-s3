@@ -137,7 +137,7 @@ class File
      */
     public static function loadFile($url, $sslVerify = true)
     {
-        if (function_exists('curl_version') ) {
+        if (function_exists('curl_version')) {
             $ch = curl_init();
 
             $verifyPeer = (true == $sslVerify) ? 1 : 0;
@@ -189,8 +189,8 @@ class File
     public static function removeDir($dir)
     {
         $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
         );
 
         foreach ($files as $fileinfo) {

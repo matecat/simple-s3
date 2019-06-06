@@ -34,16 +34,16 @@ abstract class CommandHandler implements CommandHandlerInterface
 
             // if there is no prefix return the non-indexed array
             $keysInCache = $this->getKeysInCache($bucketName);
-            if(null === $prefix){
+            if (null === $prefix) {
                 return $keysInCache;
             }
 
             $array = [];
-            foreach ($keysInCache as $item){
+            foreach ($keysInCache as $item) {
                 $array[$this->getDirName($item)][] = $item;
             }
 
-            if(isset($array[$prefix])){
+            if (isset($array[$prefix])) {
                 return $array[$prefix];
             }
 
@@ -59,11 +59,11 @@ abstract class CommandHandler implements CommandHandlerInterface
     private function getDirName($item)
     {
         $fileInfo = File::getInfo($item);
-        if(isset($fileInfo['extension'])){
+        if (isset($fileInfo['extension'])) {
             return $fileInfo['dirname'];
         }
 
-        if($fileInfo['dirname'] === '.'){
+        if ($fileInfo['dirname'] === '.') {
             return $fileInfo['filename'];
         }
 
@@ -77,10 +77,10 @@ abstract class CommandHandler implements CommandHandlerInterface
      */
     public function setInCache($bucketName, $keyName, $ttl = 0)
     {
-        if($this->client->hasCache()){
+        if ($this->client->hasCache()) {
             $keysInCache = $this->getKeysInCache($bucketName);
 
-            if(!in_array($keyName, $keysInCache)){
+            if (!in_array($keyName, $keysInCache)) {
                 array_push($keysInCache, $keyName);
             }
 
@@ -94,12 +94,12 @@ abstract class CommandHandler implements CommandHandlerInterface
      */
     public function removeFromCache($bucketName, $keyName = null)
     {
-        if($this->client->hasCache()){
-            if(null != $keyName){
+        if ($this->client->hasCache()) {
+            if (null != $keyName) {
                 $keysInCache = $this->getKeysInCache($bucketName);
 
-                if(in_array($keyName, $keysInCache)){
-                    foreach ($keysInCache as $index => $key){
+                if (in_array($keyName, $keysInCache)) {
+                    foreach ($keysInCache as $index => $key) {
                         if ($key == $keyName) {
                             unset($keysInCache[$index]);
                         }

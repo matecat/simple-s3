@@ -28,7 +28,7 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
-            if($this->client->hasCache()){
+            if ($this->client->hasCache()) {
                 return $this->returnItemsFromCache($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
             }
 
@@ -58,13 +58,12 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $filesArray = [];
-        $items = $this->getFromCache($bucketName, (isset($config['Prefix'])) ? $config['Prefix']: null);
+        $items = $this->getFromCache($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
 
         foreach ($items as $key) {
             if (null != $hydrate and true === $hydrate) {
-
                 $fileInfo = File::getInfo($key);
-                if(!isset($fileInfo['extension'])){ // is is a dir add '/' at the end of string because on S3 the folders are stored as $folder/
+                if (!isset($fileInfo['extension'])) { // is is a dir add '/' at the end of string because on S3 the folders are stored as $folder/
                     $key .= DIRECTORY_SEPARATOR;
                 }
 
@@ -85,13 +84,13 @@ class GetItemsInABucket extends CommandHandler
      *
      * @return array
      */
-    private function returnItemsFromS3( $bucketName, $config, $hydrate = null)
+    private function returnItemsFromS3($bucketName, $config, $hydrate = null)
     {
         $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
 
         $filesArray = [];
         foreach ($resultPaginator as $result) {
-            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++){
+            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++) {
                 $key = $contents[$i]['Key'];
 
                 if (null != $hydrate and true === $hydrate) {

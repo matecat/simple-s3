@@ -28,7 +28,7 @@ class GetBucketSize extends CommandHandler
 
         $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
         foreach ($resultPaginator as $result) {
-            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++){
+            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++) {
                 $size += $contents[$i]['Size'];
             }
         }

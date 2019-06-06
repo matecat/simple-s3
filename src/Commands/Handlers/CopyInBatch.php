@@ -35,7 +35,7 @@ class CopyInBatch extends CommandHandler
      */
     public function handle($params = [])
     {
-        if(isset($params['target_bucket'])){
+        if (isset($params['target_bucket'])) {
             $this->client->createBucketIfItDoesNotExist(['bucket' => $params['target_bucket']]);
         }
 
@@ -56,7 +56,7 @@ class CopyInBatch extends CommandHandler
             $pool = new CommandPool($this->client->getConn(), $commands, [
                 'concurrency' => (isset($params['concurrency'])) ? $params['concurrency'] : 25,
                 'before' => function (CommandInterface $cmd, $iterKey) {
-                    $this->log(sprintf('About to send \'%s\'',$iterKey));
+                    $this->log(sprintf('About to send \'%s\'', $iterKey));
                 },
                 // Invoke this function for each successful transfer
                 'fulfilled' => function (
@@ -64,7 +64,7 @@ class CopyInBatch extends CommandHandler
                     $iterKey,
                     PromiseInterface $aggregatePromise
                 ) use ($targetBucket) {
-                    $this->log(sprintf('Completed copy of \'%s\'',$iterKey));
+                    $this->log(sprintf('Completed copy of \'%s\'', $iterKey));
                     $this->setInCache($targetBucket, $iterKey);
                 },
                 // Invoke this function for each failed transfer
