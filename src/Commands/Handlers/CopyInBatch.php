@@ -56,7 +56,7 @@ class CopyInBatch extends CommandHandler
             $pool = new CommandPool($this->client->getConn(), $commands, [
                 'concurrency' => (isset($params['concurrency'])) ? $params['concurrency'] : 25,
                 'before' => function (CommandInterface $cmd, $iterKey) {
-                    $this->log(sprintf('About to send \'%s\'', $iterKey));
+                    $this->loggerWrapper->log(sprintf('About to send \'%s\'', $iterKey));
                 },
                 // Invoke this function for each successful transfer
                 'fulfilled' => function (
@@ -64,8 +64,8 @@ class CopyInBatch extends CommandHandler
                     $iterKey,
                     PromiseInterface $aggregatePromise
                 ) use ($targetBucket) {
-                    $this->log(sprintf('Completed copy of \'%s\'', $iterKey));
-                    $this->setInCache($targetBucket, $iterKey);
+                    $this->loggerWrapper->log(sprintf('Completed copy of \'%s\'', $iterKey));
+                    $this->cacheWrapper->setInCache($targetBucket, $iterKey);
                 },
                 // Invoke this function for each failed transfer
                 'rejected' => function (
@@ -74,7 +74,7 @@ class CopyInBatch extends CommandHandler
                     PromiseInterface $aggregatePromise
                 ) {
                     $errors[] = $reason;
-                    $this->logExceptionOrContinue($reason);
+                    $this->loggerWrapper->logExceptionOrContinue($reason);
                 },
             ]);
 
@@ -82,16 +82,16 @@ class CopyInBatch extends CommandHandler
             $pool->promise()->wait();
 
             if (count($errors) === 0) {
-                $this->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $targetBucket));
+                $this->loggerWrapper->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $targetBucket));
 
                 return true;
             }
 
-            $this->log(sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']), 'warning');
+            $this->loggerWrapper->log(sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']), 'warning');
 
             return false;
         } catch (\Exception $e) {
-            $this->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionOrContinue($e);
         }
     }
 

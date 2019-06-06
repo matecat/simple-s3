@@ -49,11 +49,11 @@ class Transfer extends CommandHandler
             $manager = new \Aws\S3\Transfer($this->client->getConn(), $source, $dest, $options);
             $manager->transfer();
 
-            $this->log(sprintf('Files were successfully transfered from \'%s\' to \'%s\'', $source, $dest));
+            $this->loggerWrapper->log(sprintf('Files were successfully transfered from \'%s\' to \'%s\'', $source, $dest));
 
             return true;
         } catch (\RuntimeException $e) {
-            $this->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionOrContinue($e);
         }
     }
 }

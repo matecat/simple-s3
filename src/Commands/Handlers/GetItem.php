@@ -25,11 +25,11 @@ class GetItem extends CommandHandler
                     'Key'    => $keyName
             ]);
 
-            $this->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
             return $file;
         } catch (S3Exception $e) {
-            $this->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionOrContinue($e);
         }
     }
 

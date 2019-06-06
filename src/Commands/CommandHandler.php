@@ -3,7 +3,8 @@
 namespace SimpleS3\Commands;
 
 use SimpleS3\Client;
-use SimpleS3\Helpers\File;
+use SimpleS3\Commands\Wrappers\Cache;
+use SimpleS3\Commands\Wrappers\Logger;
 
 abstract class CommandHandler implements CommandHandlerInterface
 {
@@ -13,6 +14,16 @@ abstract class CommandHandler implements CommandHandlerInterface
     protected $client;
 
     /**
+     * @var Logger
+     */
+    protected $loggerWrapper;
+
+    /**
+     * @var Cache
+     */
+    protected $cacheWrapper;
+
+    /**
      * CommandHandlerAbstract constructor.
      *
      * @param Client $client
@@ -20,139 +31,7 @@ abstract class CommandHandler implements CommandHandlerInterface
     public function __construct(Client $client)
     {
         $this->client = $client;
-    }
-
-    /**
-     * @param string $bucketName
-     * @param null $prefix
-     *
-     * @return array
-     */
-    public function getFromCache($bucketName, $prefix = null)
-    {
-        if (null !== $this->client->getCache()) {
-
-            // if there is no prefix return the non-indexed array
-            $keysInCache = $this->getKeysInCache($bucketName);
-            if (null === $prefix) {
-                return $keysInCache;
-            }
-
-            $array = [];
-
-            if (substr($prefix, -1) !== DIRECTORY_SEPARATOR) {
-                $prefix .= DIRECTORY_SEPARATOR;
-            }
-
-            foreach ($keysInCache as $item) {
-                $array[$this->getDirName($item)][] = $item;
-            }
-
-            if (isset($array[$prefix])) {
-                return $array[$prefix];
-            }
-
-            return [];
-        }
-    }
-
-    /**
-     * @param string $item
-     *
-     * @return string
-     */
-    private function getDirName($item)
-    {
-        if (File::endsWithSlash($item)) {
-            return $item;
-        }
-
-        $fileInfo = File::getInfo($item);
-
-        return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
-    }
-
-    /**
-     * @param string $bucketName
-     * @param string $keyName
-     * @param int $ttl
-     */
-    public function setInCache($bucketName, $keyName, $ttl = 0)
-    {
-        if ($this->client->hasCache()) {
-            $keysInCache = $this->getKeysInCache($bucketName);
-
-            if (!in_array($keyName, $keysInCache)) {
-                array_push($keysInCache, $keyName);
-            }
-
-            $this->client->getCache()->set(md5($bucketName), serialize($keysInCache), $ttl);
-        }
-    }
-
-    /**
-     * @param string $bucketName
-     * @param null $keyName
-     */
-    public function removeFromCache($bucketName, $keyName = null)
-    {
-        if ($this->client->hasCache()) {
-            if (null != $keyName) {
-                $keysInCache = $this->getKeysInCache($bucketName);
-
-                if (in_array($keyName, $keysInCache)) {
-                    foreach ($keysInCache as $index => $key) {
-                        if ($key == $keyName) {
-                            unset($keysInCache[$index]);
-                        }
-                    }
-                }
-
-                $this->client->getCache()->set(md5($bucketName), serialize($keysInCache));
-            } else {
-                $this->client->getCache()->remove(md5($bucketName));
-            }
-        }
-    }
-
-    /**
-     * @param string $bucketName
-     *
-     * @return array|mixed
-     */
-    private function getKeysInCache($bucketName)
-    {
-        $fromCache = unserialize($this->client->getCache()->get(md5($bucketName)));
-
-        return is_array($fromCache) ? $fromCache : [];
-    }
-
-
-
-    /**
-     * @param string $message
-     * @param string $level
-     */
-    public function log($message, $level = 'info')
-    {
-        if ($this->client->hasLogger()) {
-            $this->client->getLogger()->{$level}($message);
-        }
-    }
-
-    /**
-     * Log the exception or continue with default behaviour
-     *
-     * @param \Exception $exception
-     *
-     * @throws \Exception
-     */
-    public function logExceptionOrContinue(\Exception $exception)
-    {
-        if ($this->client->hasLogger()) {
-            $this->client->getLogger()->error($exception->getMessage());
-        } else {
-            throw $exception; // continue with the default behaviour
-        }
+        $this->loggerWrapper = new Logger($client);
+        $this->cacheWrapper = new Cache($client);
     }
 }

@@ -40,7 +40,7 @@ class GetItemsInABucket extends CommandHandler
 
             return $this->returnItemsFromS3($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
         } catch (S3Exception $e) {
-            $this->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionOrContinue($e);
         }
     }
 
@@ -64,7 +64,7 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $filesArray = [];
-        $items = $this->getFromCache($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
+        $items = $this->cacheWrapper->getFromCache($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
 
         foreach ($items as $key) {
             if (null != $hydrate and true === $hydrate) {
@@ -74,7 +74,7 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        $this->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
         return $filesArray;
     }
@@ -102,7 +102,7 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        $this->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        $this->loggerWrapper->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
         return $filesArray;
     }

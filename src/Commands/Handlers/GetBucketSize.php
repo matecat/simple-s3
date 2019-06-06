@@ -33,7 +33,7 @@ class GetBucketSize extends CommandHandler
             }
         }
 
-        $this->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
+        $this->loggerWrapper->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
 
         return $size;
     }

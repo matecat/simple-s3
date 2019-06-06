@@ -31,16 +31,16 @@ class EnableAcceleration extends CommandHandler
             );
 
             if (($accelerate instanceof ResultInterface) and $accelerate['@metadata']['statusCode'] === 200) {
-                $this->log(sprintf('Bucket \'%s\' was successfully set to transfer accelerated mode', $bucketName));
+                $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully set to transfer accelerated mode', $bucketName));
 
                 return true;
             }
 
-            $this->log(sprintf('Something went wrong during setting of bucket \'%s\' to transfer accelerated mode', $bucketName), 'warning');
+            $this->loggerWrapper->log(sprintf('Something went wrong during setting of bucket \'%s\' to transfer accelerated mode', $bucketName), 'warning');
 
             return false;
         } catch (\Exception $exception) {
-            $this->logExceptionOrContinue($exception);
+            $this->loggerWrapper->logExceptionOrContinue($exception);
         }
     }
 

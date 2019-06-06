@@ -31,17 +31,17 @@ class CopyItem extends CommandHandler
             ]);
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
-                $this->log(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
-                $this->setInCache($targetBucketName, $targetKeyname);
+                $this->loggerWrapper->log(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
+                $this->cacheWrapper->setInCache($targetBucketName, $targetKeyname);
 
                 return true;
             }
 
-            $this->log(sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
+            $this->loggerWrapper->log(sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
 
             return false;
         } catch (S3Exception $e) {
-            $this->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionOrContinue($e);
         }
     }
 

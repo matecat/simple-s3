@@ -99,21 +99,21 @@ class UploadItem extends CommandHandler
             $upload = $uploader->upload();
 
             if (($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200) {
-                $this->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                $this->loggerWrapper->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
 
                 return true;
             }
 
-            $this->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->loggerWrapper->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             // update cache
             if ((!isset($params['storage']))) {
-                $this->setInCache($bucketName, $keyName);
+                $this->cacheWrapper->setInCache($bucketName, $keyName);
             }
 
             return false;
         } catch (MultipartUploadException $e) {
-            $this->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionOrContinue($e);
         }
     }
 }

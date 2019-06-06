@@ -32,12 +32,12 @@ class ClearBucket extends CommandHandler
         }
 
         if (count($errors) === 0) {
-            $this->log(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
+            $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
 
             return true;
         }
 
-        $this->log(sprintf('Something went wrong while clearing bucket \'%s\'', $bucketName), 'warning');
+        $this->loggerWrapper->log(sprintf('Something went wrong while clearing bucket \'%s\'', $bucketName), 'warning');
 
         return false;
     }
