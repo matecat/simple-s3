@@ -68,7 +68,7 @@ The Client comes with two validators:
 *    ```S3BucketNameValidator``` 
 *    ```S3ObjectSafeNameValidator``` 
  
-These two classes throws you an ```InvalidS3BucketNameException``` if the name is not compliant with the AWS rule conventions. 
+These two classes throws you an ```InvalidS3NameException``` if the name is not compliant with the AWS rule conventions. 
 
 Validators are invoked in Client's ```createBucketIfItDoesNotExist``` and ```uploadFile``` methods.
 
@@ -96,7 +96,8 @@ For further details please refer to the official documentation:
 
 ## Caching
 
-In order speed up data retrieval (```getItemsInABucket```), you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant:
+In order speed up data retrieval (```getItemsInABucket```), you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant. 
+Consider this example:
 
 ```php
 ...
@@ -110,7 +111,7 @@ $s3Client->addCache(new PsrCacheAdapter($cacheAdapter));
 
 ## Logging
 
-In order to log Client calls, you can inject your logger. Please note that your logger MUST be PSR-3 compliant:
+You can inject your logger to log every Client outcome call. Please note that your logger MUST be PSR-3 compliant:
 
 ```php
 ...
