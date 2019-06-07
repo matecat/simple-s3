@@ -33,18 +33,17 @@ class Cache
     public function getFromCache($bucketName, $prefix = null)
     {
         if (null !== $this->client->getCache()) {
-
             $keysInCache = $this->getKeysInCache($bucketName);
 
             // 1. If there is no prefix return the non-indexed array
             if (null === $prefix) {
                 $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($keysInCache));
 
-                return iterator_to_array($it,false);
+                return iterator_to_array($it, false);
             }
 
             // 2. check if isset $keysInCache[$prefix] and return the result
-            if (substr($prefix, -1) !== DIRECTORY_SEPARATOR) {
+            if (true !== File::endsWithSlash($prefix)) {
                 $prefix .= DIRECTORY_SEPARATOR;
             }
 
@@ -102,7 +101,7 @@ class Cache
             if (null != $keyName) {
                 $keysInCache = $this->getKeysInCache($bucketName);
 
-                if (substr($keyName, -1) !== DIRECTORY_SEPARATOR) {
+                if (true !== File::endsWithSlash($keyName)) {
                     $keyName .= DIRECTORY_SEPARATOR;
                 }
 
