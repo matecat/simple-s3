@@ -75,7 +75,7 @@ class GetItemsInABucket extends CommandHandler
         }
 
         // no data was found, try to retrieve data from S3
-        if(count($filesArray) === 0){
+        if (count($filesArray) === 0) {
             return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 

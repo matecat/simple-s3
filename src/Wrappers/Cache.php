@@ -107,7 +107,7 @@ class Cache
                 $this->client->getCache()->set(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX'), serialize(array_unique($indexes)));
             } else {
                 // loop all prefixes and remove all values and the index
-                foreach ($this->getPrefixesFromCache($bucketName) as $prefix){
+                foreach ($this->getPrefixesFromCache($bucketName) as $prefix) {
                     $this->client->getCache()->remove(md5($bucketName . self::SAFE_DELIMITER . $prefix));
                 }
 
@@ -140,10 +140,10 @@ class Cache
     private function getValuesFromCache($bucketName, $keyName = null)
     {
         // return the value stored in cache
-        if(null != $keyName){
+        if (null != $keyName) {
             $aa = unserialize($this->client->getCache()->get(md5($this->getCacheKey($bucketName, $keyName))));
 
-            if(false !== $aa){
+            if (false !== $aa) {
                 return $aa;
             }
 
@@ -153,9 +153,9 @@ class Cache
         // loop all prefixes and merge and return the array
         $array = [];
 
-        foreach ($this->getPrefixesFromCache($bucketName) as $prefix){
+        foreach ($this->getPrefixesFromCache($bucketName) as $prefix) {
             $values = unserialize($this->client->getCache()->get(md5($this->getCacheKey($bucketName, $prefix))));
-            if(false !== $values){
+            if (false !== $values) {
                 $array = array_merge($array, $values);
             }
         }
