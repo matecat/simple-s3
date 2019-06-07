@@ -23,6 +23,7 @@ use SimpleS3\Commands\CommandHandler;
  * @method bool createBucketIfItDoesNotExist(array $input)
  * @method bool createFolder(array $input)
  * @method bool deleteBucket(array $input)
+ * @method bool deleteFolder(array $input)
  * @method bool deleteItem(array $input)
  * @method bool downloadItem(array $input)
  * @method bool enableAcceleration(array $input)
