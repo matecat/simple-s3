@@ -2,13 +2,13 @@
 
 namespace SimpleS3\Wrappers;
 
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 use SimpleS3\Client;
 use SimpleS3\Helpers\File;
 
 class Cache
 {
+    const SAFE_DELIMITER = '::';
+
     /**
      * @var Client
      */
@@ -33,13 +33,9 @@ class Cache
     public function getFromCache($bucketName, $prefix = null)
     {
         if (null !== $this->client->getCache()) {
-            $keysInCache = $this->getKeysInCache($bucketName);
-
-            // 1. If there is no prefix return the non-indexed array
+            // 1. If there is no prefix return all values for the bucket
             if (null === $prefix) {
-                $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($keysInCache));
-
-                return iterator_to_array($it, false);
+                return (is_array($this->getValuesFromCache($bucketName))) ? $this->getValuesFromCache($bucketName, $prefix) : [];
             }
 
             // 2. check if isset $keysInCache[$prefix] and return the result
@@ -47,12 +43,7 @@ class Cache
                 $prefix .= DIRECTORY_SEPARATOR;
             }
 
-            if (isset($keysInCache[$prefix])) {
-                return $keysInCache[$prefix];
-            }
-
-            // 3. No results, return empty array
-            return [];
+            return (is_array($this->getValuesFromCache($bucketName, $prefix))) ? $this->getValuesFromCache($bucketName, $prefix) : [];
         }
     }
 
@@ -80,14 +71,16 @@ class Cache
     public function setInCache($bucketName, $keyName, $ttl = 0)
     {
         if ($this->client->hasCache()) {
-            $keysInCache = $this->getKeysInCache($bucketName);
 
-            $prefix = $this->getDirName($keyName);
+            // set key in cache
+            $valuesFromCache = $this->getValuesFromCache($bucketName, $keyName);
+            $valuesFromCache[] = $keyName;
+            $this->client->getCache()->set(md5($this->getCacheKey($bucketName, $keyName)), serialize(array_unique($valuesFromCache)), $ttl);
 
-            $keysInCache[$prefix][] = $keyName;
-            array_unique($keysInCache[$prefix]);
-
-            $this->client->getCache()->set(md5($bucketName), serialize($keysInCache), $ttl);
+            // update bucket index keys
+            $indexes = $this->getPrefixesFromCache($bucketName);
+            $indexes[] = $this->getDirName($keyName);
+            $this->client->getCache()->set(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX'), serialize(array_unique($indexes)), $ttl);
         }
     }
 
@@ -98,33 +91,82 @@ class Cache
     public function removeFromCache($bucketName, $keyName = null)
     {
         if ($this->client->hasCache()) {
+            // remove the value stored in cache
             if (null != $keyName) {
-                $keysInCache = $this->getKeysInCache($bucketName);
-
                 if (true !== File::endsWithSlash($keyName)) {
                     $keyName .= DIRECTORY_SEPARATOR;
                 }
 
-                if (isset($keysInCache[$keyName])) {
-                    unset($keysInCache[$keyName]);
+                $this->client->getCache()->remove(md5($bucketName . self::SAFE_DELIMITER . $keyName));
+                $indexes = $this->getPrefixesFromCache($bucketName);
+
+                if (($key = array_search($keyName, $indexes)) !== false) {
+                    unset($indexes[$key]);
                 }
 
-                $this->client->getCache()->set(md5($bucketName), serialize($keysInCache));
+                $indexes[] = $this->getDirName($keyName);
+                $this->client->getCache()->set(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX'), serialize(array_unique($indexes)));
             } else {
-                $this->client->getCache()->remove(md5($bucketName));
+                // loop all prefixes and remove all values and the index
+                foreach ($this->getPrefixesFromCache($bucketName) as $prefix){
+                    $this->client->getCache()->remove(md5($bucketName . self::SAFE_DELIMITER . $prefix));
+                }
+
+                $this->client->getCache()->remove(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX'));
             }
         }
     }
 
     /**
+     * Gets the key stored in cache
+     * Example:
+     * your-bucket::folder/to/path
+     *
+     * @param string $bucketName
+     * @param string $keyName
+     *
+     * @return string
+     */
+    private function getCacheKey($bucketName, $keyName)
+    {
+        return $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName);
+    }
+
+    /**
+     * @param string $bucketName
+     * @param null $keyName
+     *
+     * @return array|bool
+     */
+    private function getValuesFromCache($bucketName, $keyName = null)
+    {
+        // return the value stored in cache
+        if(null != $keyName){
+            return unserialize($this->client->getCache()->get(md5($this->getCacheKey($bucketName, $keyName))));
+        }
+
+        // loop all prefixes and merge and return the array
+        $array = [];
+
+        foreach ($this->getPrefixesFromCache($bucketName) as $prefix){
+            $values = unserialize($this->client->getCache()->get(md5($this->getCacheKey($bucketName, $prefix))));
+            if(false !== $values){
+                $array = array_merge($array, $values);
+            }
+        }
+
+        return array_unique($array);
+    }
+
+    /**
      * @param string $bucketName
      *
-     * @return array|mixed
+     * @return mixed
      */
-    private function getKeysInCache($bucketName)
+    private function getPrefixesFromCache($bucketName)
     {
-        $fromCache = unserialize($this->client->getCache()->get(md5($bucketName)));
+        $prefixes = unserialize($this->client->getCache()->get(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX')));
 
-        return is_array($fromCache) ? $fromCache : [];
+        return (is_array($prefixes)) ? $prefixes : [];
     }
 }

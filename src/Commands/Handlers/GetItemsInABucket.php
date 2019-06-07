@@ -74,6 +74,11 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
+        // no data was found, try to retrieve data from S3
+        if(count($filesArray) === 0){
+            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
+        }
+
         $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
         return $filesArray;
@@ -99,6 +104,9 @@ class GetItemsInABucket extends CommandHandler
                 } else {
                     $filesArray[] = $key;
                 }
+
+                // send to cache, just to be sure that S3 is syncronized with cache
+                $this->cacheWrapper->setInCache($bucketName, $key);
             }
         }
 
