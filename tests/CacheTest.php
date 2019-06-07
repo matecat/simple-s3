@@ -52,11 +52,11 @@ class CacheTest extends PHPUnit_Framework_TestCase
         $this->cache->setInCache(self::BUCKET_NAME, 'another-folder/file.txt');
         $this->cache->setInCache(self::BUCKET_NAME, 'another-folder/to/file.txt');
 
-        $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, '.')[0], 'file.txt');
+        $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, './')[0], 'file.txt');
         $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, 'folder')[0], 'folder/file.txt');
         $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, 'folder/to')[0], 'folder/to/file.txt');
         $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, 'folder/to/')[1], 'folder/to/file(2).txt');
-        $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, '.')[1], 'file(2).txt');
+        $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, './')[1], 'file(2).txt');
         $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, 'another-folder')[0], 'another-folder/file.txt');
         $this->assertEquals($this->cache->getFromCache(self::BUCKET_NAME, 'another-folder/to')[0], 'another-folder/to/file.txt');
     }

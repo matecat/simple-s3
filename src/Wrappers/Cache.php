@@ -2,6 +2,8 @@
 
 namespace SimpleS3\Wrappers;
 
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 use SimpleS3\Client;
 use SimpleS3\Helpers\File;
 
@@ -32,26 +34,25 @@ class Cache
     {
         if (null !== $this->client->getCache()) {
 
-            // if there is no prefix return the non-indexed array
             $keysInCache = $this->getKeysInCache($bucketName);
+
+            // 1. If there is no prefix return the non-indexed array
             if (null === $prefix) {
-                return $keysInCache;
+                $it = new RecursiveIteratorIterator(new RecursiveArrayIterator($keysInCache));
+
+                return iterator_to_array($it,false);
             }
 
-            $array = [];
-
+            // 2. check if isset $keysInCache[$prefix] and return the result
             if (substr($prefix, -1) !== DIRECTORY_SEPARATOR) {
                 $prefix .= DIRECTORY_SEPARATOR;
             }
 
-            foreach ($keysInCache as $item) {
-                $array[$this->getDirName($item)][] = $item;
+            if (isset($keysInCache[$prefix])) {
+                return $keysInCache[$prefix];
             }
 
-            if (isset($array[$prefix])) {
-                return $array[$prefix];
-            }
-
+            // 3. No results, return empty array
             return [];
         }
     }
@@ -82,9 +83,10 @@ class Cache
         if ($this->client->hasCache()) {
             $keysInCache = $this->getKeysInCache($bucketName);
 
-            if (!in_array($keyName, $keysInCache)) {
-                array_push($keysInCache, $keyName);
-            }
+            $prefix = $this->getDirName($keyName);
+
+            $keysInCache[$prefix][] = $keyName;
+            array_unique($keysInCache[$prefix]);
 
             $this->client->getCache()->set(md5($bucketName), serialize($keysInCache), $ttl);
         }
@@ -100,12 +102,12 @@ class Cache
             if (null != $keyName) {
                 $keysInCache = $this->getKeysInCache($bucketName);
 
-                if (in_array($keyName, $keysInCache)) {
-                    foreach ($keysInCache as $index => $key) {
-                        if ($key == $keyName) {
-                            unset($keysInCache[$index]);
-                        }
-                    }
+                if (substr($keyName, -1) !== DIRECTORY_SEPARATOR) {
+                    $keyName .= DIRECTORY_SEPARATOR;
+                }
+
+                if (isset($keysInCache[$keyName])) {
+                    unset($keysInCache[$keyName]);
                 }
 
                 $this->client->getCache()->set(md5($bucketName), serialize($keysInCache));
