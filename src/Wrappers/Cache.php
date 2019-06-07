@@ -35,7 +35,7 @@ class Cache
         if (null !== $this->client->getCache()) {
             // 1. If there is no prefix return all values for the bucket
             if (null === $prefix) {
-                return (is_array($this->getValuesFromCache($bucketName))) ? $this->getValuesFromCache($bucketName, $prefix) : [];
+                return $this->getValuesFromCache($bucketName);
             }
 
             // 2. check if isset $keysInCache[$prefix] and return the result
@@ -43,7 +43,7 @@ class Cache
                 $prefix .= DIRECTORY_SEPARATOR;
             }
 
-            return (is_array($this->getValuesFromCache($bucketName, $prefix))) ? $this->getValuesFromCache($bucketName, $prefix) : [];
+            return $this->getValuesFromCache($bucketName, $prefix);
         }
     }
 
@@ -71,7 +71,6 @@ class Cache
     public function setInCache($bucketName, $keyName, $ttl = 0)
     {
         if ($this->client->hasCache()) {
-
             // set key in cache
             $valuesFromCache = $this->getValuesFromCache($bucketName, $keyName);
             $valuesFromCache[] = $keyName;
@@ -136,13 +135,19 @@ class Cache
      * @param string $bucketName
      * @param null $keyName
      *
-     * @return array|bool
+     * @return array
      */
     private function getValuesFromCache($bucketName, $keyName = null)
     {
         // return the value stored in cache
         if(null != $keyName){
-            return unserialize($this->client->getCache()->get(md5($this->getCacheKey($bucketName, $keyName))));
+            $aa = unserialize($this->client->getCache()->get(md5($this->getCacheKey($bucketName, $keyName))));
+
+            if(false !== $aa){
+                return $aa;
+            }
+
+            return [];
         }
 
         // loop all prefixes and merge and return the array
