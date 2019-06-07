@@ -3,8 +3,8 @@
 namespace SimpleS3\Commands;
 
 use SimpleS3\Client;
-use SimpleS3\Commands\Wrappers\Cache;
-use SimpleS3\Commands\Wrappers\Logger;
+use SimpleS3\Wrappers\Cache;
+use SimpleS3\Wrappers\Logger;
 
 abstract class CommandHandler implements CommandHandlerInterface
 {

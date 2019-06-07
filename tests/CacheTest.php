@@ -2,7 +2,7 @@
 
 use Aws\PsrCacheAdapter;
 use SimpleS3\Client;
-use SimpleS3\Commands\Wrappers\Cache;
+use SimpleS3\Wrappers\Cache;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
 class CacheTest extends PHPUnit_Framework_TestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleS3\Commands\Wrappers;
+namespace SimpleS3\Wrappers;
 
 use SimpleS3\Client;
 use SimpleS3\Helpers\File;
