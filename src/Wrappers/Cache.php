@@ -108,7 +108,6 @@ class Cache
     public function removeFromCache($bucketName, $keyName = null, $idDir = true)
     {
         if ($this->client->hasCache()) {
-            // $keyName is an item or a folder
             if (null != $keyName) {
                 if($idDir){
                     $this->deleteFolder($bucketName, $keyName);
@@ -116,12 +115,7 @@ class Cache
                     $this->deleteItem($bucketName, $keyName);
                 }
             } else {
-                // delete all prefixes and remove all values and the index
-                foreach ($this->getPrefixesFromCache($bucketName) as $prefix) {
-                    $this->client->getCache()->remove(md5($bucketName . self::SAFE_DELIMITER . $prefix));
-                }
-
-                $this->client->getCache()->remove(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX'));
+                $this->deleteBucket($bucketName);
             }
         }
     }
@@ -158,6 +152,19 @@ class Cache
         if(count(array_unique($valuesFromCache)) === 0){
             $this->removeAPrefixFromIndex($bucketName, $keyName);
         }
+    }
+
+    /**
+     * @param string $bucketName
+     */
+    private function deleteBucket($bucketName)
+    {
+        // delete all prefixes and remove all values and the index
+        foreach ($this->getPrefixesFromCache($bucketName) as $prefix) {
+            $this->client->getCache()->remove(md5($bucketName . self::SAFE_DELIMITER . $prefix));
+        }
+
+        $this->client->getCache()->remove(md5('INDEX' . self::SAFE_DELIMITER . $bucketName . self::SAFE_DELIMITER . 'INDEX'));
     }
 
     /**
