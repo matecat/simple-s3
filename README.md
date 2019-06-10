@@ -97,7 +97,7 @@ For further details please refer to the official documentation:
 
 ## Caching
 
-In order speed up data retrieval (```getItemsInABucket```), you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant. 
+In order speed up data retrieval, you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant. 
 Consider this example:
 
 ```php
@@ -108,6 +108,18 @@ Consider this example:
 $redis = new Predis\Client();
 $cacheAdapter = new RedisAdapter($redis); // in this example Symfony Cache component is used
 $s3Client->addCache(new PsrCacheAdapter($cacheAdapter));
+```
+
+Now ```getItemsInABucket``` method will get the elements directly from cache. Please note that caching works ONLY if you provide a prefix to the method: 
+
+```php
+...
+
+// this will get keys from cache
+$s3Client->getItemsInABucket('your-bucket', 'prefix/');
+
+// this will EVER get keys from S3
+$s3Client->getItemsInABucket('your-bucket');
 ```
 
 ## Logging
