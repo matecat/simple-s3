@@ -33,7 +33,7 @@ class DeleteFolder extends CommandHandler
 
             return true;
         } catch (\Exception $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 

@@ -62,7 +62,7 @@ class Transfer extends CommandHandler
 
             return true;
         } catch (\RuntimeException $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 }

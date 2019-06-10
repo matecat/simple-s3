@@ -38,7 +38,7 @@ class GetItem extends CommandHandler
 
             return $file;
         } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 

@@ -11,30 +11,39 @@
 
 namespace SimpleS3\Commands\Handlers;
 
-use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
-class GetBucketLifeCycleConfiguration extends CommandHandler
+class HasFolder extends CommandHandler
 {
     /**
      * @param array $params
      *
-     * @return ResultInterface|mixed
+     * @return bool
      * @throws \Exception
      */
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
+        $prefix = $params['prefix'];
 
+        if (false === File::endsWithSlash($prefix)) {
+            $prefix .= DIRECTORY_SEPARATOR;
+        }
+
+        $command = $this->client->getConn()->getCommand(
+                'listObjects',
+                [
+                    'Bucket' => $bucketName,
+                    'Prefix' => $prefix,
+                    'MaxKeys' => 1,
+                ]
+        );
         try {
-            $result = $this->client->getConn()->getBucketLifecycle([
-                'Bucket' => $bucketName
-            ]);
+            $result = $this->client->getConn()->execute($command);
 
-            $this->loggerWrapper->log(sprintf('LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName));
-
-            return $result;
+            return $result['Contents'] or $result['CommonPrefixes'];
         } catch (S3Exception $e) {
             $this->loggerWrapper->logExceptionAndContinue($e);
         }
@@ -47,6 +56,9 @@ class GetBucketLifeCycleConfiguration extends CommandHandler
      */
     public function validateParams($params = [])
     {
-        return isset($params['bucket']);
+        return (
+            isset($params['bucket']) and
+            isset($params['prefix'])
+        );
     }
 }

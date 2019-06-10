@@ -122,6 +122,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             'bucket' => $this->bucket,
             'key' => 'folder'
         ]));
+        $this->assertTrue($this->s3Client->hasFolder(['bucket' => $this->bucket, 'prefix' => 'folder']));
+        $this->assertFalse($this->s3Client->hasFolder(['bucket' => $this->bucket, 'prefix' => 'not_existing_folder']));
     }
 
     /**

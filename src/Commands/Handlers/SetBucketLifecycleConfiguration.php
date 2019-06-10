@@ -53,7 +53,7 @@ class SetBucketLifecycleConfiguration extends CommandHandler
 
             return false;
         } catch (\Exception $exception) {
-            $this->loggerWrapper->logExceptionOrContinue($exception);
+            $this->loggerWrapper->logExceptionAndContinue($exception);
         }
     }
 

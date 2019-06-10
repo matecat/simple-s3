@@ -42,18 +42,18 @@ class Logger
     }
 
     /**
-     * Log the exception or continue with default behaviour
+     * Log the exception and continue with default behaviour
      *
      * @param \Exception $exception
      *
      * @throws \Exception
      */
-    public function logExceptionOrContinue(\Exception $exception)
+    public function logExceptionAndContinue( \Exception $exception)
     {
         if ($this->client->hasLogger()) {
             $this->client->getLogger()->error($exception->getMessage());
-        } else {
-            throw $exception; // continue with the default behaviour
         }
+
+        throw $exception; // continue with the default behaviour
     }
 }

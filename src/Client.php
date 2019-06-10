@@ -42,6 +42,7 @@ use SimpleS3\Commands\CommandHandler;
  * @method array|mixed getItemsInABucket(array $input)
  * @method mixed|UriInterface getPublicItemLink(array $input)
  * @method bool hasBucket(array $input)
+ * @method bool hasFolder(array $input)
  * @method bool hasItem(array $input)
  * @method mixed|UriInterface openItem(array $input)
  * @method bool restoreItem(array $input)

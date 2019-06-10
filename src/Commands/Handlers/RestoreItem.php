@@ -67,7 +67,7 @@ class RestoreItem extends CommandHandler
 
             return false;
         } catch (\Exception $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 

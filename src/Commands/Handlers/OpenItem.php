@@ -42,7 +42,7 @@ class OpenItem extends CommandHandler
 
             return $content;
         } catch (\Exception $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 

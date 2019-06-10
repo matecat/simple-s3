@@ -99,7 +99,7 @@ class UploadItemFromBody extends CommandHandler
 
             return false;
         } catch (\InvalidArgumentException $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 }

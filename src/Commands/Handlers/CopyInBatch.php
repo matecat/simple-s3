@@ -83,7 +83,7 @@ class CopyInBatch extends CommandHandler
                     PromiseInterface $aggregatePromise
                 ) {
                     $errors[] = $reason;
-                    $this->loggerWrapper->logExceptionOrContinue($reason);
+                    $this->loggerWrapper->logExceptionAndContinue($reason);
                 },
             ]);
 
@@ -100,7 +100,7 @@ class CopyInBatch extends CommandHandler
 
             return false;
         } catch (\Exception $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 

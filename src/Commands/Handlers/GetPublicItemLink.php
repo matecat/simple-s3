@@ -39,7 +39,7 @@ class GetPublicItemLink extends CommandHandler
 
             return $link;
         } catch (\InvalidArgumentException $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 

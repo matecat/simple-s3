@@ -122,7 +122,7 @@ class UploadItem extends CommandHandler
 
             return false;
         } catch (MultipartUploadException $e) {
-            $this->loggerWrapper->logExceptionOrContinue($e);
+            $this->loggerWrapper->logExceptionAndContinue($e);
         }
     }
 }

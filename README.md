@@ -49,6 +49,7 @@ Here is the list of Client's public methods:
 *   `getItemsInABucket` get an array of items in a bucket
 *   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
+*   `hasFolder` - check if a folder exists
 *   `hasItem` - check if an item exists
 *   `openItem` - get the content of an item
 *   `restoreItem` - try to restore an item from archive

@@ -45,7 +45,7 @@ class DeleteBucket extends CommandHandler
 
                 return false;
             } catch (S3Exception $e) {
-                $this->loggerWrapper->logExceptionOrContinue($e);
+                $this->loggerWrapper->logExceptionAndContinue($e);
             }
         }
     }
