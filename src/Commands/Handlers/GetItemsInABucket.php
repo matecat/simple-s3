@@ -107,7 +107,7 @@ class GetItemsInABucket extends CommandHandler
         $items = [];
 
         foreach ($resultPaginator as $result) {
-            if (is_countable($contents = $result->get('Contents'))) {
+            if (is_array($contents = $result->get('Contents'))) {
                 for ($i = 0; $i < count($contents); $i++) {
                     $key = $contents[$i]['Key'];
 
