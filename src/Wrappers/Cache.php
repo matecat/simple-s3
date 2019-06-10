@@ -98,7 +98,7 @@ class Cache
     public function removeFromCache($bucketName, $keyName, $idDir = true)
     {
         if ($this->client->hasCache()) {
-            if($idDir){
+            if ($idDir) {
                 $this->deleteFolder($bucketName, $keyName);
             } else {
                 $this->deleteItem($bucketName, $keyName);
@@ -144,14 +144,14 @@ class Cache
      *
      * @return string
      */
-    private function getKeyInCache( $bucketName, $keyName)
+    private function getKeyInCache($bucketName, $keyName)
     {
         return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
     }
 
     /**
      * @param string $bucketName
-     * @param null $keyName
+     * @param string $keyName
      *
      * @return array
      */

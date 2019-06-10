@@ -389,7 +389,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             $this->bucket.'2'
         ];
 
-        foreach ($buckets as $bucket){
+        foreach ($buckets as $bucket) {
             $this->assertTrue($this->s3Client->clearBucket(['bucket' => $bucket]));
         }
     }
@@ -406,7 +406,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             $this->bucket.'2'
         ];
 
-        foreach ($buckets as $bucket){
+        foreach ($buckets as $bucket) {
             $this->assertTrue($this->s3Client->deleteBucket(['bucket' => $bucket]));
         }
     }

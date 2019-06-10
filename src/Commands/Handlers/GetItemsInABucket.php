@@ -75,7 +75,7 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $items = [];
-        $itemsFromCache = $this->cacheWrapper->getFromCache($bucketName,  $config['Prefix']);
+        $itemsFromCache = $this->cacheWrapper->getFromCache($bucketName, $config['Prefix']);
 
         foreach ($itemsFromCache as $key) {
             if (null != $hydrate and true === $hydrate) {
@@ -107,9 +107,8 @@ class GetItemsInABucket extends CommandHandler
         $items = [];
 
         foreach ($resultPaginator as $result) {
-            if(is_countable($contents = $result->get('Contents'))){
+            if (is_countable($contents = $result->get('Contents'))) {
                 for ($i = 0; $i < count($contents); $i++) {
-
                     $key = $contents[$i]['Key'];
 
                     if (null != $hydrate and true === $hydrate) {

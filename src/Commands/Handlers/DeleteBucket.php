@@ -74,7 +74,7 @@ class DeleteBucket extends CommandHandler
         $items = [];
 
         foreach ($resultPaginator as $result) {
-            if(is_countable($contents = $result->get('Contents'))){
+            if (is_countable($contents = $result->get('Contents'))) {
                 for ($i = 0; $i < count($contents); $i++) {
                     $items[] = $contents[$i]['Key'];
                 }
@@ -88,9 +88,9 @@ class DeleteBucket extends CommandHandler
      * @param string $bucketName
      * @param array  $items
      */
-    private function removeItemsInCache( $bucketName, $items)
+    private function removeItemsInCache($bucketName, $items)
     {
-        foreach ($items as $key){
+        foreach ($items as $key) {
             $this->cacheWrapper->removeFromCache($bucketName, $key, false);
         }
     }

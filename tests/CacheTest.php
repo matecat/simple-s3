@@ -118,7 +118,7 @@ class CacheTest extends PHPUnit_Framework_TestCase
             'queue-projects/dfd4d08c-4966-88f5-c7ff-010cf66cae9b/',
         ];
 
-        foreach ($folders as $folder){
+        foreach ($folders as $folder) {
             $this->cache->removeFromCache(self::BUCKET_NAME, $folder);
             $this->assertCount(0, $this->cache->getFromCache(self::BUCKET_NAME, $folder));
         }
