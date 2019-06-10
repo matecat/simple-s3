@@ -32,9 +32,11 @@ class ClearBucket extends CommandHandler
             ]);
 
             foreach ($results as $result) {
-                foreach ($result['Contents'] as $object) {
-                    if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $object['Key']])) {
-                        $errors[] = $delete;
+                if(is_countable($contents = $result->get('Contents'))){
+                    for ($i = 0; $i < count($contents); $i++) {
+                        if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $contents[$i]['Key']])) {
+                            $errors[] = $delete;
+                        }
                     }
                 }
             }

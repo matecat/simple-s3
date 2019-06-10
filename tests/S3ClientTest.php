@@ -244,7 +244,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
-    public function test_the_client_downloads__an_item()
+    public function test_the_client_downloads_an_item()
     {
         $saveAs = __DIR__ . '/support/files/txt/test(download).txt';
         $download = $this->s3Client->downloadItem([
@@ -332,8 +332,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             $config['ACCESS_KEY_ID'],
             $config['SECRET_KEY'],
             [
-                    'version' => $config['VERSION'],
-                    'region' => $config['REGION'],
+                'version' => $config['VERSION'],
+                'region' => $config['REGION'],
             ]
         );
 
@@ -370,13 +370,28 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
+    public function test_the_client_deletes_a_folder()
+    {
+        $delete = $this->s3Client->deleteFolder(['bucket' => $this->bucket, 'prefix' => 'folder']);
+
+        $this->assertTrue($delete);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
     public function test_the_client_deletes_all_the_items()
     {
-        $items = $this->s3Client->clearBucket(['bucket' => $this->bucket]);
-        $itemsCopied = $this->s3Client->clearBucket(['bucket' => $this->bucket.'-copied']);
+        $buckets = [
+            $this->bucket,
+            $this->bucket.'-copied',
+            $this->bucket.'2'
+        ];
 
-        $this->assertTrue($items);
-        $this->assertTrue($itemsCopied);
+        foreach ($buckets as $bucket){
+            $this->assertTrue($this->s3Client->clearBucket(['bucket' => $bucket]));
+        }
     }
 
     /**
@@ -385,12 +400,14 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_deletes_the_bucket()
     {
-        $delete = $this->s3Client->deleteBucket(['bucket' => $this->bucket]);
-        $deleteCopied = $this->s3Client->deleteBucket(['bucket' => $this->bucket.'-copied']);
-        $deleteCopied2 = $this->s3Client->deleteBucket(['bucket' => $this->bucket.'2']);
+        $buckets = [
+            $this->bucket,
+            $this->bucket.'-copied',
+            $this->bucket.'2'
+        ];
 
-        $this->assertTrue($delete);
-        $this->assertTrue($deleteCopied);
-        $this->assertTrue($deleteCopied2);
+        foreach ($buckets as $bucket){
+            $this->assertTrue($this->s3Client->deleteBucket(['bucket' => $bucket]));
+        }
     }
 }

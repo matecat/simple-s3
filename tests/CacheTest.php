@@ -106,14 +106,21 @@ class CacheTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function delete_from_cache()
+    public function delete_folders_from_cache()
     {
-        $this->cache->removeFromCache(self::BUCKET_NAME, 'folder/to');
+        $folders = [
+            './',
+            'folder/',
+            'folder/to/',
+            'another-folder/',
+            'another-folder/to',
+            'sub_folder/',
+            'queue-projects/dfd4d08c-4966-88f5-c7ff-010cf66cae9b/',
+        ];
 
-        $this->assertCount(10, $this->cache->getFromCache(self::BUCKET_NAME));
-
-        $this->cache->removeFromCache(self::BUCKET_NAME);
-
-        $this->assertCount(0, $this->cache->getFromCache(self::BUCKET_NAME));
+        foreach ($folders as $folder){
+            $this->cache->removeFromCache(self::BUCKET_NAME, $folder);
+            $this->assertCount(0, $this->cache->getFromCache(self::BUCKET_NAME, $folder));
+        }
     }
 }

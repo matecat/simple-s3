@@ -36,7 +36,7 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
         if (false === $this->client->hasBucket(['bucket' => $bucketName])) {
             try {
                 $bucket = $this->client->getConn()->createBucket([
-                        'Bucket' => $bucketName
+                    'Bucket' => $bucketName
                 ]);
 
                 if (isset($params['rules']) and count($params['rules']) > 0) {

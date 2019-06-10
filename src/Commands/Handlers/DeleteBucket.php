@@ -29,13 +29,14 @@ class DeleteBucket extends CommandHandler
 
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
             try {
+                $items = $this->getItemsFromBucket($bucketName);
                 $delete = $this->client->getConn()->deleteBucket([
                     'Bucket' => $bucketName
                 ]);
 
                 if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
+                    $this->removeItemsInCache($bucketName, $items);
                     $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
-                    $this->cacheWrapper->removeFromCache($bucketName);
 
                     return true;
                 }
@@ -57,5 +58,40 @@ class DeleteBucket extends CommandHandler
     public function validateParams($params = [])
     {
         return (isset($params['bucket']));
+    }
+
+    /**
+     * @param string $bucketName
+     *
+     * @return array
+     */
+    private function getItemsFromBucket($bucketName)
+    {
+        $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', [
+            'Bucket' => $bucketName,
+        ]);
+
+        $items = [];
+
+        foreach ($resultPaginator as $result) {
+            if(is_countable($contents = $result->get('Contents'))){
+                for ($i = 0; $i < count($contents); $i++) {
+                    $items[] = $contents[$i]['Key'];
+                }
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param string $bucketName
+     * @param array  $items
+     */
+    private function removeItemsInCache( $bucketName, $items)
+    {
+        foreach ($items as $key){
+            $this->cacheWrapper->removeFromCache($bucketName, $key, false);
+        }
     }
 }

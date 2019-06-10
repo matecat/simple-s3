@@ -18,6 +18,8 @@ use SimpleS3\Helpers\File;
 class GetItemsInABucket extends CommandHandler
 {
     /**
+     * If cache is activated
+     *
      * @param array $params
      *
      * @return array|mixed
@@ -43,7 +45,7 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
-            if ($this->client->hasCache()) {
+            if ($this->client->hasCache() and isset($params['prefix'])) {
                 return $this->returnItemsFromCache($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
             }
 
@@ -72,25 +74,25 @@ class GetItemsInABucket extends CommandHandler
      */
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
-        $filesArray = [];
-        $items = $this->cacheWrapper->getFromCache($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
+        $items = [];
+        $itemsFromCache = $this->cacheWrapper->getFromCache($bucketName,  $config['Prefix']);
 
-        foreach ($items as $key) {
+        foreach ($itemsFromCache as $key) {
             if (null != $hydrate and true === $hydrate) {
-                $filesArray[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
+                $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
             } else {
-                $filesArray[] = $key;
+                $items[] = $key;
             }
         }
 
         // no data was found, try to retrieve data from S3
-        if (count($filesArray) === 0) {
+        if (count($items) === 0) {
             return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
         $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
-        return $filesArray;
+        return $items;
     }
 
     /**
@@ -102,25 +104,28 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromS3($bucketName, $config, $hydrate = null)
     {
         $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
+        $items = [];
 
-        $filesArray = [];
         foreach ($resultPaginator as $result) {
-            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++) {
-                $key = $contents[$i]['Key'];
+            if(is_countable($contents = $result->get('Contents'))){
+                for ($i = 0; $i < count($contents); $i++) {
 
-                if (null != $hydrate and true === $hydrate) {
-                    $filesArray[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
-                } else {
-                    $filesArray[] = $key;
+                    $key = $contents[$i]['Key'];
+
+                    if (null != $hydrate and true === $hydrate) {
+                        $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
+                    } else {
+                        $items[] = $key;
+                    }
+
+                    // send to cache, just to be sure that S3 is syncronized with cache
+                    $this->cacheWrapper->setInCache($bucketName, $key);
                 }
-
-                // send to cache, just to be sure that S3 is syncronized with cache
-                $this->cacheWrapper->setInCache($bucketName, $key);
             }
         }
 
         $this->loggerWrapper->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
-        return $filesArray;
+        return $items;
     }
 }
