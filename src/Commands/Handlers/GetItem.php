@@ -30,13 +30,13 @@ class GetItem extends CommandHandler
 
         try {
             $file = $this->client->getConn()->getObject([
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyName
+                'Bucket' => $bucketName,
+                'Key'    => $keyName
             ]);
 
             $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
-            return $file;
+            return $file->toArray();
         } catch (S3Exception $e) {
             $this->loggerWrapper->logExceptionAndContinue($e);
         }

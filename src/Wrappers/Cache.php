@@ -161,4 +161,23 @@ class Cache
 
         return (false !== $values) ? $values : [];
     }
+
+
+
+
+
+    public function getAnItem($bucketName, $keyName)
+    {
+        return unserialize($this->cache->get($this->getKeyForAnItem($bucketName, $keyName)));
+    }
+
+    public function setAnItem($bucketName, $keyName, $body, $ttl = self::TTL_STANDARD)
+    {
+        $this->cache->set($this->getKeyForAnItem($bucketName, $keyName), serialize($body), $ttl);
+    }
+
+    private function getKeyForAnItem($bucketName, $keyName)
+    {
+        return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $keyName);
+    }
 }
