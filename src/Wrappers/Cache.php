@@ -48,14 +48,14 @@ class Cache
      *
      * @return array
      */
-    public function getFromCache($bucketName, $prefix)
+    public function getKeysForAPrefix( $bucketName, $prefix)
     {
         if (null !== $this->client->getCache()) {
             if (true !== File::endsWithSlash($prefix)) {
                 $prefix .= DIRECTORY_SEPARATOR;
             }
 
-            return $this->getValuesFromCache($bucketName, $prefix);
+            return $this->_getKeysForAPrefix($bucketName, $prefix);
         }
     }
 
@@ -80,28 +80,28 @@ class Cache
      * @param string $keyName
      * @param int $ttl
      */
-    public function setInCache($bucketName, $keyName, $ttl = self::TTL_STANDARD)
+    public function setAKeyInAPrefix( $bucketName, $keyName, $ttl = self::TTL_STANDARD)
     {
         if ($this->client->hasCache()) {
             // set key in cache
-            $valuesFromCache = $this->getValuesFromCache($bucketName, $keyName);
+            $valuesFromCache = $this->_getKeysForAPrefix($bucketName, $keyName);
             $valuesFromCache[] = $keyName;
-            $this->cache->set($this->getKeyInCache($bucketName, $keyName), serialize(array_unique($valuesFromCache)), $ttl);
+            $this->cache->set($this->getKeyForAPrefix($bucketName, $keyName), serialize(array_unique($valuesFromCache)), $ttl);
         }
     }
 
     /**
      * @param string $bucketName
      * @param string $keyName
-     * @param bool $idDir
+     * @param bool   $isPrefix
      */
-    public function removeFromCache($bucketName, $keyName, $idDir = true)
+    public function removeAnItemOrPrefix( $bucketName, $keyName, $isPrefix = true)
     {
         if ($this->client->hasCache()) {
-            if ($idDir) {
-                $this->deleteFolder($bucketName, $keyName);
+            if ($isPrefix) {
+                $this->deletePrefix($bucketName, $keyName);
             } else {
-                $this->deleteItem($bucketName, $keyName);
+                $this->deleteItemInAPrefix($bucketName, $keyName);
             }
         }
     }
@@ -110,28 +110,28 @@ class Cache
      * @param string $bucketName
      * @param string $keyName
      */
-    private function deleteFolder($bucketName, $keyName)
+    private function deletePrefix( $bucketName, $keyName)
     {
         if (true !== File::endsWithSlash($keyName)) {
             $keyName .= DIRECTORY_SEPARATOR;
         }
 
-        $this->client->getCache()->remove($this->getKeyInCache($bucketName, $keyName));
+        $this->client->getCache()->remove($this->getKeyForAPrefix($bucketName, $keyName));
     }
 
     /**
      * @param string $bucketName
      * @param string $keyName
      */
-    private function deleteItem($bucketName, $keyName)
+    private function deleteItemInAPrefix( $bucketName, $keyName)
     {
-        $valuesFromCache = $this->getValuesFromCache($bucketName, $keyName);
+        $valuesFromCache = $this->_getKeysForAPrefix($bucketName, $keyName);
 
         if (($key = array_search($keyName, $valuesFromCache)) !== false) {
             unset($valuesFromCache[$key]);
         }
 
-        $this->cache->set($this->getKeyInCache($bucketName, $keyName), serialize(array_unique($valuesFromCache)));
+        $this->cache->set($this->getKeyForAPrefix($bucketName, $keyName), serialize(array_unique($valuesFromCache)));
     }
 
     /**
@@ -144,7 +144,7 @@ class Cache
      *
      * @return string
      */
-    private function getKeyInCache($bucketName, $keyName)
+    private function getKeyForAPrefix($bucketName, $keyName)
     {
         return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
     }
@@ -155,9 +155,9 @@ class Cache
      *
      * @return array
      */
-    private function getValuesFromCache($bucketName, $keyName)
+    private function _getKeysForAPrefix( $bucketName, $keyName)
     {
-        $values = unserialize($this->client->getCache()->get($this->getKeyInCache($bucketName, $keyName)));
+        $values = unserialize($this->client->getCache()->get($this->getKeyForAPrefix($bucketName, $keyName)));
 
         return (false !== $values) ? $values : [];
     }

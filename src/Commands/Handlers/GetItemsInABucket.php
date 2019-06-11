@@ -75,7 +75,7 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $items = [];
-        $itemsFromCache = $this->cacheWrapper->getFromCache($bucketName, $config['Prefix']);
+        $itemsFromCache = $this->cacheWrapper->getKeysForAPrefix($bucketName, $config['Prefix']);
 
         // no data was found, try to retrieve data from S3
         if (count($itemsFromCache) === 0) {
@@ -118,7 +118,7 @@ class GetItemsInABucket extends CommandHandler
                     }
 
                     // send to cache, just to be sure that S3 is syncronized with cache
-                    $this->cacheWrapper->setInCache($bucketName, $key);
+                    $this->cacheWrapper->setAKeyInAPrefix($bucketName, $key);
                 }
             }
         }

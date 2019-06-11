@@ -91,7 +91,7 @@ class DeleteBucket extends CommandHandler
     private function removeItemsInCache($bucketName, $items)
     {
         foreach ($items as $key) {
-            $this->cacheWrapper->removeFromCache($bucketName, $key, false);
+            $this->cacheWrapper->removeAnItemOrPrefix($bucketName, $key, false);
         }
     }
 }

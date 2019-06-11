@@ -74,7 +74,7 @@ class CopyInBatch extends CommandHandler
                     PromiseInterface $aggregatePromise
                 ) use ($targetBucket) {
                     $this->loggerWrapper->log(sprintf('Completed copy of \'%s\'', $iterKey));
-                    $this->cacheWrapper->setInCache($targetBucket, $iterKey);
+                    $this->cacheWrapper->setAKeyInAPrefix($targetBucket, $iterKey);
                 },
                 // Invoke this function for each failed transfer
                 'rejected' => function (

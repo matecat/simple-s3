@@ -36,7 +36,7 @@ class DeleteItem extends CommandHandler
 
             if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
                 $this->loggerWrapper->log(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
-                $this->cacheWrapper->removeFromCache($bucketName, $keyName, false);
+                $this->cacheWrapper->removeAnItemOrPrefix($bucketName, $keyName, false);
 
                 return true;
             }

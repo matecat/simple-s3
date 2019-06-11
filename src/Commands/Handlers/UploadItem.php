@@ -117,7 +117,7 @@ class UploadItem extends CommandHandler
 
             // update cache
             if ((!isset($params['storage']))) {
-                $this->cacheWrapper->setInCache($bucketName, $keyName);
+                $this->cacheWrapper->setAKeyInAPrefix($bucketName, $keyName);
             }
 
             return false;
