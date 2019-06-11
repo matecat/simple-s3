@@ -176,6 +176,15 @@ class Cache
         $this->cache->set($this->getKeyForAnItem($bucketName, $keyName), serialize($body), $ttl);
     }
 
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     */
+    public function removeItem($bucketName, $keyName)
+    {
+        $this->cache->remove($this->getKeyForAnItem($bucketName, $keyName));
+    }
+
     private function getKeyForAnItem($bucketName, $keyName)
     {
         return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . '#####' . $keyName);

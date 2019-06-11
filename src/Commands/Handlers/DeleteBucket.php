@@ -35,7 +35,7 @@ class DeleteBucket extends CommandHandler
                 ]);
 
                 if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
-                    $this->removeItemsInCache($bucketName, $items);
+                    $this->removeAllFromCache($bucketName, $items);
                     $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
                     return true;
@@ -88,10 +88,11 @@ class DeleteBucket extends CommandHandler
      * @param string $bucketName
      * @param array  $items
      */
-    private function removeItemsInCache($bucketName, $items)
+    private function removeAllFromCache( $bucketName, $items)
     {
         foreach ($items as $key) {
             $this->cacheWrapper->removeAnItemOrPrefix($bucketName, $key, false);
+            $this->cacheWrapper->removeItem($bucketName, $key);
         }
     }
 }
