@@ -77,17 +77,17 @@ class GetItemsInABucket extends CommandHandler
         $items = [];
         $itemsFromCache = $this->cacheWrapper->getFromCache($bucketName, $config['Prefix']);
 
+        // no data was found, try to retrieve data from S3
+        if (count($itemsFromCache) === 0) {
+            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
+        }
+
         foreach ($itemsFromCache as $key) {
             if (null != $hydrate and true === $hydrate) {
                 $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
             } else {
                 $items[] = $key;
             }
-        }
-
-        // no data was found, try to retrieve data from S3
-        if (count($items) === 0) {
-            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
         $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
