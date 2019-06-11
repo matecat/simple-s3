@@ -36,6 +36,7 @@
     "predis/predis": "^1.1"
   },"suggest": {
     "ext-fileinfo": "Allows to get info on files",
-    "ext-curl": "Needed to get file content from remote url"
-  }
+    "ext-curl": "Needed to get file content from remote url",
+    "ext-redis": "*"
+}
 }
