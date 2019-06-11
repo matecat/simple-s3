@@ -178,6 +178,6 @@ class Cache
 
     private function getKeyForAnItem($bucketName, $keyName)
     {
-        return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $keyName);
+        return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . '#####' . $keyName);
     }
 }

@@ -28,18 +28,11 @@ class GetItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        try {
-            $file = $this->client->getConn()->getObject([
-                'Bucket' => $bucketName,
-                'Key'    => $keyName
-            ]);
-
-            $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
-
-            return $file->toArray();
-        } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+        if($this->client->hasCache()){
+            return $this->returnItemFromCache($bucketName, $keyName);
         }
+
+        return $this->returnItemFromS3($bucketName, $keyName);
     }
 
     /**
@@ -53,5 +46,48 @@ class GetItem extends CommandHandler
                 isset($params['bucket']) and
                 isset($params['key'])
         );
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function returnItemFromCache($bucketName, $keyName)
+    {
+        if(null != $file = $this->cacheWrapper->getAnItem($bucketName, $keyName)){
+            return $file;
+        }
+
+        return $this->returnItemFromS3($bucketName, $keyName);
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     *
+     * @return array
+     * @throws \Exception
+     */
+    private function returnItemFromS3($bucketName, $keyName)
+    {
+        try {
+            $file = $this->client->getConn()->getObject([
+                'Bucket' => $bucketName,
+                'Key'    => $keyName
+            ]);
+
+            if($this->client->hasCache()){
+                $this->cacheWrapper->setAnItem($bucketName, $keyName, $file->toArray());
+            }
+
+            $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+
+            return $file->toArray();
+        } catch (S3Exception $e) {
+            $this->loggerWrapper->logExceptionAndContinue($e);
+        }
     }
 }
