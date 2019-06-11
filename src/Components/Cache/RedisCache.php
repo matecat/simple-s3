@@ -9,7 +9,7 @@ use \RedisCluster;
 class RedisCache implements CacheInterface
 {
     const SAFE_DELIMITER = '::';
-    const TTL_STANDARD = 180; // 3 hours
+    const MAX_TTL        = 180; // 3 hours
 
     /**
      * @var \Predis\Client|Redis|RedisArray|RedisCluster
@@ -28,10 +28,12 @@ class RedisCache implements CacheInterface
      * @param string $bucket
      * @param string $keyname
      * @param mixed $content
-     * @param int $ttl
+     * @param null $ttl
      */
-    public function set($bucket, $keyname, $content, $ttl = self::TTL_STANDARD)
+    public function set($bucket, $keyname, $content, $ttl = null)
     {
+        $ttl = (null != $ttl and $ttl < self::MAX_TTL) ? $ttl : self::MAX_TTL;
+
         $this->redisClient->set(
             $this->getKeyName($bucket, $keyname),
             serialize($content),

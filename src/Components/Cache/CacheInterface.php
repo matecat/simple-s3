@@ -4,7 +4,7 @@ namespace SimpleS3\Components\Cache;
 
 interface CacheInterface
 {
-    public function set($bucket, $keyname, $content, $ttl);
+    public function set($bucket, $keyname, $content, $ttl = null);
 
     public function get($bucket, $keyname);
 

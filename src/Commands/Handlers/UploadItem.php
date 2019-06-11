@@ -116,11 +116,8 @@ class UploadItem extends CommandHandler
             $this->loggerWrapper->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             // update cache
-            if ((!isset($params['storage']))) {
-
-
-
-                $this->cacheWrapper->setInCache($bucketName, $keyName);
+            if ((!isset($params['storage'])) and $this->client->hasLogger()) {
+                $this->client->getCache()->set($bucketName, $keyName, $upload);
             }
 
             return false;

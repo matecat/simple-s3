@@ -41,7 +41,10 @@ class CopyItem extends CommandHandler
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
                 $this->loggerWrapper->log(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
-                $this->cacheWrapper->setInCache($targetBucketName, $targetKeyname);
+
+                if($this->client->hasCache()){
+                    $this->client->getCache()->set($targetBucketName, $targetKeyname, $copied);
+                }
 
                 return true;
             }

@@ -45,7 +45,7 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
-            if ($this->client->hasCache() and isset($params['prefix'])) {
+            if ($this->client->hasCache()) {
                 return $this->returnItemsFromCache($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
             }
 
@@ -75,7 +75,7 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $items = [];
-        $itemsFromCache = $this->cacheWrapper->getFromCache($bucketName, $config['Prefix']);
+        $itemsFromCache = $this->client->getCache()->search($bucketName, (isset($config['prefix'])) ? $config['prefix'] : null);
 
         foreach ($itemsFromCache as $key) {
             if (null != $hydrate and true === $hydrate) {
@@ -118,7 +118,7 @@ class GetItemsInABucket extends CommandHandler
                     }
 
                     // send to cache, just to be sure that S3 is syncronized with cache
-                    $this->cacheWrapper->setInCache($bucketName, $key);
+                    $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
                 }
             }
         }

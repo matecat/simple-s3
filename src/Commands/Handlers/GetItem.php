@@ -28,18 +28,11 @@ class GetItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        try {
-            $file = $this->client->getConn()->getObject([
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyName
-            ]);
-
-            $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
-
-            return $file;
-        } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+        if ($this->client->hasCache()) {
+            return $this->returnItemFromCache($bucketName, $keyName);
         }
+
+        return $this->returnItemFromS3($bucketName, $keyName);
     }
 
     /**
@@ -53,5 +46,44 @@ class GetItem extends CommandHandler
                 isset($params['bucket']) and
                 isset($params['key'])
         );
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     *
+     * @return \Aws\Result
+     * @throws \Exception
+     */
+    private function returnItemFromCache($bucketName, $keyName)
+    {
+        if(null === $file = $this->client->getCache()->get($bucketName, $keyName)){
+            return  $this->returnItemFromS3($bucketName, $keyName);
+        }
+
+        return $file;
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $keyName
+     *
+     * @return \Aws\Result
+     * @throws \Exception
+     */
+    private function returnItemFromS3($bucketName, $keyName)
+    {
+        try {
+            $file = $this->client->getConn()->getObject([
+                'Bucket' => $bucketName,
+                'Key'    => $keyName
+            ]);
+
+            $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+
+            return $file;
+        } catch (S3Exception $e) {
+            $this->loggerWrapper->logExceptionAndContinue($e);
+        }
     }
 }
