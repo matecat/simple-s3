@@ -24,9 +24,12 @@ class HasBucket extends CommandHandler
     {
         $bucketName = $params['bucket'];
 
+        if($this->client->hasCache() and count($this->client->getCache()->search($bucketName)) > 0){
+            return true;
+        }
+
         return $this->client->getConn()->doesBucketExist($bucketName);
     }
-
 
     /**
      * @param array $params

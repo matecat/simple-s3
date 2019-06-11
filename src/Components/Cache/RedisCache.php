@@ -27,30 +27,24 @@ class RedisCache implements CacheInterface
     /**
      * @param string $bucket
      * @param string $keyname
-     * @param mixed $content
-     * @param null $ttl
+     *
+     * @return mixed
      */
-    public function set($bucket, $keyname, $content, $ttl = null)
+    public function get($bucket, $keyname)
     {
-        $ttl = (null != $ttl and $ttl < self::MAX_TTL) ? $ttl : self::MAX_TTL;
-
-        $this->redisClient->set(
-            $this->getKeyName($bucket, $keyname),
-            serialize($content),
-            "ex",
-            $ttl
-        );
+        if($this->has($bucket, $keyname)){
+            return unserialize($this->redisClient->get($this->getKeyName($bucket, $keyname)));
+        }
     }
 
     /**
      * @param string $bucket
      * @param string $keyname
      *
-     * @return mixed
+     * @return bool
      */
-    public function get($bucket, $keyname)
-    {
-        return unserialize($this->redisClient->get($this->getKeyName($bucket, $keyname)));
+    public function has($bucket, $keyname) {
+        return $this->redisClient->exists($this->getKeyName($bucket, $keyname));
     }
 
     /**
@@ -59,7 +53,9 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        $this->redisClient->del($this->getKeyName($bucket, $keyname));
+        if($this->has($bucket, $keyname)){
+            $this->redisClient->del($this->getKeyName($bucket, $keyname));
+        }
     }
 
     /**
@@ -79,6 +75,20 @@ class RedisCache implements CacheInterface
         $pattern .= '*';
 
         return $this->redisClient->keys($pattern);
+    }
+
+    /**
+     * @param string $bucket
+     * @param string $keyname
+     * @param mixed $content
+     * @param null $ttl
+     */
+    public function set($bucket, $keyname, $content, $ttl = null)
+    {
+        if(false === $this->has($bucket, $keyname)){
+            $ttl = (null != $ttl and $ttl < self::MAX_TTL) ? $ttl : self::MAX_TTL;
+            $this->redisClient->set( $this->getKeyName($bucket, $keyname), serialize($content), 'ex', $ttl);
+        }
     }
 
     /**

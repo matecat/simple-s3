@@ -25,6 +25,10 @@ class HasItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
+        if($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)){
+            return true;
+        }
+
         return $this->client->getConn()->doesObjectExist($bucketName, $keyName);
     }
 
@@ -36,8 +40,8 @@ class HasItem extends CommandHandler
     public function validateParams($params = [])
     {
         return (
-                isset($params['bucket']) and
-                isset($params['key'])
+            isset($params['bucket']) and
+            isset($params['key'])
         );
     }
 }
