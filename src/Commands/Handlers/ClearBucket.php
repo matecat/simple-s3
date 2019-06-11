@@ -27,17 +27,10 @@ class ClearBucket extends CommandHandler
         $errors = [];
 
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
-            $results = $this->client->getConn()->getPaginator('ListObjects', [
-                'Bucket' => $bucketName
-            ]);
-
-            foreach ($results as $result) {
-                if (is_array($contents = $result->get('Contents'))) {
-                    for ($i = 0; $i < count($contents); $i++) {
-                        if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $contents[$i]['Key']])) {
-                            $errors[] = $delete;
-                        }
-                    }
+            $items = $this->client->getItemsInABucket(['bucket' => $bucketName]);
+            foreach ($items as $key){
+                if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $key])) {
+                    $errors[] = $delete;
                 }
             }
         }

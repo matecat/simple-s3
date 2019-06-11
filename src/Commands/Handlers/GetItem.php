@@ -43,8 +43,8 @@ class GetItem extends CommandHandler
     public function validateParams($params = [])
     {
         return (
-                isset($params['bucket']) and
-                isset($params['key'])
+            isset($params['bucket']) and
+            isset($params['key'])
         );
     }
 

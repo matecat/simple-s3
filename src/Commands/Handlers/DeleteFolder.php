@@ -29,7 +29,7 @@ class DeleteFolder extends CommandHandler
         try {
             $this->client->getConn()->deleteMatchingObjects($bucketName, $prefix);
             $this->loggerWrapper->log(sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
-            $this->cacheWrapper->removeFromCache($bucketName, $prefix);
+            $this->client->getCache()->remove($bucketName, $prefix);
 
             return true;
         } catch (\Exception $e) {
