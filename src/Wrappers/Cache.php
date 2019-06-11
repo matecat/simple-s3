@@ -70,7 +70,7 @@ class Cache
             return $item;
         }
 
-        $fileInfo = File::getInfo($item);
+        $fileInfo = File::getPathInfo($item);
 
         return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
     }

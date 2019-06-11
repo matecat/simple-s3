@@ -28,7 +28,7 @@ class GetItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if ($this->client->hasCache()) {
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)) {
             return $this->returnItemFromCache($bucketName, $keyName);
         }
 
@@ -51,24 +51,30 @@ class GetItem extends CommandHandler
     /**
      * @param string $bucketName
      * @param string $keyName
+     * @param null $hydrate
      *
-     * @return \Aws\Result
-     * @throws \Exception
+     * @return array
      */
     private function returnItemFromCache($bucketName, $keyName)
     {
-        if(null === $file = $this->client->getCache()->get($bucketName, $keyName)){
-            return  $this->returnItemFromS3($bucketName, $keyName);
+        if('' === $this->client->getCache()->get($bucketName, $keyName)){
+            $file = $this->client->getConn()->getObject([
+                'Bucket' => $bucketName,
+                'Key'    => $keyName
+            ]);
+
+            $this->client->getCache()->remove($bucketName, $keyName);
+            $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
         }
 
-        return $file;
+        return $this->client->getCache()->get($bucketName, $keyName);
     }
 
     /**
      * @param string $bucketName
      * @param string $keyName
      *
-     * @return \Aws\Result
+     * @return array
      * @throws \Exception
      */
     private function returnItemFromS3($bucketName, $keyName)
@@ -79,9 +85,13 @@ class GetItem extends CommandHandler
                 'Key'    => $keyName
             ]);
 
+            if($this->client->hasCache()){
+                $this->client->getCache()->set($bucketName, $keyName, $file);
+            }
+
             $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
-            return $file;
+            return $file->toArray();
         } catch (S3Exception $e) {
             $this->loggerWrapper->logExceptionAndContinue($e);
         }

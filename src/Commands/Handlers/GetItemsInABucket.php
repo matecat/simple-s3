@@ -13,6 +13,8 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Cache\CacheInterface;
+use SimpleS3\Components\Cache\RedisCache;
 use SimpleS3\Helpers\File;
 
 class GetItemsInABucket extends CommandHandler
@@ -75,19 +77,26 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $items = [];
-        $itemsFromCache = $this->client->getCache()->search($bucketName, (isset($config['prefix'])) ? $config['prefix'] : null);
+        $itemsFromCache = $this->client->getCache()->search($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
+
+        // no data was found, try to retrieve data from S3
+        if (count($itemsFromCache) == 0) {
+            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
+        }
 
         foreach ($itemsFromCache as $key) {
+
+            // key in cache are stored like:
+            // bucket::key.ext
+            // and we need to get back to
+            // key.ext
+            $key = str_replace($bucketName . CacheInterface::SAFE_DELIMITER,'', $key);
+
             if (null != $hydrate and true === $hydrate) {
                 $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
             } else {
                 $items[] = $key;
             }
-        }
-
-        // no data was found, try to retrieve data from S3
-        if (count($items) === 0) {
-            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
         $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));

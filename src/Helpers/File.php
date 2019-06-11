@@ -225,7 +225,7 @@ class File
      *
      * @return array
      */
-    public static function getInfo($path)
+    public static function getPathInfo( $path)
     {
         return pathinfo($path);
     }

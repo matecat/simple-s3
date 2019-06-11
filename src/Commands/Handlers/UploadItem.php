@@ -15,6 +15,7 @@ use Aws\CommandInterface;
 use Aws\Exception\MultipartUploadException;
 use Aws\ResultInterface;
 use Aws\S3\MultipartUploader;
+use DateTime;
 use SimpleS3\Commands\CommandHandler;
 use SimpleS3\Exceptions\InvalidS3NameException;
 use SimpleS3\Helpers\File;
@@ -117,7 +118,7 @@ class UploadItem extends CommandHandler
 
             // update cache
             if ((!isset($params['storage'])) and $this->client->hasLogger()) {
-                $this->client->getCache()->set($bucketName, $keyName, $upload);
+                $this->client->getCache()->set($bucketName, $keyName, '');
             }
 
             return false;

@@ -18,7 +18,7 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->cache = new RedisCache(new \Predis\Client());
+        $this->cache = new RedisCache(new Predis\Client());
     }
 
     /**

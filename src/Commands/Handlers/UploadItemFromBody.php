@@ -89,7 +89,7 @@ class UploadItemFromBody extends CommandHandler
                 $this->loggerWrapper->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
 
                 if (null === $storage and $this->client->hasLogger()) {
-                    $this->client->getCache()->set($bucketName, $keyName, $result);
+                    $this->client->getCache()->set($bucketName, $keyName, '');
                 }
 
                 return true;

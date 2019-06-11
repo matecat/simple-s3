@@ -4,6 +4,8 @@ namespace SimpleS3\Components\Cache;
 
 interface CacheInterface
 {
+    const SAFE_DELIMITER = '::';
+
     /**
      * @param string $bucket
      * @param string $keyname

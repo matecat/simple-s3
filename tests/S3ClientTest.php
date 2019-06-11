@@ -106,7 +106,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $this->bucket, 'rules' => $rules, 'accelerate' => true]);
+        $this->s3Client->createBucketIfItDoesNotExist([
+            'bucket' => $this->bucket,
+            'rules' => $rules,
+            'accelerate' => true
+        ]);
 
         $configuration = $this->s3Client->getBucketLifeCycleConfiguration(['bucket' => $this->bucket]);
 
@@ -225,7 +229,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         $item = $this->s3Client->getItem(['bucket' => $this->bucket, 'key' => $this->keyname]);
 
-        $this->assertInstanceOf(Result::class, $item);
+        $this->assertTrue(is_array($item));
         $this->assertEquals($item['ContentType'], 'text/plain');
         $this->assertEquals($item['@metadata']['statusCode'], 200);
     }
@@ -286,7 +290,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertCount(5, $items);
 
         foreach ($items as $item) {
-            $this->assertInstanceOf(ResultInterface::class, $item);
+            $this->assertTrue(is_array($item));
             $this->assertEquals($item['@metadata']['statusCode'], 200);
         }
     }

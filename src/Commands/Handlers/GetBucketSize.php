@@ -11,6 +11,7 @@
 
 namespace SimpleS3\Commands\Handlers;
 
+use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 
 class GetBucketSize extends CommandHandler
@@ -32,16 +33,10 @@ class GetBucketSize extends CommandHandler
             'hydrate' => true
         ]);
 
+        /** @var ResultInterface $item */
         foreach ($items as $item){
-            $size += $item['Size'];
+            $size += $item['ContentLength'];
         }
-
-//        $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
-//        foreach ($resultPaginator as $result) {
-//            for ($i = 0; $i < count($contents = $result->get('Contents')); $i++) {
-//                $size += $contents[$i]['Size'];
-//            }
-//        }
 
         $this->loggerWrapper->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
 
