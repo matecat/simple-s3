@@ -38,7 +38,7 @@ class RedisCache implements CacheInterface
      */
     public function get($bucket, $keyname)
     {
-        return unserialize($this->redisClient->hget($this->generateKeyForCache($bucket, $keyname), $keyname));
+        return unserialize($this->redisClient->hget($this->getHash($bucket, $keyname), $keyname));
     }
 
     /**
@@ -49,7 +49,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname)
     {
-        return (1 === $this->redisClient->hexists($this->generateKeyForCache($bucket, $keyname), $keyname)) ? true : false;
+        return (1 === $this->redisClient->hexists($this->getHash($bucket, $keyname), $keyname)) ? true : false;
     }
 
     /**
@@ -58,7 +58,7 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        $this->redisClient->hdel($this->generateKeyForCache($bucket, $keyname), $keyname);
+        $this->redisClient->hdel($this->getHash($bucket, $keyname), $keyname);
     }
 
     /**
@@ -69,7 +69,7 @@ class RedisCache implements CacheInterface
      */
     public function search($bucket, $keyname)
     {
-        return $this->redisClient->hgetall($this->generateKeyForCache($bucket, $keyname));
+        return $this->redisClient->hgetall($this->getHash($bucket, $keyname));
     }
 
     /**
@@ -79,7 +79,7 @@ class RedisCache implements CacheInterface
      */
     public function set($bucket, $keyname, $content)
     {
-        $this->redisClient->hset($this->generateKeyForCache($bucket, $keyname), $keyname, serialize($content));
+        $this->redisClient->hset($this->getHash($bucket, $keyname), $keyname, serialize($content));
     }
 
     /**
@@ -88,7 +88,7 @@ class RedisCache implements CacheInterface
      *
      * @return string
      */
-    private function generateKeyForCache($bucketName, $keyName)
+    private function getHash( $bucketName, $keyName)
     {
         return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
     }
