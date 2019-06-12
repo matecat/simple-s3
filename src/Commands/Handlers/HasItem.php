@@ -25,7 +25,7 @@ class HasItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)){
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)) {
             return true;
         }
 

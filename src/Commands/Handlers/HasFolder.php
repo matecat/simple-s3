@@ -32,7 +32,7 @@ class HasFolder extends CommandHandler
             $prefix .= DIRECTORY_SEPARATOR;
         }
 
-        if($this->client->hasCache() and $this->client->getCache()->has($bucketName, $prefix)){
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $prefix)) {
             return true;
         }
 
@@ -59,11 +59,11 @@ class HasFolder extends CommandHandler
      * @return bool
      * @throws \Exception
      */
-    private function returnItemFromS3( $bucketName, $prefix)
+    private function returnItemFromS3($bucketName, $prefix)
     {
         $command = $this->client->getConn()->getCommand(
-                'listObjects',
-                [
+            'listObjects',
+            [
                         'Bucket' => $bucketName,
                         'Prefix' => $prefix,
                         'MaxKeys' => 1,

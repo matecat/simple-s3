@@ -33,7 +33,7 @@ class RedisCache implements CacheInterface
      */
     public function get($bucket, $keyname)
     {
-        if($this->has($bucket, $keyname)){
+        if ($this->has($bucket, $keyname)) {
             return unserialize($this->redisClient->get($this->getKeyName($bucket, $keyname)));
         }
     }
@@ -44,7 +44,8 @@ class RedisCache implements CacheInterface
      *
      * @return bool
      */
-    public function has($bucket, $keyname) {
+    public function has($bucket, $keyname)
+    {
         return $this->redisClient->exists($this->getKeyName($bucket, $keyname));
     }
 
@@ -54,7 +55,7 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        if($this->has($bucket, $keyname)){
+        if ($this->has($bucket, $keyname)) {
             $this->redisClient->del($this->getKeyName($bucket, $keyname));
         }
     }
@@ -67,7 +68,7 @@ class RedisCache implements CacheInterface
      */
     public function search($bucket, $keyname = null)
     {
-        if($this->redisClient instanceof Client){
+        if ($this->redisClient instanceof Client) {
             $return = [];
 
             foreach (new Keyspace($this->redisClient, $this->getMatchPattern($bucket, $keyname)) as $key) {
@@ -86,11 +87,11 @@ class RedisCache implements CacheInterface
      *
      * @return string
      */
-    private function getMatchPattern( $bucket, $keyname = null)
+    private function getMatchPattern($bucket, $keyname = null)
     {
         $pattern = $bucket . self::SAFE_DELIMITER;
 
-        if(null != $keyname){
+        if (null != $keyname) {
             $pattern .= $keyname;
         }
 
@@ -107,9 +108,9 @@ class RedisCache implements CacheInterface
      */
     public function set($bucket, $keyname, $content, $ttl = null)
     {
-        if(false == $this->has($bucket, $keyname)){
+        if (false == $this->has($bucket, $keyname)) {
             $ttl = (null != $ttl and $ttl < self::MAX_TTL) ? $ttl : self::MAX_TTL;
-            $this->redisClient->set( $this->getKeyName($bucket, $keyname), serialize($content), 'ex', $ttl);
+            $this->redisClient->set($this->getKeyName($bucket, $keyname), serialize($content), 'ex', $ttl);
         }
     }
 

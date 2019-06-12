@@ -78,7 +78,7 @@ class CopyInBatch extends CommandHandler
                 ) use ($targetBucket, $targetKeys) {
                     $this->loggerWrapper->log($this, sprintf('Completed copy of \'%s\'', $targetKeys[$iterKey]));
 
-                    if($this->client->hasCache()){
+                    if ($this->client->hasCache()) {
                         $this->client->getCache()->set($targetBucket, $targetKeys[$iterKey], '');
                     }
                 },

@@ -34,7 +34,7 @@ class GetBucketSize extends CommandHandler
         ]);
 
         /** @var ResultInterface $item */
-        foreach ($items as $key => $item){
+        foreach ($items as $key => $item) {
             $size += $item['ContentLength'];
         }
 

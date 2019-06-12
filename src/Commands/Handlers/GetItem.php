@@ -57,7 +57,7 @@ class GetItem extends CommandHandler
      */
     private function returnItemFromCache($bucketName, $keyName)
     {
-        if('' === $this->client->getCache()->get($bucketName, $keyName)){
+        if ('' === $this->client->getCache()->get($bucketName, $keyName)) {
             $file = $this->client->getConn()->getObject([
                 'Bucket' => $bucketName,
                 'Key'    => $keyName
@@ -85,7 +85,7 @@ class GetItem extends CommandHandler
                 'Key'    => $keyName
             ]);
 
-            if($this->client->hasCache()){
+            if ($this->client->hasCache()) {
                 $this->client->getCache()->set($bucketName, $keyName, $file);
             }
 

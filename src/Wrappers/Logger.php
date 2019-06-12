@@ -53,7 +53,7 @@ class Logger
      * @return bool
      * @throws \Exception
      */
-    public function logExceptionAndContinue( \Exception $exception)
+    public function logExceptionAndContinue(\Exception $exception)
     {
         if ($this->client->hasLogger()) {
             $this->client->getLogger()->error($exception->getMessage());

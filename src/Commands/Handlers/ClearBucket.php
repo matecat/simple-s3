@@ -28,7 +28,7 @@ class ClearBucket extends CommandHandler
 
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
             $items = $this->client->getItemsInABucket(['bucket' => $bucketName]);
-            foreach ($items as $key){
+            foreach ($items as $key) {
                 if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $key])) {
                     $errors[] = $delete;
                 }

@@ -90,7 +90,7 @@ class GetItemsInABucket extends CommandHandler
             // bucket::key.ext
             // and we need to get back to
             // key.ext
-            $key = str_replace($bucketName . CacheInterface::SAFE_DELIMITER,'', $key);
+            $key = str_replace($bucketName . CacheInterface::SAFE_DELIMITER, '', $key);
 
             if (null != $hydrate and true === $hydrate) {
                 $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
@@ -127,7 +127,7 @@ class GetItemsInABucket extends CommandHandler
                     }
 
                     // send to cache, just to be sure that S3 is syncronized with cache
-                    if($this->client->hasCache()){
+                    if ($this->client->hasCache()) {
                         $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
                     }
                 }
