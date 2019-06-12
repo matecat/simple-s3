@@ -48,12 +48,12 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
                 }
 
                 if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
-                    $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully created', $bucketName));
+                    $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was successfully created', $bucketName));
 
                     return true;
                 }
 
-                $this->loggerWrapper->log(sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName), 'warning');
+                $this->loggerWrapper->log($this, sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName), 'warning');
 
                 return false;
             } catch (S3Exception $e) {
@@ -61,7 +61,7 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
             }
         }
 
-        $this->loggerWrapper->log(sprintf('Bucket \'%s\' already exists', $bucketName), 'warning');
+        $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' already exists', $bucketName), 'warning');
 
         return false;
     }

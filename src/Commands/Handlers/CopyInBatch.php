@@ -68,7 +68,7 @@ class CopyInBatch extends CommandHandler
             $pool = new CommandPool($this->client->getConn(), $commands, [
                 'concurrency' => (isset($params['concurrency'])) ? $params['concurrency'] : 25,
                 'before' => function (CommandInterface $cmd, $iterKey) {
-                    $this->loggerWrapper->log(sprintf('About to send \'%s\'', $iterKey));
+                    $this->loggerWrapper->log($this, sprintf('About to send \'%s\'', $iterKey));
                 },
                 // Invoke this function for each successful transfer
                 'fulfilled' => function (
@@ -76,7 +76,7 @@ class CopyInBatch extends CommandHandler
                     $iterKey,
                     PromiseInterface $aggregatePromise
                 ) use ($targetBucket, $targetKeys) {
-                    $this->loggerWrapper->log(sprintf('Completed copy of \'%s\'', $targetKeys[$iterKey]));
+                    $this->loggerWrapper->log($this, sprintf('Completed copy of \'%s\'', $targetKeys[$iterKey]));
 
                     if($this->client->hasCache()){
                         $this->client->getCache()->set($targetBucket, $targetKeys[$iterKey], '');
@@ -97,12 +97,12 @@ class CopyInBatch extends CommandHandler
             $pool->promise()->wait();
 
             if (count($errors) === 0) {
-                $this->loggerWrapper->log(sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $targetBucket));
+                $this->loggerWrapper->log($this, sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $targetBucket));
 
                 return true;
             }
 
-            $this->loggerWrapper->log(sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']), 'warning');
+            $this->loggerWrapper->log($this, sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']), 'warning');
 
             return false;
         } catch (\Exception $e) {

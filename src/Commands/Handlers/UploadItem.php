@@ -109,12 +109,12 @@ class UploadItem extends CommandHandler
             $upload = $uploader->upload();
 
             if (($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
 
                 return true;
             }
 
-            $this->loggerWrapper->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->loggerWrapper->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             // update cache
             if ((!isset($params['storage'])) and $this->client->hasLogger()) {

@@ -99,7 +99,7 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        $this->loggerWrapper->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
         return $items;
     }
@@ -134,7 +134,7 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        $this->loggerWrapper->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        $this->loggerWrapper->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
         return $items;
     }

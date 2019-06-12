@@ -34,12 +34,12 @@ class DeleteBucket extends CommandHandler
 
                 if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
                     $this->removeItemsInCache($bucketName, $items);
-                    $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+                    $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
                     return true;
                 }
 
-                $this->loggerWrapper->log(sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
+                $this->loggerWrapper->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
 
                 return false;
             } catch (S3Exception $e) {
@@ -47,7 +47,7 @@ class DeleteBucket extends CommandHandler
             }
         }
 
-        $this->loggerWrapper->log(sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
+        $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
 
         return false;
     }

@@ -35,7 +35,7 @@ class DeleteItem extends CommandHandler
             ]);
 
             if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
-                $this->loggerWrapper->log(sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
+                $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
 
                 if($this->client->hasCache()){
                     $this->client->getCache()->remove($bucketName, $keyName);
@@ -44,7 +44,7 @@ class DeleteItem extends CommandHandler
                 return true;
             }
 
-            $this->loggerWrapper->log(sprintf('Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->loggerWrapper->log($this, sprintf('Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             return false;
         } catch (S3Exception $e) {

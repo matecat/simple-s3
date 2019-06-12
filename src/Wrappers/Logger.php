@@ -12,6 +12,7 @@
 namespace SimpleS3\Wrappers;
 
 use SimpleS3\Client;
+use SimpleS3\Commands\CommandHandler;
 
 class Logger
 {
@@ -31,13 +32,16 @@ class Logger
     }
 
     /**
+     * @param CommandHandler $commandHandler
      * @param string $message
      * @param string $level
      */
-    public function log($message, $level = 'info')
+    public function log(CommandHandler $commandHandler, $message, $level = 'info')
     {
         if ($this->client->hasLogger()) {
-            $this->client->getLogger()->{$level}($message);
+            $msg = '['.get_class($commandHandler).'] ' . $message;
+
+            $this->client->getLogger()->{$level}($msg);
         }
     }
 

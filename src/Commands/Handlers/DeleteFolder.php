@@ -28,7 +28,7 @@ class DeleteFolder extends CommandHandler
 
         try {
             $this->client->getConn()->deleteMatchingObjects($bucketName, $prefix);
-            $this->loggerWrapper->log(sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
+            $this->loggerWrapper->log($this, sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
             $this->client->getCache()->remove($bucketName, $prefix);
 
             return true;
