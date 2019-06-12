@@ -13,6 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Cache\CacheInterface;
 use SimpleS3\Helpers\File;
 
 class GetItemsInABucket extends CommandHandler
@@ -45,7 +46,7 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
-            if ($this->client->hasCache() and isset($params['prefix'])) {
+            if ($this->client->hasCache()) {
                 return $this->returnItemsFromCache($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
             }
 
@@ -75,14 +76,21 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $items = [];
-        $itemsFromCache = $this->cacheWrapper->getKeysForAPrefix($bucketName, $config['Prefix']);
+        $itemsFromCache = $this->client->getCache()->search($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
 
         // no data was found, try to retrieve data from S3
-        if (count($itemsFromCache) === 0) {
+        if (count($itemsFromCache) == 0) {
             return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
         foreach ($itemsFromCache as $key) {
+
+            // key in cache are stored like:
+            // bucket::key.ext
+            // and we need to get back to
+            // key.ext
+            $key = str_replace($bucketName . CacheInterface::SAFE_DELIMITER, '', $key);
+
             if (null != $hydrate and true === $hydrate) {
                 $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
             } else {
@@ -90,7 +98,7 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        $this->loggerWrapper->log(sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        $this->loggerWrapper->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
         return $items;
     }
@@ -118,12 +126,14 @@ class GetItemsInABucket extends CommandHandler
                     }
 
                     // send to cache, just to be sure that S3 is syncronized with cache
-                    $this->cacheWrapper->setAKeyInAPrefix($bucketName, $key);
+                    if ($this->client->hasCache()) {
+                        $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                    }
                 }
             }
         }
 
-        $this->loggerWrapper->log(sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        $this->loggerWrapper->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
         return $items;
     }

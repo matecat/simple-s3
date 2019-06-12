@@ -35,7 +35,7 @@ class GetPublicItemLink extends CommandHandler
             ]);
 
             $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();
-            $this->loggerWrapper->log(sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            $this->loggerWrapper->log($this, sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
             return $link;
         } catch (\InvalidArgumentException $e) {

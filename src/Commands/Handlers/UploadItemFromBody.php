@@ -14,7 +14,6 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 use SimpleS3\Exceptions\InvalidS3NameException;
-use SimpleS3\Helpers\File;
 use SimpleS3\Validators\S3ObjectSafeNameValidator;
 use SimpleS3\Validators\S3StorageClassNameValidator;
 
@@ -86,16 +85,16 @@ class UploadItemFromBody extends CommandHandler
             $result = $this->client->getConn()->putObject($config);
 
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log(sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
 
-                if (null === $storage) {
-                    $this->cacheWrapper->setAKeyInAPrefix($bucketName, $keyName);
+                if (null === $storage and $this->client->hasLogger()) {
+                    $this->client->getCache()->set($bucketName, $keyName, '');
                 }
 
                 return true;
             }
 
-            $this->loggerWrapper->log(sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->loggerWrapper->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             return false;
         } catch (\InvalidArgumentException $e) {

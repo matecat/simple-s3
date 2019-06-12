@@ -98,29 +98,31 @@ For further details please refer to the official documentation:
 
 ## Caching
 
-In order speed up data retrieval, you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant. 
-Consider this example:
+In order speed up data retrieval, you can inject a cache handler. Please note that the cache MUST implement ```SimpleS3\Components\Cache\CacheInterface```.
+The client comes with a Redis implementation:
 
 ```php
 ...
 
-// $cacheAdapter MUST implement Psr\Cache\CacheItemPoolInterface
+use SimpleS3\Components\Cache\RedisCache;
 
 $redis = new Predis\Client();
-$cacheAdapter = new RedisAdapter($redis); // in this example Symfony Cache component is used
-$s3Client->addCache(new PsrCacheAdapter($cacheAdapter));
+$cacheAdapter = new RedisCache($redis);
+$s3Client->addCache($cacheAdapter);
 ```
 
-Now ```getItemsInABucket``` method will get the elements directly from cache. Please note that caching works ONLY if you provide a prefix to the method: 
+Now ```getItemsInABucket``` method will get the elements directly from cache:
 
 ```php
 ...
 
 // this will get keys from cache
-$s3Client->getItemsInABucket('your-bucket', 'prefix/');
+$s3Client->getItemsInABucket([
+    'bucket' => 'your-bucket', 
+    'prefix' => 'prefix/',
+    'hydrate' => true // false by default. If true is set the method returns an array of Aws\ResultInterface 
+]);
 
-// this will EVER get keys from S3
-$s3Client->getItemsInABucket('your-bucket');
 ```
 
 ## Logging

@@ -11,6 +11,7 @@
 
 namespace SimpleS3\Commands\Handlers;
 
+use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 
 class GetBucketSize extends CommandHandler
@@ -26,25 +27,18 @@ class GetBucketSize extends CommandHandler
         $bucketName = $params['bucket'];
         $size = 0;
 
-        $config = [
-            'Bucket' => $bucketName,
-        ];
-
-        if (isset($params['prefix'])) {
-            $config['Delimiter'] = DIRECTORY_SEPARATOR;
-            $config['Prefix'] = $params['prefix'];
-        }
-
         $items = $this->client->getItemsInABucket([
             'bucket' => $bucketName,
             'prefix' => (isset($params['prefix'])) ? $params['prefix'] : null,
             'hydrate' => true
         ]);
-        foreach ($items as $item){
+
+        /** @var ResultInterface $item */
+        foreach ($items as $key => $item) {
             $size += $item['ContentLength'];
         }
 
-        $this->loggerWrapper->log(sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
+        $this->loggerWrapper->log($this, sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
 
         return $size;
     }

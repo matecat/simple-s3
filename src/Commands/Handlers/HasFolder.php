@@ -32,21 +32,11 @@ class HasFolder extends CommandHandler
             $prefix .= DIRECTORY_SEPARATOR;
         }
 
-        $command = $this->client->getConn()->getCommand(
-                'listObjects',
-                [
-                    'Bucket' => $bucketName,
-                    'Prefix' => $prefix,
-                    'MaxKeys' => 1,
-                ]
-        );
-        try {
-            $result = $this->client->getConn()->execute($command);
-
-            return $result['Contents'] or $result['CommonPrefixes'];
-        } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $prefix)) {
+            return true;
         }
+
+        return $this->returnItemFromS3($bucketName, $prefix);
     }
 
     /**
@@ -60,5 +50,31 @@ class HasFolder extends CommandHandler
             isset($params['bucket']) and
             isset($params['prefix'])
         );
+    }
+
+    /**
+     * @param string $bucketName
+     * @param string $prefix
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function returnItemFromS3($bucketName, $prefix)
+    {
+        $command = $this->client->getConn()->getCommand(
+            'listObjects',
+            [
+                        'Bucket' => $bucketName,
+                        'Prefix' => $prefix,
+                        'MaxKeys' => 1,
+                ]
+        );
+        try {
+            $result = $this->client->getConn()->execute($command);
+
+            return $result['Contents'] or $result['CommonPrefixes'];
+        } catch (S3Exception $e) {
+            $this->loggerWrapper->logExceptionAndContinue($e);
+        }
     }
 }

@@ -23,9 +23,9 @@ class FileTest extends PHPUnit_Framework_TestCase
     {
         $path = '/usr/path/to/file.txt';
 
-        $this->assertEquals(File::getInfo($path)['dirname'], '/usr/path/to');
-        $this->assertEquals(File::getInfo($path)['basename'], 'file.txt');
-        $this->assertEquals(File::getInfo($path)['extension'], 'txt');
-        $this->assertEquals(File::getInfo($path)['filename'], 'file');
+        $this->assertEquals(File::getPathInfo($path)['dirname'], '/usr/path/to');
+        $this->assertEquals(File::getPathInfo($path)['basename'], 'file.txt');
+        $this->assertEquals(File::getPathInfo($path)['extension'], 'txt');
+        $this->assertEquals(File::getPathInfo($path)['filename'], 'file');
     }
 }

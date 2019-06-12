@@ -42,13 +42,16 @@ class CreateFolder extends CommandHandler
             ]);
 
             if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log(sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
-                $this->cacheWrapper->setAKeyInAPrefix($bucketName, $keyName);
+                $this->loggerWrapper->log($this, sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
+
+                if ($this->client->hasCache()) {
+                    $this->client->getCache()->set($bucketName, $keyName, '');
+                }
 
                 return true;
             }
 
-            $this->loggerWrapper->log(sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->loggerWrapper->log($this, sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             return false;
         } catch (S3Exception $e) {

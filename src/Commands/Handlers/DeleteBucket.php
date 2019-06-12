@@ -29,25 +29,30 @@ class DeleteBucket extends CommandHandler
 
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
             try {
-                $items = $this->getItemsFromBucket($bucketName);
-                $delete = $this->client->getConn()->deleteBucket([
-                    'Bucket' => $bucketName
-                ]);
+                $items = $this->client->getItemsInABucket([ 'Bucket' => $bucketName ]);
+                $delete = $this->client->getConn()->deleteBucket([ 'Bucket' => $bucketName ]);
 
                 if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
-                    $this->removeAllFromCache($bucketName, $items);
-                    $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+                    if (null != $items and count($items) > 0) {
+                        $this->removeItemsInCache($bucketName, $items);
+                    }
+
+                    $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
                     return true;
                 }
 
-                $this->loggerWrapper->log(sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
+                $this->loggerWrapper->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
 
                 return false;
             } catch (S3Exception $e) {
                 $this->loggerWrapper->logExceptionAndContinue($e);
             }
         }
+
+        $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
+
+        return false;
     }
 
     /**
@@ -62,37 +67,12 @@ class DeleteBucket extends CommandHandler
 
     /**
      * @param string $bucketName
-     *
-     * @return array
-     */
-    private function getItemsFromBucket($bucketName)
-    {
-        $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', [
-            'Bucket' => $bucketName,
-        ]);
-
-        $items = [];
-
-        foreach ($resultPaginator as $result) {
-            if (is_array($contents = $result->get('Contents'))) {
-                for ($i = 0; $i < count($contents); $i++) {
-                    $items[] = $contents[$i]['Key'];
-                }
-            }
-        }
-
-        return $items;
-    }
-
-    /**
-     * @param string $bucketName
      * @param array  $items
      */
-    private function removeAllFromCache( $bucketName, $items)
+    private function removeItemsInCache($bucketName, $items)
     {
         foreach ($items as $key) {
-            $this->cacheWrapper->removeAnItemOrPrefix($bucketName, $key, false);
-            $this->cacheWrapper->removeItem($bucketName, $key);
+            $this->client->getCache()->remove($bucketName, $key);
         }
     }
 }

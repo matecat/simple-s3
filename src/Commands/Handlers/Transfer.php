@@ -11,7 +11,6 @@
 
 namespace SimpleS3\Commands\Handlers;
 
-use Aws\Exception\MultipartUploadException;
 use SimpleS3\Commands\CommandHandler;
 
 class Transfer extends CommandHandler
@@ -58,7 +57,7 @@ class Transfer extends CommandHandler
             $manager = new \Aws\S3\Transfer($this->client->getConn(), $source, $dest, $options);
             $manager->transfer();
 
-            $this->loggerWrapper->log(sprintf('Files were successfully transfered from \'%s\' to \'%s\'', $source, $dest));
+            $this->loggerWrapper->log($this, sprintf('Files were successfully transfered from \'%s\' to \'%s\'', $source, $dest));
 
             return true;
         } catch (\RuntimeException $e) {

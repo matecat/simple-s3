@@ -12,10 +12,7 @@
 namespace SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
-use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Exceptions\InvalidS3NameException;
-use SimpleS3\Validators\S3BucketNameValidator;
 
 class EnableAcceleration extends CommandHandler
 {
@@ -40,12 +37,12 @@ class EnableAcceleration extends CommandHandler
             );
 
             if (($accelerate instanceof ResultInterface) and $accelerate['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully set to transfer accelerated mode', $bucketName));
+                $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was successfully set to transfer accelerated mode', $bucketName));
 
                 return true;
             }
 
-            $this->loggerWrapper->log(sprintf('Something went wrong during setting of bucket \'%s\' to transfer accelerated mode', $bucketName), 'warning');
+            $this->loggerWrapper->log($this, sprintf('Something went wrong during setting of bucket \'%s\' to transfer accelerated mode', $bucketName), 'warning');
 
             return false;
         } catch (\Exception $exception) {

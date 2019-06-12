@@ -27,32 +27,28 @@ class ClearBucket extends CommandHandler
         $errors = [];
 
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
-            $results = $this->client->getConn()->getPaginator('ListObjects', [
-                'Bucket' => $bucketName
-            ]);
-
-            foreach ($results as $result) {
-                if (is_array($contents = $result->get('Contents'))) {
-                    for ($i = 0; $i < count($contents); $i++) {
-                        if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $contents[$i]['Key']])) {
-                            $errors[] = $delete;
-                        }
-                    }
+            $items = $this->client->getItemsInABucket(['bucket' => $bucketName]);
+            foreach ($items as $key) {
+                if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $key])) {
+                    $errors[] = $delete;
                 }
             }
+
+            if (count($errors) === 0) {
+                $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
+
+                return true;
+            }
+
+            $this->loggerWrapper->log($this, sprintf('Something went wrong while clearing bucket \'%s\'', $bucketName), 'warning');
+
+            return false;
         }
 
-        if (count($errors) === 0) {
-            $this->loggerWrapper->log(sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
-
-            return true;
-        }
-
-        $this->loggerWrapper->log(sprintf('Something went wrong while clearing bucket \'%s\'', $bucketName), 'warning');
+        $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
 
         return false;
     }
-
 
     /**
      * @param array $params

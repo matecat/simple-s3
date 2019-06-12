@@ -28,7 +28,7 @@ class GetItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if($this->client->hasCache()){
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)) {
             return $this->returnItemFromCache($bucketName, $keyName);
         }
 
@@ -43,8 +43,8 @@ class GetItem extends CommandHandler
     public function validateParams($params = [])
     {
         return (
-                isset($params['bucket']) and
-                isset($params['key'])
+            isset($params['bucket']) and
+            isset($params['key'])
         );
     }
 
@@ -52,16 +52,21 @@ class GetItem extends CommandHandler
      * @param string $bucketName
      * @param string $keyName
      *
-     * @return array
-     * @throws \Exception
+     * @return mixed
      */
     private function returnItemFromCache($bucketName, $keyName)
     {
-        if(null != $file = $this->cacheWrapper->getAnItem($bucketName, $keyName)){
-            return $file;
+        if ('' === $this->client->getCache()->get($bucketName, $keyName)) {
+            $file = $this->client->getConn()->getObject([
+                'Bucket' => $bucketName,
+                'Key'    => $keyName
+            ]);
+
+            $this->client->getCache()->remove($bucketName, $keyName);
+            $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
         }
 
-        return $this->returnItemFromS3($bucketName, $keyName);
+        return $this->client->getCache()->get($bucketName, $keyName);
     }
 
     /**
@@ -79,11 +84,11 @@ class GetItem extends CommandHandler
                 'Key'    => $keyName
             ]);
 
-            if($this->client->hasCache()){
-                $this->cacheWrapper->setAnItem($bucketName, $keyName, $file->toArray());
+            if ($this->client->hasCache()) {
+                $this->client->getCache()->set($bucketName, $keyName, $file);
             }
 
-            $this->loggerWrapper->log(sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
             return $file->toArray();
         } catch (S3Exception $e) {

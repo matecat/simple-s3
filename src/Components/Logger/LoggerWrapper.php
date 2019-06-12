@@ -9,11 +9,12 @@
  *
  */
 
-namespace SimpleS3\Wrappers;
+namespace SimpleS3\Components\Logger;
 
 use SimpleS3\Client;
+use SimpleS3\Commands\CommandHandler;
 
-class Logger
+class LoggerWrapper
 {
     /**
      * @var Client
@@ -31,27 +32,33 @@ class Logger
     }
 
     /**
+     * @param CommandHandler $commandHandler
      * @param string $message
      * @param string $level
      */
-    public function log($message, $level = 'info')
+    public function log(CommandHandler $commandHandler, $message, $level = 'info')
     {
         if ($this->client->hasLogger()) {
-            $this->client->getLogger()->{$level}($message);
+            $msg = '['.get_class($commandHandler).'] ' . $message;
+
+            $this->client->getLogger()->{$level}($msg);
         }
     }
 
     /**
-     * Log the exception and continue with default behaviour
+     * If the client has a logger set, this method log the exception and return false
      *
      * @param \Exception $exception
      *
+     * @return bool
      * @throws \Exception
      */
-    public function logExceptionAndContinue( \Exception $exception)
+    public function logExceptionAndContinue(\Exception $exception)
     {
         if ($this->client->hasLogger()) {
             $this->client->getLogger()->error($exception->getMessage());
+
+            return false;
         }
 
         throw $exception; // continue with the default behaviour

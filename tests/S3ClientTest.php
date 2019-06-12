@@ -1,12 +1,10 @@
 <?php
 
-use Aws\PsrCacheAdapter;
-use Aws\Result;
 use Aws\ResultInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use SimpleS3\Client;
-use Symfony\Component\Cache\Adapter\RedisAdapter;
+use SimpleS3\Components\Cache\RedisCache;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -49,8 +47,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         // Inject Cache
         $redis = new Predis\Client();
-        $cacheAdapter = new RedisAdapter($redis);
-        $this->s3Client->addCache(new PsrCacheAdapter($cacheAdapter));
+        $cacheAdapter = new RedisCache($redis);
+        $this->s3Client->addCache($cacheAdapter);
 
         $this->bucket      = 'mauretto78-bucket-test';
         $this->keyname     = 'test.txt';
@@ -107,7 +105,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $this->bucket, 'rules' => $rules, 'accelerate' => true]);
+        $this->s3Client->createBucketIfItDoesNotExist([
+            'bucket' => $this->bucket,
+            'rules' => $rules,
+            'accelerate' => true
+        ]);
 
         $configuration = $this->s3Client->getBucketLifeCycleConfiguration(['bucket' => $this->bucket]);
 
@@ -226,6 +228,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         $item = $this->s3Client->getItem(['bucket' => $this->bucket, 'key' => $this->keyname]);
 
+        $this->assertTrue(is_array($item));
         $this->assertEquals($item['ContentType'], 'text/plain');
         $this->assertEquals($item['@metadata']['statusCode'], 200);
     }
@@ -286,6 +289,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertCount(5, $items);
 
         foreach ($items as $item) {
+            $this->assertTrue(is_array($item));
             $this->assertEquals($item['@metadata']['statusCode'], 200);
         }
     }
@@ -356,7 +360,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_put_item_in_glacier_and_then_restore_it()
     {
-        $keyname = 'file-to-be-restored-from-glacier';
+        $keyname = 'file-to-be-restored-from-glacier.txt';
         $source = __DIR__ . '/support/files/txt/test.txt';
 
         $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source, 'storage' => 'GLACIER', 'check_bucket' => true]);
@@ -364,6 +368,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $restore = $this->s3Client->restoreItem(['bucket' => $this->bucket, 'key' => $keyname]);
         $this->assertTrue($restore);
+
+        sleep(10); // wait the file is restored
+
+        $deleted = $this->s3Client->deleteItem(['bucket' => $this->bucket, 'key' => $keyname]);
+        $this->assertTrue($deleted);
     }
 
     /**
@@ -384,13 +393,14 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_all_the_items()
     {
         $buckets = [
-            $this->bucket,
             $this->bucket.'-copied',
-            $this->bucket.'2'
+            $this->bucket.'2',
+            $this->bucket,
         ];
 
         foreach ($buckets as $bucket) {
             $this->assertTrue($this->s3Client->clearBucket(['bucket' => $bucket]));
+            $this->assertEquals(0, $this->s3Client->getBucketSize(['bucket' => $bucket]));
         }
     }
 
@@ -401,9 +411,9 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_the_bucket()
     {
         $buckets = [
-            $this->bucket,
             $this->bucket.'-copied',
-            $this->bucket.'2'
+            $this->bucket.'2',
+            $this->bucket,
         ];
 
         foreach ($buckets as $bucket) {

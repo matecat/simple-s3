@@ -33,9 +33,9 @@
     "monolog/monolog": "^1.24",
     "phpstan/phpstan": "^0.11.8",
     "symfony/cache": "^4.3",
-    "predis/predis": "^1.1"
-  },"suggest": {
-    "ext-fileinfo": "Allows to get info on files",
-    "ext-curl": "Needed to get file content from remote url"
+    "predis/predis": "^1.1",
+    "ext-redis": "^4.3",
+    "ext-curl": "^7.3",
+    "ext-fileinfo": "^7.3"
   }
 }
