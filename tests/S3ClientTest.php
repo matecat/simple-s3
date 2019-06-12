@@ -361,7 +361,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_put_item_in_glacier_and_then_restore_it()
     {
-        $keyname = 'file-to-be-restored-from-glacier';
+        $keyname = 'file-to-be-restored-from-glacier.txt';
         $source = __DIR__ . '/support/files/txt/test.txt';
 
         $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source, 'storage' => 'GLACIER', 'check_bucket' => true]);
@@ -396,6 +396,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         foreach ($buckets as $bucket) {
             $this->assertTrue($this->s3Client->clearBucket(['bucket' => $bucket]));
+            $this->assertEquals(0, $this->s3Client->getBucketSize(['bucket' => $bucket]));
         }
     }
 

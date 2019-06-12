@@ -42,16 +42,19 @@ class Logger
     }
 
     /**
-     * Log the exception and continue with default behaviour
+     * If the client has a logger set, this method log the exception and return false
      *
      * @param \Exception $exception
      *
+     * @return bool
      * @throws \Exception
      */
     public function logExceptionAndContinue( \Exception $exception)
     {
         if ($this->client->hasLogger()) {
             $this->client->getLogger()->error($exception->getMessage());
+
+            return false;
         }
 
         throw $exception; // continue with the default behaviour

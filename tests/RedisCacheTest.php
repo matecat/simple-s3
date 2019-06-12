@@ -34,8 +34,8 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
 
         $search = $this->cache->search(self::BUCKET_NAME, 'folder/to/');
         $expected = [
+            "bucket::folder/to/file2.txt",
             "bucket::folder/to/file.txt",
-            "bucket::folder/to/file2.txt"
         ];
 
         $this->assertEquals($search, $expected);

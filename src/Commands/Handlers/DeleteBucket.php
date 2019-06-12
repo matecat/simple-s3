@@ -46,6 +46,10 @@ class DeleteBucket extends CommandHandler
                 $this->loggerWrapper->logExceptionAndContinue($e);
             }
         }
+
+        $this->loggerWrapper->log(sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
+
+        return false;
     }
 
     /**

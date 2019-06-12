@@ -43,7 +43,7 @@ class CopyItem extends CommandHandler
                 $this->loggerWrapper->log(sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
 
                 if($this->client->hasCache()){
-                    $this->client->getCache()->set($targetBucketName, $targetKeyname, $copied);
+                    $this->client->getCache()->set($targetBucketName, $targetKeyname, '');
                 }
 
                 return true;

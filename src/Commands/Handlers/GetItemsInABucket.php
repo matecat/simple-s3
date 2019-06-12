@@ -127,7 +127,9 @@ class GetItemsInABucket extends CommandHandler
                     }
 
                     // send to cache, just to be sure that S3 is syncronized with cache
-                    $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                    if($this->client->hasCache()){
+                        $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                    }
                 }
             }
         }

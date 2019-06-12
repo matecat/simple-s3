@@ -60,6 +60,10 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
                 $this->loggerWrapper->logExceptionAndContinue($e);
             }
         }
+
+        $this->loggerWrapper->log(sprintf('Bucket \'%s\' already exists', $bucketName), 'warning');
+
+        return false;
     }
 
     /**

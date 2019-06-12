@@ -50,13 +50,16 @@ class CopyInBatch extends CommandHandler
 
         $commands = [];
         $errors = [];
+        $targetKeys= [];
         $targetBucket = (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket'];
 
         foreach ($params['files']['source'] as $key => $file) {
+            $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
+            $targetKeys[] = $targetKey;
             $commands[] = $this->client->getConn()->getCommand('CopyObject', [
-                    'Bucket'     => $targetBucket,
-                    'Key'        => (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file,
-                    'CopySource' => $params['source_bucket'] . DIRECTORY_SEPARATOR . $file,
+                'Bucket'     => $targetBucket,
+                'Key'        => $targetKey,
+                'CopySource' => $params['source_bucket'] . DIRECTORY_SEPARATOR . $file,
             ]);
         }
 
@@ -72,11 +75,11 @@ class CopyInBatch extends CommandHandler
                     ResultInterface $result,
                     $iterKey,
                     PromiseInterface $aggregatePromise
-                ) use ($targetBucket) {
-                    $this->loggerWrapper->log(sprintf('Completed copy of \'%s\'', $iterKey));
+                ) use ($targetBucket, $targetKeys) {
+                    $this->loggerWrapper->log(sprintf('Completed copy of \'%s\'', $targetKeys[$iterKey]));
 
                     if($this->client->hasCache()){
-                        $this->client->getCache()->set($targetBucket, $iterKey, $result);
+                        $this->client->getCache()->set($targetBucket, $targetKeys[$iterKey], '');
                     }
                 },
                 // Invoke this function for each failed transfer
