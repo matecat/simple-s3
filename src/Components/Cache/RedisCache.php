@@ -49,7 +49,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname)
     {
-        return ($this->redisClient->hexists($this->generateKeyForCache($bucket, $keyname), $keyname)) ? true : false;
+        return (1 === $this->redisClient->hexists($this->generateKeyForCache($bucket, $keyname), $keyname)) ? true : false;
     }
 
     /**
@@ -107,6 +107,5 @@ class RedisCache implements CacheInterface
         $fileInfo = File::getPathInfo($item);
 
         return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
-
     }
 }

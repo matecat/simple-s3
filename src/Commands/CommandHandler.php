@@ -22,7 +22,7 @@ abstract class CommandHandler implements CommandHandlerInterface
     protected $client;
 
     /**
-     * @var Logger
+     * @var LoggerWrapper
      */
     protected $loggerWrapper;
 

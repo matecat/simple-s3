@@ -30,7 +30,7 @@ class DeleteFolder extends CommandHandler
             $this->client->getConn()->deleteMatchingObjects($bucketName, $prefix);
             $this->loggerWrapper->log($this, sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
 
-            if($this->client->hasCache()){
+            if ($this->client->hasCache()) {
                 $this->client->getCache()->remove($bucketName, $prefix);
             }
 
