@@ -96,7 +96,7 @@ For further details please refer to the official documentation:
 
 [Restore an archived object](https://docs.aws.amazon.com/cli/latest/reference/s3api/restore-object.html)
 
-## Caching
+## Caching (v1)
 
 In order speed up data retrieval, you can inject your cache handler. Please note that your handler MUST be PSR-6 compliant. 
 Consider this example:
