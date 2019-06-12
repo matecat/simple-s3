@@ -36,6 +36,5 @@ abstract class CommandHandler implements CommandHandlerInterface
     {
         $this->client = $client;
         $this->loggerWrapper = new Logger($client);
-        //$this->cacheWrapper = new Cache($client);
     }
 }

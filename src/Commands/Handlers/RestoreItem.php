@@ -60,6 +60,10 @@ class RestoreItem extends CommandHandler
             if (($request instanceof ResultInterface) and $request['@metadata']['statusCode'] === 202) {
                 $this->loggerWrapper->log($this, sprintf('A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyName, $bucketName));
 
+                if($this->client->hasCache()){
+                    $this->client->getCache()->set($bucketName, $keyName, '');
+                }
+
                 return true;
             }
 

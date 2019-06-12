@@ -369,6 +369,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $restore = $this->s3Client->restoreItem(['bucket' => $this->bucket, 'key' => $keyname]);
         $this->assertTrue($restore);
+
+        sleep(10); // wait the file is restored
+
+        $deleted = $this->s3Client->deleteItem(['bucket' => $this->bucket, 'key' => $keyname]);
+        $this->assertTrue($deleted);
     }
 
     /**
@@ -389,9 +394,9 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_all_the_items()
     {
         $buckets = [
-            $this->bucket,
             $this->bucket.'-copied',
-            $this->bucket.'2'
+            $this->bucket.'2',
+            $this->bucket,
         ];
 
         foreach ($buckets as $bucket) {
@@ -407,9 +412,9 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_the_bucket()
     {
         $buckets = [
-            $this->bucket,
             $this->bucket.'-copied',
-            $this->bucket.'2'
+            $this->bucket.'2',
+            $this->bucket,
         ];
 
         foreach ($buckets as $bucket) {
