@@ -9,12 +9,12 @@
  *
  */
 
-namespace SimpleS3\Wrappers;
+namespace SimpleS3\Components\Logger;
 
 use SimpleS3\Client;
 use SimpleS3\Commands\CommandHandler;
 
-class Logger
+class LoggerWrapper
 {
     /**
      * @var Client

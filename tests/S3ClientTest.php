@@ -1,6 +1,5 @@
 <?php
 
-use Aws\Result;
 use Aws\ResultInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;

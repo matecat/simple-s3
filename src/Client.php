@@ -11,7 +11,6 @@
 
 namespace SimpleS3;
 
-use Aws\PsrCacheAdapter;
 use Aws\ResultInterface;
 use Aws\S3\S3Client;
 use Psr\Http\Message\UriInterface;

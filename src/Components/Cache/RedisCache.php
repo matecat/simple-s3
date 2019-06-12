@@ -4,25 +4,31 @@ namespace SimpleS3\Components\Cache;
 
 use Predis\Client;
 use Predis\Collection\Iterator\Keyspace;
-use \Redis;
-use \RedisArray;
-use \RedisCluster;
 
 class RedisCache implements CacheInterface
 {
-    const MAX_TTL        = 180; // 3 hours
+    /**
+     * @var int
+     */
+    private $ttl = 180; // 3 hours
 
     /**
-     * @var \Predis\Client|Redis|RedisArray|RedisCluster
+     * @var \Predis\Client|\Redis|\RedisArray|\RedisCluster
      */
     private $redisClient;
 
     /**
-     * @param \Redis|\RedisArray|\RedisCluster|\Predis\Client $redisClient The redis client
+     * RedisCache constructor.
+     *
+     * @param \Predis\Client|\Redis|\RedisArray|\RedisCluster $redisClient
+     * @param null $ttl
      */
-    public function __construct($redisClient)
+    public function __construct($redisClient, $ttl = null)
     {
         $this->redisClient = $redisClient;
+        if(isset($ttl)){
+            $this->ttl = $ttl;
+        }
     }
 
     /**
@@ -46,7 +52,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname)
     {
-        return $this->redisClient->exists($this->getKeyName($bucket, $keyname));
+        return (true == $this->redisClient->exists($this->getKeyName($bucket, $keyname))) ? true : false;
     }
 
     /**
@@ -56,7 +62,7 @@ class RedisCache implements CacheInterface
     public function remove($bucket, $keyname)
     {
         if ($this->has($bucket, $keyname)) {
-            $this->redisClient->del($this->getKeyName($bucket, $keyname));
+            $this->redisClient->del([$this->getKeyName($bucket, $keyname)]);
         }
     }
 
@@ -104,13 +110,11 @@ class RedisCache implements CacheInterface
      * @param string $bucket
      * @param string $keyname
      * @param mixed $content
-     * @param null $ttl
      */
-    public function set($bucket, $keyname, $content, $ttl = null)
+    public function set($bucket, $keyname, $content)
     {
         if (false == $this->has($bucket, $keyname)) {
-            $ttl = (null != $ttl and $ttl < self::MAX_TTL) ? $ttl : self::MAX_TTL;
-            $this->redisClient->set($this->getKeyName($bucket, $keyname), serialize($content), 'ex', $ttl);
+            $this->redisClient->set($this->getKeyName($bucket, $keyname), serialize($content), 'ex', $this->ttl);
         }
     }
 

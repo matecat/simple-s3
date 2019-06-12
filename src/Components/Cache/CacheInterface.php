@@ -15,8 +15,8 @@ interface CacheInterface
     public function get($bucket, $keyname);
 
     /**
-     * @param $bucket
-     * @param $keyname
+     * @param string $bucket
+     * @param string $keyname
      *
      * @return bool
      */
@@ -40,7 +40,6 @@ interface CacheInterface
      * @param string $bucket
      * @param string $keyname
      * @param mixed $content
-     * @param null $ttl
      */
-    public function set($bucket, $keyname, $content, $ttl = null);
+    public function set($bucket, $keyname, $content);
 }

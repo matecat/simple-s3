@@ -11,7 +11,6 @@
 
 namespace SimpleS3\Commands\Handlers;
 
-use Aws\Exception\MultipartUploadException;
 use SimpleS3\Commands\CommandHandler;
 
 class Transfer extends CommandHandler

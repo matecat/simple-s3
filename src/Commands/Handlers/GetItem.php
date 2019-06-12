@@ -51,9 +51,8 @@ class GetItem extends CommandHandler
     /**
      * @param string $bucketName
      * @param string $keyName
-     * @param null $hydrate
      *
-     * @return array
+     * @return mixed
      */
     private function returnItemFromCache($bucketName, $keyName)
     {
