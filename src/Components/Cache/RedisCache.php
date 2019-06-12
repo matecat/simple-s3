@@ -2,6 +2,8 @@
 
 namespace SimpleS3\Components\Cache;
 
+use Predis\Client;
+use Predis\Collection\Iterator\Keyspace;
 use \Redis;
 use \RedisArray;
 use \RedisCluster;
@@ -65,6 +67,27 @@ class RedisCache implements CacheInterface
      */
     public function search($bucket, $keyname = null)
     {
+        if($this->redisClient instanceof Client){
+            $return = [];
+
+            foreach (new Keyspace($this->redisClient, $this->getMatchPattern($bucket, $keyname)) as $key) {
+                $return[] = $key;
+            }
+
+            return $return;
+        }
+
+        return $this->redisClient->keys($this->getMatchPattern($bucket, $keyname));
+    }
+
+    /**
+     * @param string $bucket
+     * @param null $keyname
+     *
+     * @return string
+     */
+    private function getMatchPattern( $bucket, $keyname = null)
+    {
         $pattern = $bucket . self::SAFE_DELIMITER;
 
         if(null != $keyname){
@@ -73,7 +96,7 @@ class RedisCache implements CacheInterface
 
         $pattern .= '*';
 
-        return $this->redisClient->keys($pattern);
+        return $pattern;
     }
 
     /**
