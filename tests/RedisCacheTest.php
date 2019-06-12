@@ -34,11 +34,11 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
 
         $search = $this->cache->search(self::BUCKET_NAME, 'folder/to/');
         $expected = [
-            "folder/to/file.txt",
-            "folder/to/file2.txt",
+            hash("crc32b","folder/to/file.txt"),
+            hash("crc32b", "folder/to/file2.txt"),
         ];
 
-        $this->assertEquals(array_keys($search), $expected);
+        $this->assertEquals($search, $expected);
 
         $this->cache->set(self::BUCKET_NAME, 'folder/to/file2.txt', 'updated lorem ipsum');
 

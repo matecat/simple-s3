@@ -75,7 +75,6 @@ class GetItemsInABucket extends CommandHandler
      */
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
-        $items = [];
         $itemsFromCache = $this->client->getCache()->search($bucketName, $config['Prefix']);
 
         // no data was found, try to retrieve data from S3
@@ -83,12 +82,17 @@ class GetItemsInABucket extends CommandHandler
             return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
-        foreach (array_keys($itemsFromCache) as $key) {
-            if (null != $hydrate and true === $hydrate) {
-                $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
-            } else {
-                $items[] = $key;
-            }
+        // no hydrate, simply return the array of keys stored in redis
+        if (null == $hydrate) {
+            $this->loggerWrapper->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+
+            return $itemsFromCache;
+        }
+
+        // hydrate the key with the entire AWS\Result Object
+        $items = [];
+        foreach ($itemsFromCache as $key) {
+            $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
         }
 
         $this->loggerWrapper->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));

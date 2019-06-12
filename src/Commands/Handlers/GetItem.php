@@ -84,7 +84,7 @@ class GetItem extends CommandHandler
             ]);
 
             if ($this->client->hasCache()) {
-                $this->client->getCache()->set($bucketName, $keyName, $file);
+                $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
             }
 
             $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));

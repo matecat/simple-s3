@@ -9,11 +9,6 @@ use SimpleS3\Helpers\File;
 class RedisCache implements CacheInterface
 {
     /**
-     * @var int
-     */
-    private $ttl;
-
-    /**
      * @var \Predis\Client|\Redis|\RedisArray|\RedisCluster
      */
     private $redisClient;
@@ -22,12 +17,10 @@ class RedisCache implements CacheInterface
      * RedisCache constructor.
      *
      * @param \Predis\Client|\Redis|\RedisArray|\RedisCluster $redisClient
-     * @param null $ttl
      */
-    public function __construct($redisClient, $ttl = null)
+    public function __construct($redisClient)
     {
         $this->redisClient = $redisClient;
-        $this->ttl = (isset($ttl)) ? $ttl : self::TTL_STANDARD;
     }
 
     /**
@@ -38,7 +31,7 @@ class RedisCache implements CacheInterface
      */
     public function get($bucket, $keyname)
     {
-        return unserialize($this->redisClient->hget($this->getHash($bucket, $keyname), $keyname));
+        return unserialize($this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname)));
     }
 
     /**
@@ -49,7 +42,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname)
     {
-        return (1 === $this->redisClient->hexists($this->getHash($bucket, $keyname), $keyname)) ? true : false;
+        return (1 === $this->redisClient->hexists($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname))) ? true : false;
     }
 
     /**
@@ -58,7 +51,7 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        $this->redisClient->hdel($this->getHash($bucket, $keyname), $keyname);
+        $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname));
     }
 
     /**
@@ -69,17 +62,19 @@ class RedisCache implements CacheInterface
      */
     public function search($bucket, $keyname)
     {
-        return $this->redisClient->hgetall($this->getHash($bucket, $keyname));
+        return $this->redisClient->hkeys($this->getHashPrefix($bucket, $keyname));
     }
 
     /**
      * @param string $bucket
      * @param string $keyname
      * @param mixed  $content
+     * @param null $ttl
      */
-    public function set($bucket, $keyname, $content)
+    public function set($bucket, $keyname, $content, $ttl = null)
     {
-        $this->redisClient->hset($this->getHash($bucket, $keyname), $keyname, serialize($content));
+        $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname), serialize($content));
+        $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), ($ttl) ? $ttl * 60 : self::TTL_STANDARD);
     }
 
     /**
@@ -88,9 +83,19 @@ class RedisCache implements CacheInterface
      *
      * @return string
      */
-    private function getHash( $bucketName, $keyName)
+    private function getHashPrefix($bucketName, $keyName)
     {
-        return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
+        return hash(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
+    }
+
+    /**
+     * @param string $keyName
+     *
+     * @return string
+     */
+    private function getHashKey($keyName)
+    {
+        return hash(self::ENCRYPTION_ALGORITHM, $keyName, false);
     }
 
     /**
