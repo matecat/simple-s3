@@ -4,7 +4,9 @@ namespace SimpleS3\Components\Cache;
 
 interface CacheInterface
 {
+    const ENCRYPTION_ALGORITHM = 'md5';
     const SAFE_DELIMITER = '::';
+    const TTL_STANDARD = 180; // 3 hours
 
     /**
      * @param string $bucket
@@ -30,11 +32,11 @@ interface CacheInterface
 
     /**
      * @param string $bucket
-     * @param null $keyname
+     * @param string $keyname
      *
      * @return array
      */
-    public function search($bucket, $keyname = null);
+    public function search($bucket, $keyname);
 
     /**
      * @param string $bucket

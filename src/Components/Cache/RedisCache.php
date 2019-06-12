@@ -4,13 +4,14 @@ namespace SimpleS3\Components\Cache;
 
 use Predis\Client;
 use Predis\Collection\Iterator\Keyspace;
+use SimpleS3\Helpers\File;
 
 class RedisCache implements CacheInterface
 {
     /**
      * @var int
      */
-    private $ttl = 180; // 3 hours
+    private $ttl;
 
     /**
      * @var \Predis\Client|\Redis|\RedisArray|\RedisCluster
@@ -26,22 +27,18 @@ class RedisCache implements CacheInterface
     public function __construct($redisClient, $ttl = null)
     {
         $this->redisClient = $redisClient;
-        if(isset($ttl)){
-            $this->ttl = $ttl;
-        }
+        $this->ttl = (isset($ttl)) ? $ttl : self::TTL_STANDARD;
     }
 
     /**
      * @param string $bucket
      * @param string $keyname
      *
-     * @return mixed
+     * @return array|mixed
      */
     public function get($bucket, $keyname)
     {
-        if ($this->has($bucket, $keyname)) {
-            return unserialize($this->redisClient->get($this->getKeyName($bucket, $keyname)));
-        }
+        return unserialize($this->redisClient->hget($this->generateKeyForCache($bucket, $keyname), $keyname));
     }
 
     /**
@@ -52,7 +49,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname)
     {
-        return (true == $this->redisClient->exists($this->getKeyName($bucket, $keyname))) ? true : false;
+        return ($this->redisClient->hexists($this->generateKeyForCache($bucket, $keyname), $keyname)) ? true : false;
     }
 
     /**
@@ -61,71 +58,55 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        if ($this->has($bucket, $keyname)) {
-            $this->redisClient->del([$this->getKeyName($bucket, $keyname)]);
-        }
+        $this->redisClient->hdel($this->generateKeyForCache($bucket, $keyname), $keyname);
     }
 
     /**
      * @param string $bucket
-     * @param null $keyname
+     * @param string $keyname
      *
      * @return array
      */
-    public function search($bucket, $keyname = null)
+    public function search($bucket, $keyname)
     {
-        if ($this->redisClient instanceof Client) {
-            $return = [];
-
-            foreach (new Keyspace($this->redisClient, $this->getMatchPattern($bucket, $keyname)) as $key) {
-                $return[] = $key;
-            }
-
-            return $return;
-        }
-
-        return $this->redisClient->keys($this->getMatchPattern($bucket, $keyname));
-    }
-
-    /**
-     * @param string $bucket
-     * @param null $keyname
-     *
-     * @return string
-     */
-    private function getMatchPattern($bucket, $keyname = null)
-    {
-        $pattern = $bucket . self::SAFE_DELIMITER;
-
-        if (null != $keyname) {
-            $pattern .= $keyname;
-        }
-
-        $pattern .= '*';
-
-        return $pattern;
+        return $this->redisClient->hgetall($this->generateKeyForCache($bucket, $keyname));
     }
 
     /**
      * @param string $bucket
      * @param string $keyname
-     * @param mixed $content
+     * @param mixed  $content
      */
     public function set($bucket, $keyname, $content)
     {
-        if (false == $this->has($bucket, $keyname)) {
-            $this->redisClient->set($this->getKeyName($bucket, $keyname), serialize($content), 'ex', $this->ttl);
-        }
+        $this->redisClient->hset($this->generateKeyForCache($bucket, $keyname), $keyname, serialize($content));
     }
 
     /**
-     * @param string $bucket
-     * @param string $keyname
+     * @param string $bucketName
+     * @param string $keyName
      *
      * @return string
      */
-    private function getKeyName($bucket, $keyname)
+    private function generateKeyForCache($bucketName, $keyName)
     {
-        return $bucket . self::SAFE_DELIMITER . $keyname;
+        return call_user_func(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
+    }
+
+    /**
+     * @param string $item
+     *
+     * @return string
+     */
+    private function getDirName($item)
+    {
+        if (File::endsWithSlash($item)) {
+            return $item;
+        }
+
+        $fileInfo = File::getPathInfo($item);
+
+        return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
+
     }
 }

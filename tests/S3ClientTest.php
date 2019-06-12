@@ -320,6 +320,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($items));
         $this->assertCount(2, $items);
+
         $this->assertContains('folder/', $items);
         $this->assertContains('folder/test.txt', $items);
     }
@@ -418,6 +419,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         foreach ($buckets as $bucket) {
             $this->assertTrue($this->s3Client->deleteBucket(['bucket' => $bucket]));
+            $this->assertFalse($this->s3Client->hasBucket(['bucket' => $bucket]));
         }
     }
 }

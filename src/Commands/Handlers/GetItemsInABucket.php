@@ -46,7 +46,7 @@ class GetItemsInABucket extends CommandHandler
                 $config['Prefix'] = $params['prefix'];
             }
 
-            if ($this->client->hasCache()) {
+            if ($this->client->hasCache() and isset($config['Prefix'])) {
                 return $this->returnItemsFromCache($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
             }
 
@@ -76,21 +76,14 @@ class GetItemsInABucket extends CommandHandler
     private function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $items = [];
-        $itemsFromCache = $this->client->getCache()->search($bucketName, (isset($config['Prefix'])) ? $config['Prefix'] : null);
+        $itemsFromCache = $this->client->getCache()->search($bucketName, $config['Prefix']);
 
         // no data was found, try to retrieve data from S3
         if (count($itemsFromCache) == 0) {
             return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
-        foreach ($itemsFromCache as $key) {
-
-            // key in cache are stored like:
-            // bucket::key.ext
-            // and we need to get back to
-            // key.ext
-            $key = str_replace($bucketName . CacheInterface::SAFE_DELIMITER, '', $key);
-
+        foreach (array_keys($itemsFromCache) as $key) {
             if (null != $hydrate and true === $hydrate) {
                 $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
             } else {

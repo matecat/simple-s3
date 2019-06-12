@@ -62,7 +62,6 @@ class GetItem extends CommandHandler
                 'Key'    => $keyName
             ]);
 
-            $this->client->getCache()->remove($bucketName, $keyName);
             $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
         }
 

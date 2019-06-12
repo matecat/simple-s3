@@ -111,7 +111,7 @@ $cacheAdapter = new RedisCache($redis);
 $s3Client->addCache($cacheAdapter);
 ```
 
-Now ```getItemsInABucket``` method will get the elements directly from cache:
+Now ```getItemsInABucket``` method will get the elements directly from cache. Please note that caching works ONLY if you provide a prefix to the method:
 
 ```php
 ...
@@ -122,6 +122,9 @@ $s3Client->getItemsInABucket([
     'prefix' => 'prefix/',
     'hydrate' => true // false by default. If true is set the method returns an array of Aws\ResultInterface 
 ]);
+
+// this will EVER get keys from S3
+$s3Client->getItemsInABucket('your-bucket');
 
 ```
 

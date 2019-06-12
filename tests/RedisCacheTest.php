@@ -34,11 +34,15 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
 
         $search = $this->cache->search(self::BUCKET_NAME, 'folder/to/');
         $expected = [
-            "bucket::folder/to/file2.txt",
-            "bucket::folder/to/file.txt",
+            "folder/to/file.txt",
+            "folder/to/file2.txt",
         ];
 
-        $this->assertEquals($search, $expected);
+        $this->assertEquals(array_keys($search), $expected);
+
+        $this->cache->set(self::BUCKET_NAME, 'folder/to/file2.txt', 'updated lorem ipsum');
+
+        $this->assertEquals('updated lorem ipsum', $this->cache->get(self::BUCKET_NAME, 'folder/to/file2.txt'));
     }
 
     /**
@@ -50,7 +54,7 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
         $this->cache->remove(self::BUCKET_NAME, 'folder/to/file2.txt');
         $this->cache->remove(self::BUCKET_NAME, 'file.txt');
 
-        $search = $this->cache->search(self::BUCKET_NAME);
+        $search = $this->cache->search(self::BUCKET_NAME, 'folder/to/');
 
         $this->assertCount(0, $search);
     }
