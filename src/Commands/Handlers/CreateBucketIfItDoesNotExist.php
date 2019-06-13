@@ -20,6 +20,11 @@ use SimpleS3\Validators\S3BucketNameValidator;
 class CreateBucketIfItDoesNotExist extends CommandHandler
 {
     /**
+     * Create a bucket if it does not exists.
+     * For a complete reference:
+     *
+     *
+     *
      * @param mixed $params
      *
      * @return bool

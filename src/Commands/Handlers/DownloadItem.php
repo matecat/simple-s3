@@ -18,6 +18,10 @@ use SimpleS3\Commands\CommandHandler;
 class DownloadItem extends CommandHandler
 {
     /**
+     * Downaload an item.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/get-object.html
+     *
      * @param array $params
      *
      * @return bool

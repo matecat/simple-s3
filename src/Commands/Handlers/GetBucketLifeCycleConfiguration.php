@@ -18,6 +18,10 @@ use SimpleS3\Commands\CommandHandler;
 class GetBucketLifeCycleConfiguration extends CommandHandler
 {
     /**
+     * Get the lifecycle configuration of a bucket.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/get-bucket-lifecycle-configuration.html
+     *
      * @param array $params
      *
      * @return ResultInterface|mixed

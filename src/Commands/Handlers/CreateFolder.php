@@ -19,6 +19,10 @@ use SimpleS3\Helpers\File;
 class CreateFolder extends CommandHandler
 {
     /**
+     * Create a folder.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-object.html?highlight=put
+     *
      * @param mixed $params
      *
      * @return bool

@@ -16,6 +16,8 @@ use SimpleS3\Commands\CommandHandler;
 class ClearBucket extends CommandHandler
 {
     /**
+     * Clear a bucket.
+     *
      * @param array $params
      *
      * @return bool

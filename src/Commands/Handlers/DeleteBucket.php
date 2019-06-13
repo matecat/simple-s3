@@ -18,6 +18,10 @@ use SimpleS3\Commands\CommandHandler;
 class DeleteBucket extends CommandHandler
 {
     /**
+     * Delete the entire bucket.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/delete-bucket.html
+     *
      * @param mixed $params
      *
      * @return bool

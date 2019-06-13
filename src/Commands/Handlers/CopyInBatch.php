@@ -21,6 +21,10 @@ use SimpleS3\Commands\CommandHandler;
 class CopyInBatch extends CommandHandler
 {
     /**
+     * Copy in batch items from a bucket to another one.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/copy-object.html?highlight=copy
+     *
      * @param array $params
      *
      * Example:
@@ -93,7 +97,7 @@ class CopyInBatch extends CommandHandler
                 },
             ]);
 
-            // Initiate the pool transfers adn waits it ends
+            // Initiate the pool transfers and waits it ends
             $pool->promise()->wait();
 
             if (count($errors) === 0) {

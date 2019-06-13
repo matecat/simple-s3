@@ -20,6 +20,10 @@ use SimpleS3\Validators\S3StorageClassNameValidator;
 class UploadItemFromBody extends CommandHandler
 {
     /**
+     * Upload a content to S3.
+     * For a complete reference of put object see:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-object.html?highlight=put
+     *
      * @param array $params
      *
      * @return bool

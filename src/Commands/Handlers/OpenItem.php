@@ -18,6 +18,8 @@ use SimpleS3\Helpers\File;
 class OpenItem extends CommandHandler
 {
     /**
+     * Open an item and return the content of it.
+     *
      * @param array $params
      *
      * @return mixed|UriInterface

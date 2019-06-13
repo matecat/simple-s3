@@ -43,6 +43,8 @@ Here is the list of Client's public methods:
 *   `deleteFolder` - delete a folder
 *   `deleteItem` - delete an item
 *   `downloadItem` - download an item
+*   `enableAcceleration` - enable the acceleration mode for a bucket
+*   `enableVersioning` - enable the versioning for a bucket
 *   `getBucketLifeCycle` get the bucket lifecycle configuration
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getItem` - get all informations for an item

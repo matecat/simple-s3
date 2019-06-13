@@ -17,6 +17,8 @@ use SimpleS3\Commands\CommandHandler;
 class GetBucketSize extends CommandHandler
 {
     /**
+     * Get the total size of items in a bucket.
+     *
      * @param array $params
      *
      * @return int|mixed

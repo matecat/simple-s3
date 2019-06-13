@@ -26,6 +26,11 @@ class UploadItem extends CommandHandler
     const MAX_FILESIZE = 6291456; // 6 Mb
 
     /**
+     * Upload a file to S3.
+     * Il filesize is > 6Mb a multipart upload is performed.
+     * For a complete reference of put object see:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-object.html?highlight=put
+     *
      * @param array $params
      *
      * @return bool

@@ -16,6 +16,10 @@ use SimpleS3\Commands\CommandHandler;
 class HasBucket extends CommandHandler
 {
     /**
+     * Check if a bucket already exists.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/head-bucket.html
+     *
      * @param array $params
      *
      * @return bool

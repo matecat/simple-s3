@@ -17,6 +17,9 @@ use SimpleS3\Commands\CommandHandler;
 class GetPublicItemLink extends CommandHandler
 {
     /**
+     * Get the temporary public link of an item.
+     * It return a presigned URL.
+     *
      * @param array $params
      *
      * @return mixed|UriInterface

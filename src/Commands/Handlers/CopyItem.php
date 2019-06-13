@@ -18,6 +18,10 @@ use SimpleS3\Commands\CommandHandler;
 class CopyItem extends CommandHandler
 {
     /**
+     * Copy an item from a bucket to another one.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/copy-object.html?highlight=copy
+     *
      * @param mixed $params
      *
      * @return bool

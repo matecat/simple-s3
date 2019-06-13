@@ -16,6 +16,10 @@ use SimpleS3\Commands\CommandHandler;
 class HasItem extends CommandHandler
 {
     /**
+     * Check if a item already exists.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/head-object.html
+     *
      * @param array $params
      *
      * @return bool

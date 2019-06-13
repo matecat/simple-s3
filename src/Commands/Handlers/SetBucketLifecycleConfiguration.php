@@ -18,8 +18,7 @@ use SimpleS3\Commands\CommandHandler;
 class SetBucketLifecycleConfiguration extends CommandHandler
 {
     /**
-     * Set bucket lifecycle configuration
-     *
+     * Set bucket lifecycle configuration.
      * For a complete reference of bucket lifecycle rules:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html
      *

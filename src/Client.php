@@ -36,6 +36,7 @@ use SimpleS3\Components\Cache\CacheInterface;
  * @method bool deleteItem(array $input)
  * @method bool downloadItem(array $input)
  * @method bool enableAcceleration(array $input)
+ * @mwthod bool enableVersioning(array $input)
  * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
  * @method int|mixed getBucketSize(array $input)
  * @method ResultInterface|mixed getItem(array $input)

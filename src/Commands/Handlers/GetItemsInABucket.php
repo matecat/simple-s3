@@ -13,13 +13,13 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Cache\CacheInterface;
 use SimpleS3\Helpers\File;
 
 class GetItemsInABucket extends CommandHandler
 {
     /**
-     * If cache is activated
+     * Get the list of keys in a bucket.
+     * If 'hydrate' parameter is set to true, an array of hydrated Aws\Result is returned instead.
      *
      * @param array $params
      *

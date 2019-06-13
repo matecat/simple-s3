@@ -18,6 +18,10 @@ use SimpleS3\Helpers\File;
 class HasFolder extends CommandHandler
 {
     /**
+     * Check if a folder already exists.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/head-object.html
+     *
      * @param array $params
      *
      * @return bool

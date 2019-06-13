@@ -18,8 +18,7 @@ use SimpleS3\Commands\CommandHandler;
 class RestoreItem extends CommandHandler
 {
     /**
-     * Send a basic restore request for an archived copy of an object back into Amazon S3
-     *
+     * Send a basic restore request for an archived copy of an object back into Amazon S3.
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/restore-object.html
      *

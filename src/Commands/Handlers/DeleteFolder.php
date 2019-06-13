@@ -17,6 +17,10 @@ use SimpleS3\Helpers\File;
 class DeleteFolder extends CommandHandler
 {
     /**
+     * Delete a folder.
+     * For a complete reference:
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/delete-object.html
+     *
      * @param mixed $params
      *
      * @return bool
