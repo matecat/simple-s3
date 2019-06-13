@@ -41,7 +41,7 @@ class DeleteFolder extends CommandHandler
                     'prefix' => $prefix,
                 ]);
 
-                foreach ($items as $key){
+                foreach ($items as $key) {
                     $this->client->getCache()->remove($bucketName, $key);
                 }
             }

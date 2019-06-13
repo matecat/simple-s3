@@ -4,9 +4,9 @@ namespace SimpleS3\Components\Cache;
 
 interface CacheInterface
 {
-    const ENCRYPTION_ALGORITHM = 'crc32b'; // 16 chars
-    const SAFE_DELIMITER = '::';
-    const TTL_STANDARD = 10800; // 3 hours in seconds
+    const HASH_ALGORITHM      = 'crc32b'; // 8 chars
+    const HASH_SAFE_SEPARATOR = '::';
+    const TTL_STANDARD        = 10800; // 3 hours
 
     /**
      * @param string $bucket

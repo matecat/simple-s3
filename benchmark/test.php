@@ -31,7 +31,7 @@ $x = microtime(true);
 echo 'UPLOAD '. $n . ' ITEMS IN THE BUCKET' . PHP_EOL;
 echo '----------------------------------------' . PHP_EOL;
 
-for ($i=0;$i<$n;$i++){
+for ($i=0;$i<$n;$i++) {
     $rand = rand(11111111, 99999999);
     $body = 'lorem ipsum';
 

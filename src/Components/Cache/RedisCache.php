@@ -2,8 +2,6 @@
 
 namespace SimpleS3\Components\Cache;
 
-use Predis\Client;
-use Predis\Collection\Iterator\Keyspace;
 use SimpleS3\Helpers\File;
 
 class RedisCache implements CacheInterface
@@ -74,7 +72,7 @@ class RedisCache implements CacheInterface
     public function set($bucket, $keyname, $content, $ttl = null)
     {
         $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
-        $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), ($ttl) ? $ttl * 60 : self::TTL_STANDARD);
+        $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), (null != $ttl) ? $ttl * 60 : self::TTL_STANDARD);
     }
 
     /**
@@ -85,7 +83,7 @@ class RedisCache implements CacheInterface
      */
     private function getHashPrefix($bucketName, $keyName)
     {
-        return hash(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
+        return hash(self::HASH_ALGORITHM, $bucketName . self::HASH_SAFE_SEPARATOR . $this->getDirName($keyName));
     }
 
     /**
