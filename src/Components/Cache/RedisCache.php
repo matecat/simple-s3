@@ -31,7 +31,7 @@ class RedisCache implements CacheInterface
      */
     public function get($bucket, $keyname)
     {
-        return unserialize($this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname)));
+        return unserialize($this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $keyname));
     }
 
     /**
@@ -42,7 +42,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname)
     {
-        return (1 === $this->redisClient->hexists($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname))) ? true : false;
+        return (1 === $this->redisClient->hexists($this->getHashPrefix($bucket, $keyname), $keyname)) ? true : false;
     }
 
     /**
@@ -51,7 +51,7 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname));
+        $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), $keyname);
     }
 
     /**
@@ -73,7 +73,7 @@ class RedisCache implements CacheInterface
      */
     public function set($bucket, $keyname, $content, $ttl = null)
     {
-        $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $this->getHashKey($keyname), serialize($content));
+        $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
         $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), ($ttl) ? $ttl * 60 : self::TTL_STANDARD);
     }
 
@@ -86,16 +86,6 @@ class RedisCache implements CacheInterface
     private function getHashPrefix($bucketName, $keyName)
     {
         return hash(self::ENCRYPTION_ALGORITHM, $bucketName . self::SAFE_DELIMITER . $this->getDirName($keyName));
-    }
-
-    /**
-     * @param string $keyName
-     *
-     * @return string
-     */
-    private function getHashKey($keyName)
-    {
-        return hash(self::ENCRYPTION_ALGORITHM, $keyName, false);
     }
 
     /**
