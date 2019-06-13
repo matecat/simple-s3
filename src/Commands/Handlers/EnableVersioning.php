@@ -57,16 +57,16 @@ class EnableVersioning extends CommandHandler
             $versioning = $this->client->getConn()->putBucketVersioning($config);
 
             if (($versioning instanceof ResultInterface) and $versioning['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log($this, sprintf('Versioning was successfully enabled for \'%s\' bucket', $bucketName));
+                $this->commandHandlerLogger->log($this, sprintf('Versioning was successfully enabled for \'%s\' bucket', $bucketName));
 
                 return true;
             }
 
-            $this->loggerWrapper->log($this, sprintf('Something went wrong during versioning of bucket \'%s\'', $bucketName), 'warning');
+            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during versioning of bucket \'%s\'', $bucketName), 'warning');
 
             return false;
         } catch (\Exception $exception) {
-            $this->loggerWrapper->logExceptionAndContinue($exception);
+            $this->commandHandlerLogger->logExceptionAndContinue($exception);
         }
     }
 

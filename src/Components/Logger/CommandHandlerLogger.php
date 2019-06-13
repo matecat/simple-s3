@@ -14,7 +14,7 @@ namespace SimpleS3\Components\Logger;
 use SimpleS3\Client;
 use SimpleS3\Commands\CommandHandler;
 
-class LoggerWrapper
+class CommandHandlerLogger
 {
     /**
      * @var Client

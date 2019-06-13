@@ -36,11 +36,11 @@ class GetBucketLifeCycleConfiguration extends CommandHandler
                 'Bucket' => $bucketName
             ]);
 
-            $this->loggerWrapper->log($this, sprintf('LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName));
+            $this->commandHandlerLogger->log($this, sprintf('LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName));
 
             return $result;
         } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndContinue($e);
         }
     }
 

@@ -91,11 +91,11 @@ class GetItem extends CommandHandler
                 $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
             }
 
-            $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
             return $file->toArray();
         } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndContinue($e);
         }
     }
 }

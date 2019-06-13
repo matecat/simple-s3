@@ -57,7 +57,7 @@ class RestoreItem extends CommandHandler
             ]);
 
             if (($request instanceof ResultInterface) and $request['@metadata']['statusCode'] === 202) {
-                $this->loggerWrapper->log($this, sprintf('A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyName, $bucketName));
+                $this->commandHandlerLogger->log($this, sprintf('A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyName, $bucketName));
 
                 if ($this->client->hasCache()) {
                     $this->client->getCache()->set($bucketName, $keyName, '');
@@ -66,11 +66,11 @@ class RestoreItem extends CommandHandler
                 return true;
             }
 
-            $this->loggerWrapper->log($this, sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             return false;
         } catch (\Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndContinue($e);
         }
     }
 

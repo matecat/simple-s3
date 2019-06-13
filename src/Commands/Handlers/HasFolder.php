@@ -78,7 +78,7 @@ class HasFolder extends CommandHandler
 
             return $result['Contents'] or $result['CommonPrefixes'];
         } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndContinue($e);
         }
     }
 }

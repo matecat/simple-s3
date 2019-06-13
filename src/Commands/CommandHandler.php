@@ -12,7 +12,7 @@
 namespace SimpleS3\Commands;
 
 use SimpleS3\Client;
-use SimpleS3\Components\Logger\LoggerWrapper;
+use SimpleS3\Components\Logger\CommandHandlerLogger;
 
 abstract class CommandHandler implements CommandHandlerInterface
 {
@@ -22,9 +22,9 @@ abstract class CommandHandler implements CommandHandlerInterface
     protected $client;
 
     /**
-     * @var LoggerWrapper
+     * @var CommandHandlerLogger
      */
-    protected $loggerWrapper;
+    protected $commandHandlerLogger;
 
     /**
      * CommandHandlerAbstract constructor.
@@ -33,7 +33,7 @@ abstract class CommandHandler implements CommandHandlerInterface
      */
     public function __construct(Client $client)
     {
-        $this->client = $client;
-        $this->loggerWrapper = new LoggerWrapper($client);
+        $this->client               = $client;
+        $this->commandHandlerLogger = new CommandHandlerLogger($client);
     }
 }

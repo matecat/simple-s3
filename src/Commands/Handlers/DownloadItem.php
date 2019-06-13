@@ -40,16 +40,16 @@ class DownloadItem extends CommandHandler
             ]);
 
             if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
+                $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
 
                 return true;
             }
 
-            $this->loggerWrapper->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
+            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
 
             return false;
         } catch (S3Exception $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndContinue($e);
         }
     }
 

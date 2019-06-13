@@ -89,7 +89,7 @@ class UploadItemFromBody extends CommandHandler
             $result = $this->client->getConn()->putObject($config);
 
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
-                $this->loggerWrapper->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
 
                 if (null == $storage and $this->client->hasCache()) {
                     $this->client->getCache()->set($bucketName, $keyName, '');
@@ -98,11 +98,11 @@ class UploadItemFromBody extends CommandHandler
                 return true;
             }
 
-            $this->loggerWrapper->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
 
             return false;
         } catch (\InvalidArgumentException $e) {
-            $this->loggerWrapper->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndContinue($e);
         }
     }
 }

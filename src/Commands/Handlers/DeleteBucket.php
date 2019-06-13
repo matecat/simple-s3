@@ -41,20 +41,20 @@ class DeleteBucket extends CommandHandler
                         $this->removeItemsInCache($bucketName, $items);
                     }
 
-                    $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+                    $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
                     return true;
                 }
 
-                $this->loggerWrapper->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
 
                 return false;
             } catch (S3Exception $e) {
-                $this->loggerWrapper->logExceptionAndContinue($e);
+                $this->commandHandlerLogger->logExceptionAndContinue($e);
             }
         }
 
-        $this->loggerWrapper->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
+        $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
 
         return false;
     }
