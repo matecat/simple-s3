@@ -12,6 +12,7 @@
 namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class DeleteFolder extends CommandHandler
 {
@@ -26,12 +27,23 @@ class DeleteFolder extends CommandHandler
         $bucketName = $params['bucket'];
         $prefix = $params['prefix'];
 
+        if (false === File::endsWithSlash($prefix)) {
+            $prefix .= DIRECTORY_SEPARATOR;
+        }
+
         try {
             $this->client->getConn()->deleteMatchingObjects($bucketName, $prefix);
             $this->loggerWrapper->log($this, sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
 
             if ($this->client->hasCache()) {
-                $this->client->getCache()->remove($bucketName, $prefix);
+                $items = $this->client->getItemsInABucket([
+                    'bucket' => $bucketName,
+                    'prefix' => $prefix,
+                ]);
+
+                foreach ($items as $key){
+                    $this->client->getCache()->remove($bucketName, $key);
+                }
             }
 
             return true;

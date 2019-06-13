@@ -6,7 +6,7 @@ interface CacheInterface
 {
     const ENCRYPTION_ALGORITHM = 'crc32b'; // 16 chars
     const SAFE_DELIMITER = '::';
-    const TTL_STANDARD = 180 * 60; // 3 hours in seconds
+    const TTL_STANDARD = 10800; // 3 hours in seconds
 
     /**
      * @param string $bucket

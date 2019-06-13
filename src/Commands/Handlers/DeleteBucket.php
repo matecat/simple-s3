@@ -29,11 +29,11 @@ class DeleteBucket extends CommandHandler
 
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
             try {
-                $items = $this->client->getItemsInABucket([ 'Bucket' => $bucketName ]);
-                $delete = $this->client->getConn()->deleteBucket([ 'Bucket' => $bucketName ]);
+                $items = $this->client->getItemsInABucket(['Bucket' => $bucketName]);
+                $delete = $this->client->getConn()->deleteBucket(['Bucket' => $bucketName]);
 
                 if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
-                    if ($this->client->hasCache() and null != $items and count($items) > 0) {
+                    if (null != $items and count($items) > 0) {
                         $this->removeItemsInCache($bucketName, $items);
                     }
 
