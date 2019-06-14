@@ -55,9 +55,13 @@ final class S3ObjectSafeNameValidator extends S3NameValidator
     {
         $errors = [];
 
-        if (!preg_match('/^[a-zA-Z 0-9\/\!\-\_\.\'\*\(\)]*$/', $string)) {
-            $errors[] = 'The string contains a not allowed character';
+        if(substr($string, 0, 1) === '.'){
+            $errors[] = 'The string cannot starts with .';
         }
+
+//        if (!preg_match('/^[a-zA-Z 0-9\/\!\-\_\.\'\*\(\)]*$/', $string)) {
+//            $errors[] = 'The string contains a not allowed character';
+//        }
 
         return $errors;
     }

@@ -19,7 +19,7 @@ class File
     /**
      * @param string $path
      *
-     * @return array
+     * @return string
      */
     public static function getBaseName($path)
     {
@@ -240,8 +240,6 @@ class File
         rmdir($dir);
     }
 
-
-
     /**
      * @param string $string
      *
@@ -270,5 +268,33 @@ class File
         }
 
         return $string;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getFullPathConvertedToHex($path)
+    {
+        if(false === is_dir($path)){
+            return self::strToHex($path);
+        }
+
+        return self::getPathInfo($path)['dirname'] . DIRECTORY_SEPARATOR . self::strToHex(self::getBaseName($path));
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getFullPathConvertedToStr($path)
+    {
+        if(false === is_dir($path)){
+            return self::hexToStr($path);
+        }
+
+        return self::getPathInfo($path)['dirname'] . DIRECTORY_SEPARATOR . self::hexToStr(self::getBaseName($path));
     }
 }
