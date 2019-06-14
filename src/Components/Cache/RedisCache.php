@@ -22,6 +22,18 @@ class RedisCache implements CacheInterface
     }
 
     /**
+     * @return bool
+     */
+    public function flushAll()
+    {
+        if(1 === $this->redisClient->flushAll()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $bucket
      * @param string $keyname
      *
@@ -73,6 +85,17 @@ class RedisCache implements CacheInterface
     {
         $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
         $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), (null != $ttl) ? $ttl * 60 : self::TTL_STANDARD);
+    }
+
+    /**
+     * @param string $bucket
+     * @param string $keyname
+     *
+     * @return int
+     */
+    public function ttl($bucket, $keyname)
+    {
+        return $this->redisClient->ttl($this->getHashPrefix($bucket, $keyname));
     }
 
     /**

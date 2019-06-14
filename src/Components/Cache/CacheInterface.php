@@ -9,6 +9,11 @@ interface CacheInterface
     const TTL_STANDARD        = 10800; // 3 hours
 
     /**
+     * @return bool
+     */
+    public function flushAll();
+
+    /**
      * @param string $bucket
      * @param string $keyname
      *
@@ -45,4 +50,12 @@ interface CacheInterface
      * @param null $ttl
      */
     public function set($bucket, $keyname, $content, $ttl = null);
+
+    /**
+     * @param string $bucket
+     * @param string $keyname
+     *
+     * @return int
+     */
+    public function ttl($bucket, $keyname);
 }
