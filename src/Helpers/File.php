@@ -17,12 +17,30 @@ use RecursiveIteratorIterator;
 class File
 {
     /**
+     * @param $path
+     *
+     * @return bool
+     */
+    public static function checkIfIsADir($path)
+    {
+        if (strpos($path, DIRECTORY_SEPARATOR) !== false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $path
      *
      * @return string
      */
     public static function getBaseName($path)
     {
+        if(false == self::checkIfIsADir($path)){
+            return $path;
+        }
+
         return self::getPathInfo($path)['basename'];
     }
 
@@ -277,7 +295,7 @@ class File
      */
     public static function getFullPathConvertedToHex($path)
     {
-        if(false === is_dir($path)){
+        if(false == self::checkIfIsADir($path)){
             return self::strToHex($path);
         }
 
@@ -291,7 +309,7 @@ class File
      */
     public static function getFullPathConvertedToStr($path)
     {
-        if(false === is_dir($path)){
+        if(false == self::checkIfIsADir($path)){
             return self::hexToStr($path);
         }
 

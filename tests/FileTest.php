@@ -34,6 +34,8 @@ class FileTest extends PHPUnit_Framework_TestCase
      */
     public function get_the_basename()
     {
+        $this->assertEquals(File::getBaseName('[en-GB][2] hello world'), '[en-GB][2] hello world');
+        $this->assertEquals(File::getBaseName('仿宋人笔意.txt'), '仿宋人笔意.txt');
         $this->assertEquals(File::getBaseName('/usr/path/to/[en-GB][2] hello world'), '[en-GB][2] hello world');
         $this->assertEquals(File::getBaseName('/usr/path/to/仿宋人笔意.txt'), '仿宋人笔意.txt');
     }
@@ -44,8 +46,8 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function convert_to_hex_and_back()
     {
         $origs = [
-                '[en-GB][2] hello world',
-                '仿宋人笔意.txt',
+            '[en-GB][2] hello world',
+            '仿宋人笔意.txt',
         ];
 
         foreach ($origs as $orig){

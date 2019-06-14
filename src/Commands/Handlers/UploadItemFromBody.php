@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 use SimpleS3\Exceptions\InvalidS3NameException;
+use SimpleS3\Helpers\File;
 use SimpleS3\Validators\S3ObjectSafeNameValidator;
 use SimpleS3\Validators\S3StorageClassNameValidator;
 
@@ -78,8 +79,12 @@ class UploadItemFromBody extends CommandHandler
         try {
             $config = [
                 'Bucket' => $bucketName,
-                'Key'    => $keyName,
-                'Body'   => $body
+                'Key'    => File::getFullPathConvertedToHex($keyName),
+                'Body'   => $body,
+                'Metadata' => [
+                    'original_name' => File::getBaseName($keyName)
+                ],
+                'MetadataDirective' => 'REPLACE',
             ];
 
             if (null != $storage) {
