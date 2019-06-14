@@ -13,7 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Helpers\File;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class GetPublicItemLink extends CommandHandler
 {
@@ -35,7 +35,7 @@ class GetPublicItemLink extends CommandHandler
         try {
             $cmd = $this->client->getConn()->getCommand('GetObject', [
                 'Bucket' => $bucketName,
-                'Key'    => File::getFullPathConvertedToHex($keyName)
+                'Key'    => S3ObjectSafeNameEncoder::encode($keyName)
             ]);
 
             $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();

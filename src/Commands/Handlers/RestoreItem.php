@@ -14,7 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Helpers\File;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class RestoreItem extends CommandHandler
 {
@@ -48,7 +48,7 @@ class RestoreItem extends CommandHandler
         try {
             $request = $this->client->getConn()->restoreObject([
                 'Bucket' => $bucketName,
-                'Key' => File::getFullPathConvertedToHex($keyName),
+                'Key' => S3ObjectSafeNameEncoder::encode($keyName),
                 'RestoreRequest' => [
                     'Days'       => $days,
                     'GlacierJobParameters' => [

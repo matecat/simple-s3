@@ -16,10 +16,11 @@ use Aws\Exception\MultipartUploadException;
 use Aws\ResultInterface;
 use Aws\S3\MultipartUploader;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Exceptions\InvalidS3NameException;
 use SimpleS3\Helpers\File;
-use SimpleS3\Validators\S3ObjectSafeNameValidator;
-use SimpleS3\Validators\S3StorageClassNameValidator;
+use SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
+use SimpleS3\Components\Validators\S3StorageClassNameValidator;
 
 class UploadItem extends CommandHandler
 {
@@ -96,7 +97,7 @@ class UploadItem extends CommandHandler
             $source,
             [
                 'bucket' => $bucketName,
-                'key'    => File::getFullPathConvertedToHex($keyName),
+                'key'    => S3ObjectSafeNameEncoder::encode($keyName),
                 'before_initiate' => function (CommandInterface $command) use ($source, $params, $keyName) {
                     if (extension_loaded('fileinfo')) {
                         $command['ContentType'] = File::getMimeType($source);

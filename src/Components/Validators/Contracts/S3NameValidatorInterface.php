@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Validators\Contracts;
+namespace SimpleS3\Components\Validators\Contracts;
 
 interface S3NameValidatorInterface
 {

@@ -14,7 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Helpers\File;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class CopyItem extends CommandHandler
 {
@@ -40,8 +40,8 @@ class CopyItem extends CommandHandler
         try {
             $copied = $this->client->getConn()->copyObject([
                 'Bucket' => $targetBucketName,
-                'Key'    => File::getFullPathConvertedToHex($targetKeyname),
-                'CopySource'    => $sourceBucket. DIRECTORY_SEPARATOR .File::getFullPathConvertedToHex($sourceKeyname),
+                'Key'    => S3ObjectSafeNameEncoder::encode($targetKeyname),
+                'CopySource'    => $sourceBucket . DIRECTORY_SEPARATOR . S3ObjectSafeNameEncoder::encode($sourceKeyname),
             ]);
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {

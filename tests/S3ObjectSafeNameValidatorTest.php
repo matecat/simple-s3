@@ -1,6 +1,6 @@
 <?php
 
-use SimpleS3\Validators\S3ObjectSafeNameValidator;
+use SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
 
 class S3ObjectSafeNameValidatorTest extends PHPUnit_Framework_TestCase
 {

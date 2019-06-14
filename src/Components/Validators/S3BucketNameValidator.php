@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Validators;
+namespace SimpleS3\Components\Validators;
 
 /**
  * This class check and create a valid Amazon S3 Bucket Name

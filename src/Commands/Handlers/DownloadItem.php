@@ -14,7 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Helpers\File;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class DownloadItem extends CommandHandler
 {
@@ -36,8 +36,8 @@ class DownloadItem extends CommandHandler
         try {
             $download = $this->client->getConn()->getObject([
                 'Bucket'  => $bucketName,
-                'Key'     => File::getFullPathConvertedToHex($keyName),
-                'SaveAs'  => (isset($params['save_as'])) ? $params['save_as'] : File::getFullPathConvertedToStr($keyName),
+                'Key'     => S3ObjectSafeNameEncoder::encode($keyName),
+                'SaveAs'  => (isset($params['save_as'])) ? $params['save_as'] : $keyName,
             ]);
 
             if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {

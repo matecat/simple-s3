@@ -39,42 +39,4 @@ class FileTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(File::getBaseName('/usr/path/to/[en-GB][2] hello world'), '[en-GB][2] hello world');
         $this->assertEquals(File::getBaseName('/usr/path/to/仿宋人笔意.txt'), '仿宋人笔意.txt');
     }
-
-    /**
-     * @test
-     */
-    public function convert_to_hex_and_back()
-    {
-        $origs = [
-            '[en-GB][2] hello world',
-            '仿宋人笔意.txt',
-        ];
-
-        foreach ($origs as $orig){
-            $converted = File::strToHex($orig);
-            $original = File::hexToStr($converted);
-
-            $this->assertEquals($original, $orig);
-        }
-    }
-
-    /**
-     * @test
-     */
-    public function convert_the_full_path_to_hex_and_back()
-    {
-        $origs = [
-            '[en-GB][2] hello world',
-            '仿宋人笔意.txt',
-            '/usr/path/to/[en-GB][2] hello world',
-            '/usr/path/to/仿宋人笔意.txt',
-        ];
-
-        foreach ($origs as $orig){
-            $converted = File::getFullPathConvertedToHex($orig);
-            $original = File::getFullPathConvertedToStr($converted);
-
-            $this->assertEquals($original, $orig);
-        }
-    }
 }

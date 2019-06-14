@@ -13,6 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Helpers\File;
 
 class GetItemsInABucket extends CommandHandler
@@ -117,7 +118,7 @@ class GetItemsInABucket extends CommandHandler
                     $key = $contents[$i]['Key'];
 
                     if(false === File::endsWithSlash($key)){
-                        $key = File::getFullPathConvertedToStr($key);
+                        $key = S3ObjectSafeNameEncoder::decode($key);
 
                         if (null != $hydrate and true === $hydrate) {
                             $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);

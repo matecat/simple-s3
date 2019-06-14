@@ -13,6 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Helpers\File;
 
 class HasFolder extends CommandHandler
@@ -30,7 +31,7 @@ class HasFolder extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $prefix = $params['prefix'];
+        $prefix = S3ObjectSafeNameEncoder::encode($params['prefix']);
 
         if (false === File::endsWithSlash($prefix)) {
             $prefix .= DIRECTORY_SEPARATOR;
