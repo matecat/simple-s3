@@ -28,4 +28,22 @@ class FileTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(File::getPathInfo($path)['extension'], 'txt');
         $this->assertEquals(File::getPathInfo($path)['filename'], 'file');
     }
+
+    /**
+     * @test
+     */
+    public function convert_to_hex_and_back()
+    {
+        $origs = [
+            '[en-GB][2] hello world',
+            '仿宋人笔意.txt',
+        ];
+
+        foreach ($origs as $orig){
+            $converted = File::strToHex($orig);
+            $original = File::hexToStr($converted);
+
+            $this->assertEquals($original, $orig);
+        }
+    }
 }
