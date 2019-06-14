@@ -48,10 +48,6 @@ class CreateFolder extends CommandHandler
             if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {
                 $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
 
-                if ($this->client->hasCache()) {
-                    $this->client->getCache()->set($bucketName, $keyName, '');
-                }
-
                 return true;
             }
 

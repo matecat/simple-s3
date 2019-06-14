@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class GetItem extends CommandHandler
 {
@@ -63,7 +64,7 @@ class GetItem extends CommandHandler
         if ('' === $this->client->getCache()->get($bucketName, $keyName)) {
             $file = $this->client->getConn()->getObject([
                 'Bucket' => $bucketName,
-                'Key'    => $keyName
+                'Key'    => File::getFullPathConvertedToHex($keyName)
             ]);
 
             $this->client->getCache()->set($bucketName, $keyName, $file->toArray());

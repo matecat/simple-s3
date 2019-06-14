@@ -313,6 +313,11 @@ class File
             return self::hexToStr($path);
         }
 
+        if($path === 'folder/'){
+            return 'folder/';
+        }
+
+
         return self::getPathInfo($path)['dirname'] . DIRECTORY_SEPARATOR . self::hexToStr(self::getBaseName($path));
     }
 }

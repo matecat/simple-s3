@@ -96,8 +96,8 @@ class UploadItem extends CommandHandler
             $source,
             [
                 'bucket' => $bucketName,
-                'key'    => $keyName,
-                'before_initiate' => function (CommandInterface $command) use ($source, $params) {
+                'key'    => File::getFullPathConvertedToHex($keyName),
+                'before_initiate' => function (CommandInterface $command) use ($source, $params, $keyName) {
                     if (extension_loaded('fileinfo')) {
                         $command['ContentType'] = File::getMimeType($source);
                     }
@@ -105,6 +105,9 @@ class UploadItem extends CommandHandler
                     if ((isset($params['storage']))) {
                         $command['StorageClass'] = $params['storage'];
                     }
+
+                    $command['Metadata'] = [ 'original_name' => File::getBaseName($keyName) ];
+                    $command['MetadataDirective'] =  'REPLACE';
                 }
             ]
         );

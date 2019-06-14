@@ -116,15 +116,19 @@ class GetItemsInABucket extends CommandHandler
                 for ($i = 0; $i < count($contents); $i++) {
                     $key = $contents[$i]['Key'];
 
-                    if (null != $hydrate and true === $hydrate) {
-                        $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
-                    } else {
-                        $items[] = $key;
-                    }
+                    if(false === File::endsWithSlash($key)){
+                        $key = File::getFullPathConvertedToStr($key);
 
-                    // send to cache, just to be sure that S3 is syncronized with cache
-                    if ($this->client->hasCache()) {
-                        $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                        if (null != $hydrate and true === $hydrate) {
+                            $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
+                        } else {
+                            $items[] = $key;
+                        }
+
+                        // send to cache, just to be sure that S3 is syncronized with cache
+                        if ($this->client->hasCache()) {
+                            $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                        }
                     }
                 }
             }

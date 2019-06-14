@@ -12,6 +12,7 @@
 namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class HasItem extends CommandHandler
 {
@@ -33,7 +34,7 @@ class HasItem extends CommandHandler
             return true;
         }
 
-        return $this->client->getConn()->doesObjectExist($bucketName, $keyName);
+        return $this->client->getConn()->doesObjectExist($bucketName, File::getFullPathConvertedToHex($keyName));
     }
 
     /**

@@ -13,6 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class GetPublicItemLink extends CommandHandler
 {
@@ -34,7 +35,7 @@ class GetPublicItemLink extends CommandHandler
         try {
             $cmd = $this->client->getConn()->getCommand('GetObject', [
                 'Bucket' => $bucketName,
-                'Key'    => $keyName
+                'Key'    => File::getFullPathConvertedToHex($keyName)
             ]);
 
             $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();
