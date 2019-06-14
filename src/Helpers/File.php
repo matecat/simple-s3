@@ -17,6 +17,16 @@ use RecursiveIteratorIterator;
 class File
 {
     /**
+     * @param string $path
+     *
+     * @return array
+     */
+    public static function getBaseName($path)
+    {
+        return self::getPathInfo($path)['basename'];
+    }
+
+    /**
      * @param string $filename
      * @param int $mode
      *
