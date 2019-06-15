@@ -31,6 +31,16 @@ class File
     }
 
     /**
+     * @param string $string
+     *
+     * @return bool
+     */
+    public static function endsWithSlash($string)
+    {
+        return substr($string, -1) === DIRECTORY_SEPARATOR;
+    }
+
+    /**
      * @param string $path
      *
      * @return string
@@ -42,6 +52,21 @@ class File
         }
 
         return self::getPathInfo($path)['basename'];
+    }
+
+    /**
+     * @param string $filename
+     *
+     * @return string|null
+     */
+    public static function getExtension($filename)
+    {
+        $filenameArray = explode('.', $filename);
+        $filenameArray = array_pop($filenameArray);
+
+        if (null !== $filenameArray) {
+            return strtolower($filenameArray);
+        }
     }
 
     /**
@@ -143,21 +168,6 @@ class File
     }
 
     /**
-     * @param string $filename
-     *
-     * @return string|null
-     */
-    public static function getExtension($filename)
-    {
-        $filenameArray = explode('.', $filename);
-        $filenameArray = array_pop($filenameArray);
-
-        if (null !== $filenameArray) {
-            return strtolower($filenameArray);
-        }
-    }
-
-    /**
      * @param string $path
      *
      * @return array
@@ -175,16 +185,6 @@ class File
     public static function getSize($filename)
     {
         return filesize($filename);
-    }
-
-    /**
-     * @param string $string
-     *
-     * @return bool
-     */
-    public static function endsWithSlash($string)
-    {
-        return substr($string, -1) === DIRECTORY_SEPARATOR;
     }
 
     /**

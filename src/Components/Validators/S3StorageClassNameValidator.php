@@ -12,7 +12,7 @@
 namespace SimpleS3\Components\Validators;
 
 /**
- * This class check and create a valid Amazon S3 Storage Class name
+ * This class check if a string is a valid S3 Storage Class name
  *
  * Complete reference:
  *

@@ -53,7 +53,7 @@ class GetItemsInABucket extends CommandHandler
 
             return $this->returnItemsFromS3($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
         }
     }
 
@@ -85,7 +85,9 @@ class GetItemsInABucket extends CommandHandler
 
         // no hydrate, simply return the array of keys stored in redis
         if (null == $hydrate) {
-            $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+            }
 
             return $itemsFromCache;
         }
@@ -96,7 +98,9 @@ class GetItemsInABucket extends CommandHandler
             $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
         }
 
-        $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        if(null !== $this->commandHandlerLogger){
+            $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        }
 
         return $items;
     }
@@ -135,7 +139,9 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        $this->commandHandlerLogger->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        if(null !== $this->commandHandlerLogger){
+            $this->commandHandlerLogger->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        }
 
         return $items;
     }

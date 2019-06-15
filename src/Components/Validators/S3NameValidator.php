@@ -11,8 +11,6 @@
 
 namespace SimpleS3\Components\Validators;
 
-use SimpleS3\Components\Validators\Contracts\S3NameValidatorInterface;
-
 abstract class S3NameValidator implements S3NameValidatorInterface
 {
     /**

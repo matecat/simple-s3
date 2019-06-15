@@ -40,7 +40,9 @@ class GetBucketSize extends CommandHandler
             $size += $item['ContentLength'];
         }
 
-        $this->commandHandlerLogger->log($this, sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
+        if(null !== $this->commandHandlerLogger){
+            $this->commandHandlerLogger->log($this, sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
+        }
 
         return $size;
     }

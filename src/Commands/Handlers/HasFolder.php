@@ -69,17 +69,21 @@ class HasFolder extends CommandHandler
         $command = $this->client->getConn()->getCommand(
             'listObjects',
             [
-                        'Bucket' => $bucketName,
-                        'Prefix' => $prefix,
-                        'MaxKeys' => 1,
-                ]
+                'Bucket' => $bucketName,
+                'Prefix' => $prefix,
+                'MaxKeys' => 1,
+            ]
         );
         try {
             $result = $this->client->getConn()->execute($command);
 
             return $result['Contents'] or $result['CommonPrefixes'];
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 }
