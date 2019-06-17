@@ -124,7 +124,11 @@ class CopyInBatch extends CommandHandler
 
             return false;
         } catch (\Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

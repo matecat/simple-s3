@@ -69,9 +69,9 @@ class EnableVersioning extends CommandHandler
             }
 
             return false;
-        } catch (\Exception $exception) {
+        } catch (\Exception $e) {
             if(null !== $this->commandHandlerLogger){
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($exception);
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 
             throw $e;

@@ -42,7 +42,9 @@ class OpenItem extends CommandHandler
                 return null;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            }
 
             return $content;
         } catch (\Exception $e) {
