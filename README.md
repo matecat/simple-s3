@@ -149,8 +149,8 @@ $s3Client->getItemsInABucket('your-bucket');
 
 If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands avaliable:
 
-* ```ss3:cache:flush```  Flush all data stored in cache.
-* ```ss3:cache:stats```  Get the cache statistics.
+* ```ss3:cache:flush``` - flush all data stored in cache
+* ```ss3:cache:stats``` - get the cache statistics
 
 You can register the commands in your app, consider this example:
 
