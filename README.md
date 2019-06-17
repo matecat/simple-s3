@@ -145,6 +145,46 @@ $s3Client->getItemsInABucket('your-bucket');
 
 ```
 
+## Commands
+
+If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands avaliable:
+
+* ```ss3:cache:flush```  Flush all data stored in cache.
+* ```ss3:cache:stats```  Get the cache statistics.
+
+You can register the commands in your app, consider this example:
+
+```php
+#!/usr/bin/env php
+<?php
+set_time_limit(0);
+
+require __DIR__.'/../vendor/autoload.php';
+
+$config = parse_ini_file(__DIR__.'/../config/credentials.ini');
+$s3Client = new \SimpleS3\Client(
+    $config['ACCESS_KEY_ID'],
+    $config['SECRET_KEY'],
+    [
+        'version' => $config['VERSION'],
+        'region' => $config['REGION'],
+    ]
+);
+
+$redis = new Predis\Client();
+$cacheAdapter = new \SimpleS3\Components\Cache\RedisCache($redis);
+$s3Client->addCache($cacheAdapter);
+
+// create symfony console app
+$app = new \Symfony\Component\Console\Application('Simple S3', 'console tool');
+
+// add commands here
+$app->add(new \SimpleS3\Console\CacheFlushCommand($s3Client));
+$app->add(new \SimpleS3\Console\CacheStatsCommand($s3Client));
+
+$app->run();
+```
+
 ## Logging
 
 You can inject your logger to log every Client outcome call. Please note that your logger MUST be PSR-3 compliant:

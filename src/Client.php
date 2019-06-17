@@ -77,6 +77,11 @@ final class Client
     private $sslVerify = true;
 
     /**
+     * @var bool
+     */
+    private $safeNames = false;
+
+    /**
      * Client constructor.
      *
      * @param string $accessKeyId
@@ -189,5 +194,13 @@ final class Client
     public function hasSslVerify()
     {
         return $this->sslVerify;
+    }
+
+    /**
+     * set the "safeNames" modality to true
+     */
+    public function enableSafeNames()
+    {
+        $this->safeNames = true;
     }
 }

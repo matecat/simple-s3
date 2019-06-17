@@ -53,7 +53,11 @@ class GetItemsInABucket extends CommandHandler
 
             return $this->returnItemsFromS3($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

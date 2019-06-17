@@ -2,6 +2,7 @@
 
 namespace SimpleS3\Components\Cache;
 
+use Predis\Response\Status;
 use SimpleS3\Helpers\File;
 
 class RedisCache implements CacheInterface
@@ -26,7 +27,10 @@ class RedisCache implements CacheInterface
      */
     public function flushAll()
     {
-        if(1 === $this->redisClient->flushAll()) {
+        /** @var Status $flush */
+        $flush = $this->redisClient->flushAll();
+
+        if($flush->getPayload() === 'OK') {
             return true;
         }
 
@@ -84,7 +88,10 @@ class RedisCache implements CacheInterface
     public function set($bucket, $keyname, $content, $ttl = null)
     {
         $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
-        $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), (null != $ttl) ? $ttl * 60 : self::TTL_STANDARD);
+
+        if( $this->ttl($bucket, $keyname) === -1){
+            $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), (null != $ttl) ? $ttl * 60 : self::TTL_STANDARD);
+        }
     }
 
     /**

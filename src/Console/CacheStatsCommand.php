@@ -42,6 +42,10 @@ class CacheStatsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if(false === $this->s3Client->hasCache()){
+            throw new \Exception('Cache in not enabled. You have to enable caching to use this command');
+        }
+
         $tableFeed = [];
         $bucket = $input->getArgument('bucket');
 
