@@ -28,4 +28,15 @@ class FileTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(File::getPathInfo($path)['extension'], 'txt');
         $this->assertEquals(File::getPathInfo($path)['filename'], 'file');
     }
+
+    /**
+     * @test
+     */
+    public function get_the_basename()
+    {
+        $this->assertEquals(File::getBaseName('[en-GB][2] hello world'), '[en-GB][2] hello world');
+        $this->assertEquals(File::getBaseName('仿宋人笔意.txt'), '仿宋人笔意.txt');
+        $this->assertEquals(File::getBaseName('/usr/path/to/[en-GB][2] hello world'), '[en-GB][2] hello world');
+        $this->assertEquals(File::getBaseName('/usr/path/to/仿宋人笔意.txt'), '仿宋人笔意.txt');
+    }
 }

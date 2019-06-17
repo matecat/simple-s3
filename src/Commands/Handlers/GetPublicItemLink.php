@@ -13,6 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class GetPublicItemLink extends CommandHandler
 {
@@ -34,15 +35,22 @@ class GetPublicItemLink extends CommandHandler
         try {
             $cmd = $this->client->getConn()->getCommand('GetObject', [
                 'Bucket' => $bucketName,
-                'Key'    => $keyName
+                'Key'    => S3ObjectSafeNameEncoder::encode($keyName)
             ]);
 
             $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();
-            $this->commandHandlerLogger->log($this, sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            }
 
             return $link;
         } catch (\InvalidArgumentException $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

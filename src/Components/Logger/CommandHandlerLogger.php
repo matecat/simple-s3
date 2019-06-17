@@ -11,24 +11,25 @@
 
 namespace SimpleS3\Components\Logger;
 
+use Psr\Log\LoggerInterface;
 use SimpleS3\Client;
 use SimpleS3\Commands\CommandHandler;
 
 class CommandHandlerLogger
 {
     /**
-     * @var Client
+     * @var LoggerInterface
      */
-    protected $client;
+    protected $logger;
 
     /**
      * Logger constructor.
      *
      * @param Client $client
      */
-    public function __construct(Client $client)
+    public function __construct(LoggerInterface $logger)
     {
-        $this->client = $client;
+        $this->logger = $logger;
     }
 
     /**
@@ -38,29 +39,18 @@ class CommandHandlerLogger
      */
     public function log(CommandHandler $commandHandler, $message, $level = 'info')
     {
-        if ($this->client->hasLogger()) {
-            $msg = '['.get_class($commandHandler).'] ' . $message;
-
-            $this->client->getLogger()->{$level}($msg);
-        }
+        $msg = '['.get_class($commandHandler).'] ' . $message;
+        $this->logger->{$level}($msg);
     }
 
     /**
-     * If the client has a logger set, this method log the exception and return false
-     *
      * @param \Exception $exception
-     *
      * @return bool
-     * @throws \Exception
      */
-    public function logExceptionAndContinue(\Exception $exception)
+    public function logExceptionAndReturnFalse(\Exception $exception)
     {
-        if ($this->client->hasLogger()) {
-            $this->client->getLogger()->error($exception->getMessage());
+        $this->logger->error($exception->getMessage());
 
-            return false;
-        }
-
-        throw $exception; // continue with the default behaviour
+        return false;
     }
 }

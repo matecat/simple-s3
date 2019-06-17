@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class CopyItem extends CommandHandler
 {
@@ -39,12 +40,14 @@ class CopyItem extends CommandHandler
         try {
             $copied = $this->client->getConn()->copyObject([
                 'Bucket' => $targetBucketName,
-                'Key'    => $targetKeyname,
-                'CopySource'    => $sourceBucket. DIRECTORY_SEPARATOR .$sourceKeyname,
+                'Key'    => S3ObjectSafeNameEncoder::encode($targetKeyname),
+                'CopySource'    => $sourceBucket . DIRECTORY_SEPARATOR . S3ObjectSafeNameEncoder::encode($sourceKeyname),
             ]);
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
-                $this->commandHandlerLogger->log($this, sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
+                if(null !== $this->commandHandlerLogger){
+                    $this->commandHandlerLogger->log($this, sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
+                }
 
                 if ($this->client->hasCache()) {
                     $this->client->getCache()->set($targetBucketName, $targetKeyname, '');
@@ -53,11 +56,17 @@ class CopyItem extends CommandHandler
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
+            }
 
             return false;
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

@@ -37,7 +37,9 @@ class DeleteFolder extends CommandHandler
 
         try {
             $this->client->getConn()->deleteMatchingObjects($bucketName, $prefix);
-            $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
+            }
 
             if ($this->client->hasCache()) {
                 $items = $this->client->getItemsInABucket([
@@ -52,7 +54,11 @@ class DeleteFolder extends CommandHandler
 
             return true;
         } catch (\Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

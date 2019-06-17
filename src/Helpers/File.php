@@ -17,6 +17,59 @@ use RecursiveIteratorIterator;
 class File
 {
     /**
+     * @param $path
+     *
+     * @return bool
+     */
+    public static function checkIfIsADir($path)
+    {
+        if (strpos($path, DIRECTORY_SEPARATOR) !== false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $string
+     *
+     * @return bool
+     */
+    public static function endsWithSlash($string)
+    {
+        return substr($string, -1) === DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getBaseName($path)
+    {
+        if(false == self::checkIfIsADir($path)){
+            return $path;
+        }
+
+        return self::getPathInfo($path)['basename'];
+    }
+
+    /**
+     * @param string $filename
+     *
+     * @return string|null
+     */
+    public static function getExtension($filename)
+    {
+        $filenameArray = explode('.', $filename);
+        $filenameArray = array_pop($filenameArray);
+
+        if (null !== $filenameArray) {
+            return strtolower($filenameArray);
+        }
+    }
+
+    /**
      * @param string $filename
      * @param int $mode
      *
@@ -115,18 +168,13 @@ class File
     }
 
     /**
-     * @param string $filename
+     * @param string $path
      *
-     * @return string|null
+     * @return array
      */
-    public static function getExtension($filename)
+    public static function getPathInfo($path)
     {
-        $filenameArray = explode('.', $filename);
-        $filenameArray = array_pop($filenameArray);
-
-        if (null !== $filenameArray) {
-            return strtolower($filenameArray);
-        }
+        return pathinfo($path);
     }
 
     /**
@@ -137,16 +185,6 @@ class File
     public static function getSize($filename)
     {
         return filesize($filename);
-    }
-
-    /**
-     * @param string $string
-     *
-     * @return bool
-     */
-    public static function endsWithSlash($string)
-    {
-        return substr($string, -1) === DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -218,15 +256,5 @@ class File
         }
 
         rmdir($dir);
-    }
-
-    /**
-     * @param string $path
-     *
-     * @return array
-     */
-    public static function getPathInfo($path)
-    {
-        return pathinfo($path);
     }
 }

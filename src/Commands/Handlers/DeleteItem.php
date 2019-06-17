@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class DeleteItem extends CommandHandler
 {
@@ -35,11 +36,13 @@ class DeleteItem extends CommandHandler
         try {
             $delete = $this->client->getConn()->deleteObject([
                 'Bucket' => $bucketName,
-                'Key'    => $keyName
+                'Key'    => S3ObjectSafeNameEncoder::encode($keyName)
             ]);
 
             if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
-                $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
+                if(null !== $this->commandHandlerLogger){
+                    $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
+                }
 
                 if ($this->client->hasCache()) {
                     $this->client->getCache()->remove($bucketName, $keyName);
@@ -48,11 +51,17 @@ class DeleteItem extends CommandHandler
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyName, $bucketName), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyName, $bucketName), 'warning');
+            }
 
             return false;
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

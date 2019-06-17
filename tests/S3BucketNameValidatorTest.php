@@ -1,6 +1,6 @@
 <?php
 
-use SimpleS3\Validators\S3BucketNameValidator;
+use SimpleS3\Components\Validators\S3BucketNameValidator;
 
 class S3BucketNameValidatorTest extends PHPUnit_Framework_TestCase
 {

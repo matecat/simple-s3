@@ -14,6 +14,8 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
+use SimpleS3\Helpers\File;
 
 class GetItem extends CommandHandler
 {
@@ -63,7 +65,7 @@ class GetItem extends CommandHandler
         if ('' === $this->client->getCache()->get($bucketName, $keyName)) {
             $file = $this->client->getConn()->getObject([
                 'Bucket' => $bucketName,
-                'Key'    => $keyName
+                'Key'    => S3ObjectSafeNameEncoder::encode($keyName)
             ]);
 
             $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
@@ -91,11 +93,17 @@ class GetItem extends CommandHandler
                 $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
+            }
 
             return $file->toArray();
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 }

@@ -9,34 +9,15 @@
  *
  */
 
-namespace SimpleS3\Validators;
+namespace SimpleS3\Components\Validators;
 
 /**
- * This class check and create a valid Amazon S3 object Name
+ * This class check if a string is a valid S3 object Name
  *
  * Amazon S3 object safe naming Requirements
  * -------------------------------------------------------------------------
  * You can use any UTF-8 character in an object key name. However, using certain characters in key names may cause problems with some applications and protocols.
  * The following guidelines help you maximize compliance with DNS, web-safe characters, XML parsers, and other APIs.
- *
- * Allowed characters:
- *
- * *** Alphanumeric characters ***
- * - 0-9
- * - a-z
- * - A-Z
- *
- * *** Special characters ***
- * - !
- * - -
- * - _
- * - .
- * - *
- * - '
- * - (
- * - )
- *
- * Directory separator / is also allowed.
  *
  * Complete reference:
  *
@@ -55,8 +36,8 @@ final class S3ObjectSafeNameValidator extends S3NameValidator
     {
         $errors = [];
 
-        if (!preg_match('/^[a-zA-Z 0-9\/\!\-\_\.\'\*\(\)]*$/', $string)) {
-            $errors[] = 'The string contains a not allowed character';
+        if(substr($string, 0, 1) === '.'){
+            $errors[] = 'The string cannot starts with .';
         }
 
         return $errors;

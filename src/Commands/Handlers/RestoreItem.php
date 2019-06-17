@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class RestoreItem extends CommandHandler
 {
@@ -47,7 +48,7 @@ class RestoreItem extends CommandHandler
         try {
             $request = $this->client->getConn()->restoreObject([
                 'Bucket' => $bucketName,
-                'Key' => $keyName,
+                'Key' => S3ObjectSafeNameEncoder::encode($keyName),
                 'RestoreRequest' => [
                     'Days'       => $days,
                     'GlacierJobParameters' => [
@@ -66,11 +67,17 @@ class RestoreItem extends CommandHandler
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            }
 
             return false;
         } catch (\Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

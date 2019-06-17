@@ -27,13 +27,15 @@ abstract class CommandHandler implements CommandHandlerInterface
     protected $commandHandlerLogger;
 
     /**
-     * CommandHandlerAbstract constructor.
+     * CommandHandler constructor.
      *
      * @param Client $client
      */
     public function __construct(Client $client)
     {
-        $this->client               = $client;
-        $this->commandHandlerLogger = new CommandHandlerLogger($client);
+        $this->client = $client;
+        if($this->client->hasLogger()){
+            $this->commandHandlerLogger = new CommandHandlerLogger($client->getLogger());
+        }
     }
 }

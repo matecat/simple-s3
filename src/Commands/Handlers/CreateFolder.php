@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Helpers\File;
 
 class CreateFolder extends CommandHandler
@@ -31,7 +32,7 @@ class CreateFolder extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $keyName = S3ObjectSafeNameEncoder::encode($params['key']);
 
         if (false === File::endsWithSlash($keyName)) {
             $keyName .= DIRECTORY_SEPARATOR;
@@ -46,20 +47,24 @@ class CreateFolder extends CommandHandler
             ]);
 
             if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {
-                $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
-
-                if ($this->client->hasCache()) {
-                    $this->client->getCache()->set($bucketName, $keyName, '');
+                if(null !== $this->commandHandlerLogger){
+                    $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
                 }
 
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName), 'warning');
+            }
 
             return false;
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

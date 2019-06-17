@@ -13,6 +13,7 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Helpers\File;
 
 class GetItemsInABucket extends CommandHandler
@@ -52,7 +53,7 @@ class GetItemsInABucket extends CommandHandler
 
             return $this->returnItemsFromS3($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
         }
     }
 
@@ -84,7 +85,9 @@ class GetItemsInABucket extends CommandHandler
 
         // no hydrate, simply return the array of keys stored in redis
         if (null == $hydrate) {
-            $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+            }
 
             return $itemsFromCache;
         }
@@ -95,7 +98,9 @@ class GetItemsInABucket extends CommandHandler
             $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
         }
 
-        $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        if(null !== $this->commandHandlerLogger){
+            $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
+        }
 
         return $items;
     }
@@ -116,21 +121,27 @@ class GetItemsInABucket extends CommandHandler
                 for ($i = 0; $i < count($contents); $i++) {
                     $key = $contents[$i]['Key'];
 
-                    if (null != $hydrate and true === $hydrate) {
-                        $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
-                    } else {
-                        $items[] = $key;
-                    }
+                    if(false === File::endsWithSlash($key)){
+                        $key = S3ObjectSafeNameEncoder::decode($key);
 
-                    // send to cache, just to be sure that S3 is syncronized with cache
-                    if ($this->client->hasCache()) {
-                        $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                        if (null != $hydrate and true === $hydrate) {
+                            $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
+                        } else {
+                            $items[] = $key;
+                        }
+
+                        // send to cache, just to be sure that S3 is syncronized with cache
+                        if ($this->client->hasCache()) {
+                            $this->client->getCache()->set($bucketName, $key, $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
+                        }
                     }
                 }
             }
         }
 
-        $this->commandHandlerLogger->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        if(null !== $this->commandHandlerLogger){
+            $this->commandHandlerLogger->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
+        }
 
         return $items;
     }

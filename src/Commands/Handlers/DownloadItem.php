@@ -14,6 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class DownloadItem extends CommandHandler
 {
@@ -35,21 +36,29 @@ class DownloadItem extends CommandHandler
         try {
             $download = $this->client->getConn()->getObject([
                 'Bucket'  => $bucketName,
-                'Key'     => $keyName,
+                'Key'     => S3ObjectSafeNameEncoder::encode($keyName),
                 'SaveAs'  => (isset($params['save_as'])) ? $params['save_as'] : $keyName,
             ]);
 
             if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {
-                $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
+                if(null !== $this->commandHandlerLogger){
+                    $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
+                }
 
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
+            }
 
             return false;
         } catch (S3Exception $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 

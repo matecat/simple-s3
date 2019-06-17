@@ -13,9 +13,11 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Exceptions\InvalidS3NameException;
-use SimpleS3\Validators\S3ObjectSafeNameValidator;
-use SimpleS3\Validators\S3StorageClassNameValidator;
+use SimpleS3\Helpers\File;
+use SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
+use SimpleS3\Components\Validators\S3StorageClassNameValidator;
 
 class UploadItemFromBody extends CommandHandler
 {
@@ -78,8 +80,12 @@ class UploadItemFromBody extends CommandHandler
         try {
             $config = [
                 'Bucket' => $bucketName,
-                'Key'    => $keyName,
-                'Body'   => $body
+                'Key'    => S3ObjectSafeNameEncoder::encode($keyName),
+                'Body'   => $body,
+                'Metadata' => [
+                    'original_name' => File::getBaseName($keyName)
+                ],
+                'MetadataDirective' => 'REPLACE',
             ];
 
             if (null != $storage) {
@@ -89,7 +95,9 @@ class UploadItemFromBody extends CommandHandler
             $result = $this->client->getConn()->putObject($config);
 
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
-                $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                if(null !== $this->commandHandlerLogger){
+                    $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                }
 
                 if (null == $storage and $this->client->hasCache()) {
                     $this->client->getCache()->set($bucketName, $keyName, '');
@@ -98,11 +106,17 @@ class UploadItemFromBody extends CommandHandler
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            }
 
             return false;
         } catch (\InvalidArgumentException $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 }

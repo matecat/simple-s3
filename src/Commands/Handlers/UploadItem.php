@@ -16,10 +16,11 @@ use Aws\Exception\MultipartUploadException;
 use Aws\ResultInterface;
 use Aws\S3\MultipartUploader;
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 use SimpleS3\Exceptions\InvalidS3NameException;
 use SimpleS3\Helpers\File;
-use SimpleS3\Validators\S3ObjectSafeNameValidator;
-use SimpleS3\Validators\S3StorageClassNameValidator;
+use SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
+use SimpleS3\Components\Validators\S3StorageClassNameValidator;
 
 class UploadItem extends CommandHandler
 {
@@ -96,8 +97,8 @@ class UploadItem extends CommandHandler
             $source,
             [
                 'bucket' => $bucketName,
-                'key'    => $keyName,
-                'before_initiate' => function (CommandInterface $command) use ($source, $params) {
+                'key'    => S3ObjectSafeNameEncoder::encode($keyName),
+                'before_initiate' => function (CommandInterface $command) use ($source, $params, $keyName) {
                     if (extension_loaded('fileinfo')) {
                         $command['ContentType'] = File::getMimeType($source);
                     }
@@ -105,6 +106,9 @@ class UploadItem extends CommandHandler
                     if ((isset($params['storage']))) {
                         $command['StorageClass'] = $params['storage'];
                     }
+
+                    $command['Metadata'] = [ 'original_name' => File::getBaseName($keyName) ];
+                    $command['MetadataDirective'] =  'REPLACE';
                 }
             ]
         );
@@ -113,12 +117,16 @@ class UploadItem extends CommandHandler
             $upload = $uploader->upload();
 
             if (($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200) {
-                $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                if(null !== $this->commandHandlerLogger){
+                    $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
+                }
 
                 return true;
             }
 
-            $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
+            }
 
             // update cache
             if ((!isset($params['storage'])) and $this->client->hasCache()) {
@@ -127,7 +135,11 @@ class UploadItem extends CommandHandler
 
             return false;
         } catch (MultipartUploadException $e) {
-            $this->commandHandlerLogger->logExceptionAndContinue($e);
+            if(null !== $this->commandHandlerLogger){
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
         }
     }
 }
