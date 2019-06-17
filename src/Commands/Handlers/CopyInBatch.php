@@ -55,12 +55,13 @@ class CopyInBatch extends CommandHandler
 
         $commands = [];
         $errors = [];
-        $targetKeys= [];
+        $targetKeys = [];
         $targetBucket = (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket'];
 
         foreach ($params['files']['source'] as $key => $file) {
             $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
             $targetKeys[] = $targetKey;
+
             $commands[] = $this->client->getConn()->getCommand('CopyObject', [
                 'Bucket'     => $targetBucket,
                 'Key'        => S3ObjectSafeNameEncoder::encode($targetKey),

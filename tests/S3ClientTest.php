@@ -398,6 +398,34 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     */
+    public function test_the_client_upload_and_retrieve_items_with_non_standard_keynames()
+    {
+        $keyname = 'folder/仿宋人笔意.txt';
+        $source = __DIR__ . '/support/files/txt/仿宋人笔意.txt';
+        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source]);
+        $this->assertTrue($upload);
+
+        $items = $this->s3Client->getItemsInABucket([
+                'bucket' => $this->bucket,
+                'prefix' => 'folder'
+            ]
+        );
+
+        $input = [
+            'source_bucket' => $this->bucket,
+            'target_bucket' => $this->bucket.'-copied',
+            'source' => $keyname,
+            'target' => $keyname.'(1)',
+        ];
+
+        $copied = $this->s3Client->copyItem($input);
+
+        var_dump($copied);
+    }
+
+    /**
+     * @test
      * @throws Exception
      */
     public function test_the_client_deletes_a_folder()

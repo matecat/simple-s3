@@ -83,7 +83,7 @@ class UploadItemFromBody extends CommandHandler
                 'Key'    => S3ObjectSafeNameEncoder::encode($keyName),
                 'Body'   => $body,
                 'Metadata' => [
-                    'original_name' => File::getBaseName($keyName)
+                    'original_name' => File::getBaseName($keyName),
                 ],
                 'MetadataDirective' => 'REPLACE',
             ];
