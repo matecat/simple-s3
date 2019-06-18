@@ -14,7 +14,6 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class DeleteItem extends CommandHandler
 {
@@ -33,10 +32,14 @@ class DeleteItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
+        if($this->client->hasEncoder()){
+            $keyName = $this->client->getEncoder()->encode($keyName);
+        }
+
         try {
             $delete = $this->client->getConn()->deleteObject([
                 'Bucket' => $bucketName,
-                'Key'    => S3ObjectSafeNameEncoder::encode($keyName)
+                'Key'    => $keyName,
             ]);
 
             if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {

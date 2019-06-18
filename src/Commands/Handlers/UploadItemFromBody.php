@@ -13,11 +13,10 @@ namespace SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
-use SimpleS3\Exceptions\InvalidS3NameException;
-use SimpleS3\Helpers\File;
 use SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
 use SimpleS3\Components\Validators\S3StorageClassNameValidator;
+use SimpleS3\Exceptions\InvalidS3NameException;
+use SimpleS3\Helpers\File;
 
 class UploadItemFromBody extends CommandHandler
 {
@@ -77,10 +76,14 @@ class UploadItemFromBody extends CommandHandler
      */
     private function upload($bucketName, $keyName, $body, $storage = null)
     {
+        if($this->client->hasEncoder()){
+            $keyName = $this->client->getEncoder()->encode($keyName);
+        }
+
         try {
             $config = [
                 'Bucket' => $bucketName,
-                'Key'    => S3ObjectSafeNameEncoder::encode($keyName),
+                'Key'    => $keyName,
                 'Body'   => $body,
                 'Metadata' => [
                     'original_name' => File::getBaseName($keyName),

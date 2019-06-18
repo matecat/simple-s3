@@ -14,7 +14,6 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class RestoreItem extends CommandHandler
 {
@@ -35,6 +34,10 @@ class RestoreItem extends CommandHandler
         $days =(isset($params['days'])) ? $params['days'] : 5;
         $tier = (isset($params['tier'])) ? $params['tier'] : 'Expedited';
 
+        if($this->client->hasEncoder()){
+            $keyName = $this->client->getEncoder()->encode($keyName);
+        }
+
         $allowedTiers = [
             'Bulk',
             'Expedited',
@@ -48,7 +51,7 @@ class RestoreItem extends CommandHandler
         try {
             $request = $this->client->getConn()->restoreObject([
                 'Bucket' => $bucketName,
-                'Key' => S3ObjectSafeNameEncoder::encode($keyName),
+                'Key' => $keyName,
                 'RestoreRequest' => [
                     'Days'       => $days,
                     'GlacierJobParameters' => [

@@ -11,7 +11,7 @@
 
 namespace SimpleS3\Components\Encoders;
 
-class S3ObjectSafeNameEncoder implements EncoderInterface
+class S3ObjectSafeNameSafeNameEncoder implements SafeNameEncoderInterface
 {
     /**
      * @var array
@@ -77,7 +77,7 @@ class S3ObjectSafeNameEncoder implements EncoderInterface
      * @param string $string
      * @return mixed
      */
-    public static function decode($string)
+    public function decode($string)
     {
         return str_replace(self::$safeChars, self::$unsafeChars, $string);
     }
@@ -86,7 +86,7 @@ class S3ObjectSafeNameEncoder implements EncoderInterface
      * @param string $string
      * @return mixed
      */
-    public static function encode($string)
+    public function encode($string)
     {
         return str_replace(self::$unsafeChars, self::$safeChars, $string);
     }

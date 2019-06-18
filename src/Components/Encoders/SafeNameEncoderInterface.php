@@ -11,17 +11,17 @@
 
 namespace SimpleS3\Components\Encoders;
 
-interface EncoderInterface
+interface SafeNameEncoderInterface
 {
     /**
      * @param string $string
      * @return mixed
      */
-    public static function decode($string);
+    public function decode($string);
 
     /**
      * @param string $string
      * @return mixed
      */
-    public static function encode($string);
+    public function encode($string);
 }

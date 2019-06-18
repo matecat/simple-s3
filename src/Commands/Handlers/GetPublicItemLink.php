@@ -13,7 +13,6 @@ namespace SimpleS3\Commands\Handlers;
 
 use Psr\Http\Message\UriInterface;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class GetPublicItemLink extends CommandHandler
 {
@@ -32,10 +31,14 @@ class GetPublicItemLink extends CommandHandler
         $keyName = $params['key'];
         $expires = (isset($params['expires'])) ? $params['expires'] : '+1 hour';
 
+        if($this->client->hasEncoder()){
+            $keyName = $this->client->getEncoder()->encode($keyName);
+        }
+
         try {
             $cmd = $this->client->getConn()->getCommand('GetObject', [
                 'Bucket' => $bucketName,
-                'Key'    => S3ObjectSafeNameEncoder::encode($keyName)
+                'Key'    => $keyName,
             ]);
 
             $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();

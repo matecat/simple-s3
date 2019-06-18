@@ -5,6 +5,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use SimpleS3\Client;
 use SimpleS3\Components\Cache\RedisCache;
+use SimpleS3\Components\Encoders\S3ObjectSafeNameSafeNameEncoder;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -39,6 +40,10 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
                 'region' => $config['REGION'],
             ]
         );
+
+        // Inject Encoder
+        $encoder = new S3ObjectSafeNameSafeNameEncoder();
+        $this->s3Client->addEncoder($encoder);
 
         // Inject Logger
         $logger = new Logger('channel-test');
@@ -396,33 +401,33 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($deleted);
     }
 
-    /**
-     * @test
-     */
-    public function test_the_client_upload_and_retrieve_items_with_non_standard_keynames()
-    {
-        $keyname = 'folder/仿宋人笔意.txt';
-        $source = __DIR__ . '/support/files/txt/仿宋人笔意.txt';
-        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source]);
-        $this->assertTrue($upload);
-
-        $items = $this->s3Client->getItemsInABucket([
-                'bucket' => $this->bucket,
-                'prefix' => 'folder'
-            ]
-        );
-
-        $input = [
-            'source_bucket' => $this->bucket,
-            'target_bucket' => $this->bucket.'-copied',
-            'source' => $keyname,
-            'target' => $keyname.'(1)',
-        ];
-
-        $copied = $this->s3Client->copyItem($input);
-
-        var_dump($copied);
-    }
+//    /**
+//     * @test
+//     */
+//    public function test_the_client_upload_and_retrieve_items_with_non_standard_keynames()
+//    {
+//        $keyname = 'folder/仿宋人笔意.txt';
+//        $source = __DIR__ . '/support/files/txt/仿宋人笔意.txt';
+//        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source]);
+//        $this->assertTrue($upload);
+//
+//        $items = $this->s3Client->getItemsInABucket([
+//                'bucket' => $this->bucket,
+//                'prefix' => 'folder'
+//            ]
+//        );
+//
+//        $input = [
+//            'source_bucket' => $this->bucket,
+//            'target_bucket' => $this->bucket.'-copied',
+//            'source' => $keyname,
+//            'target' => $keyname.'(1)',
+//        ];
+//
+//        $copied = $this->s3Client->copyItem($input);
+//
+//        var_dump($copied);
+//    }
 
     /**
      * @test

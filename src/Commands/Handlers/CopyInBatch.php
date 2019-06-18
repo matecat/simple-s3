@@ -17,7 +17,6 @@ use Aws\Exception\AwsException;
 use Aws\ResultInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
 
 class CopyInBatch extends CommandHandler
 {
@@ -62,10 +61,15 @@ class CopyInBatch extends CommandHandler
             $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
             $targetKeys[] = $targetKey;
 
+            if($this->client->hasEncoder()){
+                $targetKey = $this->client->getEncoder()->encode($targetKey);
+                $file = $this->client->getEncoder()->encode($file);
+            }
+
             $commands[] = $this->client->getConn()->getCommand('CopyObject', [
                 'Bucket'     => $targetBucket,
-                'Key'        => S3ObjectSafeNameEncoder::encode($targetKey),
-                'CopySource' => $params['source_bucket'] . DIRECTORY_SEPARATOR . S3ObjectSafeNameEncoder::encode($file),
+                'Key'        => $targetKey,
+                'CopySource' => $params['source_bucket'] . DIRECTORY_SEPARATOR . $file,
             ]);
         }
 

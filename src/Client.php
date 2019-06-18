@@ -17,6 +17,7 @@ use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use SimpleS3\Commands\CommandHandler;
 use SimpleS3\Components\Cache\CacheInterface;
+use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
 
 /**
  * Class Client
@@ -60,6 +61,11 @@ final class Client
      * @var CacheInterface
      */
     private $cache;
+
+    /**
+     * @var SafeNameEncoderInterface
+     */
+    private $encoder;
 
     /**
      * @var LoggerInterface
@@ -146,6 +152,30 @@ final class Client
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * @param SafeNameEncoderInterface $encoder
+     */
+    public function addEncoder(SafeNameEncoderInterface $encoder)
+    {
+        $this->encoder = $encoder;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasEncoder()
+    {
+        return null !== $this->encoder;
+    }
+
+    /**
+     * @return SafeNameEncoderInterface
+     */
+    public function getEncoder()
+    {
+        return $this->encoder;
     }
 
     /**
