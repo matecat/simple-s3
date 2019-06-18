@@ -80,9 +80,9 @@ Validators are invoked in Client's ```createBucketIfItDoesNotExist```, ```upload
 
 Please read carefully the [object safe naming rules](https://docs.aws.amazon.com/en_us/AmazonS3/latest/dev/UsingMetadata.html). 
 
-Escaping objects name is entirely up to you.
+Escaping object names is entirely up to you.
 
-You can use the provided ```SimpleS3\Components\Encoders\UrlEncoder``` class, or inject in Client your own encoder if you prefer, but please not that it MUST implement 
+You can use the provided ```SimpleS3\Components\Encoders\UrlEncoder``` class, or inject in Client your own encoder if you prefer, but please note that it MUST implement 
 ```SimpleS3\Components\Encoders\SafeNameEncoderInterface``` 
 interface:
 
