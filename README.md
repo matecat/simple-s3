@@ -76,19 +76,23 @@ These two classes throws you an ```InvalidS3NameException``` if the name provide
 
 Validators are invoked in Client's ```createBucketIfItDoesNotExist```, ```uploadFileFromBody``` and ```uploadFile``` methods.
 
-## Object name escaping
+## Objects name escaping
 
-To be compliant with [object safe naming rules](https://docs.aws.amazon.com/en_us/AmazonS3/latest/dev/UsingMetadata.html) the Client comes with a class named ```S3ObjectSafeNameEncoder``` which automatically encodes/decodes the strings. Consider this example:
+Please read carefully the [object safe naming rules](https://docs.aws.amazon.com/en_us/AmazonS3/latest/dev/UsingMetadata.html). 
+
+Escaping objects name is entirely up to you.
+
+You can use the provided ```SimpleS3\Components\Encoders\UrlEncoder``` class, or inject in Client your own encoder if you prefer, please not that your encoder MUST implement 
+```SimpleS3\Components\Encoders\SafeNameEncoderInterface``` 
+interface.
 
 ```php
 ...
 
-use SimpleS3\Components\Encoders\S3ObjectSafeNameEncoder;
+use SimpleS3\Components\Encoders\UrlEncoder;
 
-$unsafeString = 'folder/to/{unsafe}/[EN][] test_dummy.txt';
-
-// returns folder/to/3gTZd4unsafe5*JX(X/wL5HoaENOtdJXDwL5HoaOtdJXDUvPRTItest_dummy.txt
-$safeString = S3ObjectSafeNameEncoder::encode($unsafeString);
+$encoder = new UrlEncoder();
+$this->s3Client->addEncoder($encoder);
 ```
 
 ## Bucket lifecycle
