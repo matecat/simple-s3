@@ -38,7 +38,7 @@ class HasItem extends CommandHandler
             return true;
         }
 
-        return $this->client->getConn()->doesObjectExist($bucketName, UrlEncoder::encode($keyName));
+        return $this->client->getConn()->doesObjectExist($bucketName, $keyName);
     }
 
     /**

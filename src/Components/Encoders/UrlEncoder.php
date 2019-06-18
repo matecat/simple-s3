@@ -52,6 +52,4 @@ class UrlEncoder extends SafeNameEncoder
 
         return implode(DIRECTORY_SEPARATOR, $encoded);
     }
-
-
 }
