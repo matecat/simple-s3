@@ -60,7 +60,7 @@ class UploadItem extends CommandHandler
 
         return (new UploadItemFromBody($this->client))->handle([
             'bucket' => $bucketName,
-            'key' =>$keyName,
+            'key' => $keyName,
             'body' => File::open($source),
             'storage' => (isset($params['storage'])) ? $params['storage'] : null
         ]);

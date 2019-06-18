@@ -1,6 +1,7 @@
 <?php
 
 use SimpleS3\Components\Cache\RedisCache;
+use SimpleS3\Components\Encoders\UrlEncoder;
 
 class RedisCacheTest extends PHPUnit_Framework_TestCase
 {
@@ -48,13 +49,49 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function set_and_retrieve_from_cache_encoded_strings()
+    {
+        $unsafeStrings = [
+            'folder/仿宋人笔意.txt',
+            'folder/هناك سبعة .txt',
+        ];
+
+        $encoder = new UrlEncoder();
+
+        foreach ($unsafeStrings as $string){
+            $this->cache->set(self::BUCKET_NAME, $encoder->encode($string), 'lorem ipsum');
+        }
+
+        $this->assertEquals('lorem ipsum', $this->cache->get(self::BUCKET_NAME, $encoder->encode('folder/仿宋人笔意.txt')));
+
+        $search = $this->cache->search(self::BUCKET_NAME, 'folder/');
+        $expected = [
+            $encoder->encode('folder/仿宋人笔意.txt'),
+            $encoder->encode('folder/هناك سبعة .txt'),
+        ];
+
+        $this->assertEquals($search, $expected);
+    }
+
+    /**
+     * @test
+     */
     public function remove_from_cache()
     {
+        $encoder = new UrlEncoder();
+
         $this->cache->remove(self::BUCKET_NAME, 'folder/to/file.txt');
         $this->cache->remove(self::BUCKET_NAME, 'folder/to/file2.txt');
         $this->cache->remove(self::BUCKET_NAME, 'file.txt');
 
         $search = $this->cache->search(self::BUCKET_NAME, 'folder/to/');
+
+        $this->assertCount(0, $search);
+
+        $this->cache->remove(self::BUCKET_NAME, $encoder->encode('folder/仿宋人笔意.txt'));
+        $this->cache->remove(self::BUCKET_NAME, $encoder->encode('folder/هناك سبعة .txt'));
+
+        $search = $this->cache->search(self::BUCKET_NAME, 'folder/');
 
         $this->assertCount(0, $search);
     }

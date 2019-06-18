@@ -48,6 +48,10 @@ class UploadItemFromBody extends CommandHandler
             throw new \InvalidArgumentException(S3StorageClassNameValidator::validate($params['storage'])[0]);
         }
 
+        if($this->client->hasEncoder()){
+            $keyName = $this->client->getEncoder()->encode($keyName);
+        }
+
         return $this->upload($bucketName, $keyName, $body, (isset($params['storage'])) ? $params['storage'] : null);
     }
 
@@ -76,10 +80,6 @@ class UploadItemFromBody extends CommandHandler
      */
     private function upload($bucketName, $keyName, $body, $storage = null)
     {
-        if($this->client->hasEncoder()){
-            $keyName = $this->client->getEncoder()->encode($keyName);
-        }
-
         try {
             $config = [
                 'Bucket' => $bucketName,

@@ -412,6 +412,12 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($upload);
 
+        $keyname = 'folder/هناك سبعة .txt';
+        $source = __DIR__ . '/support/files/txt/هناك سبعة .txt';
+        $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source]);
+
+        $this->assertTrue($upload);
+
         $items = $this->s3Client->getItemsInABucket([
                 'bucket' => $this->bucket,
                 'prefix' => 'folder'

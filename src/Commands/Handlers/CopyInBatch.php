@@ -59,12 +59,13 @@ class CopyInBatch extends CommandHandler
 
         foreach ($params['files']['source'] as $key => $file) {
             $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
-            $targetKeys[] = $targetKey;
 
             if($this->client->hasEncoder()){
                 $targetKey = $this->client->getEncoder()->encode($targetKey);
                 $file = $this->client->getEncoder()->encode($file);
             }
+
+            $targetKeys[] = $targetKey;
 
             $commands[] = $this->client->getConn()->getCommand('CopyObject', [
                 'Bucket'     => $targetBucket,
