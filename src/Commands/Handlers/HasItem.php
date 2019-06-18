@@ -12,7 +12,7 @@
 namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\S3ObjectSafeNameSafeNameEncoder;
+use SimpleS3\Components\Encoders\UrlEncoder;
 
 class HasItem extends CommandHandler
 {
@@ -38,7 +38,7 @@ class HasItem extends CommandHandler
             return true;
         }
 
-        return $this->client->getConn()->doesObjectExist($bucketName, S3ObjectSafeNameSafeNameEncoder::encode($keyName));
+        return $this->client->getConn()->doesObjectExist($bucketName, UrlEncoder::encode($keyName));
     }
 
     /**
