@@ -43,20 +43,20 @@ class SetBucketLifecycleConfiguration extends CommandHandler
             $config = $this->client->getConn()->putBucketLifecycleConfiguration($settings);
 
             if (($config instanceof ResultInterface) and $config['@metadata']['statusCode'] === 200) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('Lifecycle was successfully set for bucket \'%s\'', $bucketName));
                 }
 
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong during setting of lifecycle of \'%s\' bucket', $bucketName), 'warning');
             }
 
             return false;
         } catch (\Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

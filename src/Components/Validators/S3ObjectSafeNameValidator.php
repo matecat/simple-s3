@@ -36,7 +36,7 @@ final class S3ObjectSafeNameValidator extends S3NameValidator
     {
         $errors = [];
 
-        if(substr($string, 0, 1) === '.'){
+        if (substr($string, 0, 1) === '.') {
             $errors[] = 'The string cannot starts with .';
         }
 

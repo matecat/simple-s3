@@ -32,7 +32,7 @@ class GetItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
@@ -95,13 +95,13 @@ class GetItem extends CommandHandler
                 $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
             }
 
             return $file->toArray();
         } catch (S3Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

@@ -2,22 +2,22 @@
 
 namespace SimpleS3\Components\Cache;
 
-use Predis\Response\Status;
+use Predis\Client as Redis;
 use SimpleS3\Helpers\File;
 
 class RedisCache implements CacheInterface
 {
     /**
-     * @var \Predis\Client|\Redis|\RedisArray|\RedisCluster
+     * @var Redis
      */
     private $redisClient;
 
     /**
      * RedisCache constructor.
      *
-     * @param \Predis\Client|\Redis|\RedisArray|\RedisCluster $redisClient
+     * @param Redis $redisClient
      */
-    public function __construct($redisClient)
+    public function __construct(Redis $redisClient)
     {
         $this->redisClient = $redisClient;
     }
@@ -27,10 +27,9 @@ class RedisCache implements CacheInterface
      */
     public function flushAll()
     {
-        /** @var Status $flush */
-        $flush = $this->redisClient->flushAll();
+        $flush = $this->redisClient->flushall();
 
-        if($flush->getPayload() === 'OK') {
+        if ($flush->getPayload() === 'OK') {
             return true;
         }
 
@@ -65,7 +64,7 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname)
     {
-        $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), $keyname);
+        $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), [$keyname]);
     }
 
     /**
@@ -89,7 +88,7 @@ class RedisCache implements CacheInterface
     {
         $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
 
-        if( $this->ttl($bucket, $keyname) === -1){
+        if ($this->ttl($bucket, $keyname) === -1) {
             $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), (null != $ttl) ? $ttl * 60 : self::TTL_STANDARD);
         }
     }

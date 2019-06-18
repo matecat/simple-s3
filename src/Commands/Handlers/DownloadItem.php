@@ -32,7 +32,7 @@ class DownloadItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
@@ -44,20 +44,20 @@ class DownloadItem extends CommandHandler
             ]);
 
             if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
                 }
 
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
             }
 
             return false;
         } catch (S3Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

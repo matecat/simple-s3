@@ -13,20 +13,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CacheStatsCommand extends Command
 {
     /**
-     * @var string
-     */
-    private $name;
-
-    /**
      * @var Client
      */
     private $s3Client;
 
-    public function __construct( Client $s3Client , $name = null  )
+    /**
+     * CacheStatsCommand constructor.
+     *
+     * @param Client $s3Client
+     * @param null   $name
+     */
+    public function __construct(Client $s3Client, $name = null)
     {
-        parent::__construct( $name );
+        parent::__construct($name);
 
-        $this->name = $name;
         $this->s3Client = $s3Client;
     }
 
@@ -42,37 +42,52 @@ class CacheStatsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if(false === $this->s3Client->hasCache()){
+        if (false === $this->s3Client->hasCache()) {
             throw new \Exception('Cache in not enabled. You have to enable caching to use this command');
         }
 
         $tableFeed = [];
+
+        if (false === is_string($input->getArgument('bucket'))) {
+            throw new \InvalidArgumentException('Provided bucket name was not a string');
+        }
+
         $bucket = $input->getArgument('bucket');
 
         $items = $this->s3Client->getItemsInABucket([
             'bucket' => $bucket
         ]);
 
-        foreach ($items as $key){
+        foreach ($items as $key) {
             $inCache = $this->s3Client->getCache()->search($bucket, $key);
-            if(count($inCache) > 0){
-                $tableFeed[$this->getDirName($inCache[0])]['ttl'] = $this->s3Client->getCache()->ttl($bucket, $key);
-                $tableFeed[$this->getDirName($inCache[0])]['count' ] = count($inCache);
-                $tableFeed[$this->getDirName($inCache[0])]['files'][$key] = $this->s3Client->getConn()->doesObjectExist($bucket, $key);
+            if (count($inCache) > 0) {
+                $index = $this->getDirName($inCache[0]);
+
+                $tableFeed[$index] = [
+                    'count' => count($inCache),
+                    'files' => [
+                        $key => $this->s3Client->getConn()->doesObjectExist($bucket, $key)
+                    ],
+                    'ttl' => $this->s3Client->getCache()->ttl($bucket, $key),
+                ];
             }
         }
 
         $table = new Table($output);
         $table->setHeaders(['prefix', 'count', 'ttl', 'files', 'align']);
 
-        foreach ($tableFeed as $prefix => $data){
+        foreach ($tableFeed as $prefix => $data) {
+            $count = (int)$data['count'];
+
+
+
             $files = implode(PHP_EOL, array_keys($data['files']));
             $enabled = implode(PHP_EOL, $data['files']);
-            $enabled = str_replace(1, '<fg=green>✓</>', $enabled);
-            $enabled = str_replace(0, '<fg=red>✗</>', $enabled);
+            $enabled = str_replace('1', '<fg=green>✓</>', $enabled);
+            $enabled = str_replace('0', '<fg=red>✗</>', $enabled);
 
             $table->addRow([
-                $prefix, $data['count'], $data['ttl'], $files, $enabled
+                $prefix, $count, $data['ttl'], $files, $enabled
             ]);
         }
         $table->render();

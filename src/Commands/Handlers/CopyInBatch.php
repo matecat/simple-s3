@@ -60,7 +60,7 @@ class CopyInBatch extends CommandHandler
         foreach ($params['files']['source'] as $key => $file) {
             $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
 
-            if($this->client->hasEncoder()){
+            if ($this->client->hasEncoder()) {
                 $targetKey = $this->client->getEncoder()->encode($targetKey);
                 $file = $this->client->getEncoder()->encode($file);
             }
@@ -79,7 +79,7 @@ class CopyInBatch extends CommandHandler
             $pool = new CommandPool($this->client->getConn(), $commands, [
                 'concurrency' => (isset($params['concurrency'])) ? $params['concurrency'] : 25,
                 'before' => function (CommandInterface $cmd, $iterKey) {
-                    if(null !== $this->commandHandlerLogger){
+                    if (null !== $this->commandHandlerLogger) {
                         $this->commandHandlerLogger->log($this, sprintf('About to send \'%s\'', $iterKey));
                     }
                 },
@@ -89,7 +89,7 @@ class CopyInBatch extends CommandHandler
                     $iterKey,
                     PromiseInterface $aggregatePromise
                 ) use ($targetBucket, $targetKeys) {
-                    if(null !== $this->commandHandlerLogger){
+                    if (null !== $this->commandHandlerLogger) {
                         $this->commandHandlerLogger->log($this, sprintf('Completed copy of \'%s\'', $targetKeys[$iterKey]));
                     }
 
@@ -105,7 +105,7 @@ class CopyInBatch extends CommandHandler
                 ) {
                     $errors[] = $reason;
 
-                    if(null !== $this->commandHandlerLogger){
+                    if (null !== $this->commandHandlerLogger) {
                         $this->commandHandlerLogger->logExceptionAndReturnFalse($reason);
                     }
 
@@ -117,20 +117,20 @@ class CopyInBatch extends CommandHandler
             $pool->promise()->wait();
 
             if (count($errors) === 0) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('Copy in batch from \'%s\' to \'%s\' was succeded without errors', $params['source_bucket'], $targetBucket));
                 }
 
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong during copying in batch from \'%s\' to \'%s\'', $params['source_bucket'], (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket']), 'warning');
             }
 
             return false;
         } catch (\Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

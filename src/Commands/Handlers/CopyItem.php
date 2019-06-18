@@ -36,7 +36,7 @@ class CopyItem extends CommandHandler
 
         $this->client->createBucketIfItDoesNotExist(['bucket' => $targetBucketName]);
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $targetKeyname = $this->client->getEncoder()->encode($targetKeyname);
             $sourceKeyname = $this->client->getEncoder()->encode($sourceKeyname);
         }
@@ -49,7 +49,7 @@ class CopyItem extends CommandHandler
             ]);
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
                 }
 
@@ -60,13 +60,13 @@ class CopyItem extends CommandHandler
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
             }
 
             return false;
         } catch (S3Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

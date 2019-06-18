@@ -34,7 +34,7 @@ abstract class CommandHandler implements CommandHandlerInterface
     public function __construct(Client $client)
     {
         $this->client = $client;
-        if($this->client->hasLogger()){
+        if ($this->client->hasLogger()) {
             $this->commandHandlerLogger = new CommandHandlerLogger($client->getLogger());
         }
     }

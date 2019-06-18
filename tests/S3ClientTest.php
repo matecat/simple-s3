@@ -335,7 +335,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_items_in_a_bucket_from_cache()
     {
-        $items = $this->s3Client->getItemsInABucket([
+        $items = $this->s3Client->getItemsInABucket(
+            [
                 'bucket' => $this->bucket,
                 'prefix' => 'folder'
             ]
@@ -369,7 +370,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
         $s3Client->addLogger($logger);
 
-        $items = $this->s3Client->getItemsInABucket([
+        $items = $this->s3Client->getItemsInABucket(
+            [
                 'bucket' => $this->bucket,
                 'prefix' => 'folder'
             ]
@@ -418,7 +420,8 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($upload);
 
-        $items = $this->s3Client->getItemsInABucket([
+        $items = $this->s3Client->getItemsInABucket(
+            [
                 'bucket' => $this->bucket,
                 'prefix' => 'folder'
             ]

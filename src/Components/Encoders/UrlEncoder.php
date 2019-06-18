@@ -22,8 +22,8 @@ class UrlEncoder extends SafeNameEncoder
     {
         $decoded = [];
 
-        foreach (explode(DIRECTORY_SEPARATOR, $string) as $word){
-            if(false === $this->isASafeString($word)){
+        foreach (explode(DIRECTORY_SEPARATOR, $string) as $word) {
+            if (false === $this->isASafeString($word)) {
                 $word = urldecode($word);
             }
 
@@ -42,8 +42,8 @@ class UrlEncoder extends SafeNameEncoder
     {
         $encoded = [];
 
-        foreach (explode(DIRECTORY_SEPARATOR, $string) as $word){
-            if(false === $this->isASafeString($word)){
+        foreach (explode(DIRECTORY_SEPARATOR, $string) as $word) {
+            if (false === $this->isASafeString($word)) {
                 $word = urlencode($word);
             }
 

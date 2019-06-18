@@ -30,7 +30,7 @@ class HasItem extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 

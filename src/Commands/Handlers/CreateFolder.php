@@ -33,7 +33,7 @@ class CreateFolder extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
@@ -50,20 +50,20 @@ class CreateFolder extends CommandHandler
             ]);
 
             if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
                 }
 
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName), 'warning');
             }
 
             return false;
         } catch (S3Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

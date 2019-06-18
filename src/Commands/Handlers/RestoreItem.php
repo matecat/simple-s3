@@ -34,7 +34,7 @@ class RestoreItem extends CommandHandler
         $days =(isset($params['days'])) ? $params['days'] : 5;
         $tier = (isset($params['tier'])) ? $params['tier'] : 'Expedited';
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
@@ -61,7 +61,7 @@ class RestoreItem extends CommandHandler
             ]);
 
             if (($request instanceof ResultInterface) and $request['@metadata']['statusCode'] === 202) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyName, $bucketName));
                 }
 
@@ -72,13 +72,13 @@ class RestoreItem extends CommandHandler
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName), 'warning');
             }
 
             return false;
         } catch (\Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

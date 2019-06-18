@@ -37,21 +37,21 @@ class ClearBucket extends CommandHandler
             }
 
             if (count($errors) === 0) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully cleared', $bucketName));
                 }
 
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong while clearing bucket \'%s\'', $bucketName), 'warning');
             }
 
             return false;
         }
 
-        if(null !== $this->commandHandlerLogger){
+        if (null !== $this->commandHandlerLogger) {
             $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
         }
 

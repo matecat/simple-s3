@@ -10,7 +10,8 @@ class SafeNameEncoderTest extends PHPUnit_Framework_TestCase
      */
     private $encoder;
 
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
 
         $this->encoder = new UrlEncoder();

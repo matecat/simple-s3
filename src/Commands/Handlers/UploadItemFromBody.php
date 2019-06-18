@@ -48,7 +48,7 @@ class UploadItemFromBody extends CommandHandler
             throw new \InvalidArgumentException(S3StorageClassNameValidator::validate($params['storage'])[0]);
         }
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
@@ -98,7 +98,7 @@ class UploadItemFromBody extends CommandHandler
             $result = $this->client->getConn()->putObject($config);
 
             if (($result instanceof ResultInterface) and $result['@metadata']['statusCode'] === 200) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
                 }
 
@@ -109,13 +109,13 @@ class UploadItemFromBody extends CommandHandler
                 return true;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
             }
 
             return false;
         } catch (\InvalidArgumentException $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

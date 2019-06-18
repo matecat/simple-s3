@@ -35,20 +35,20 @@ class OpenItem extends CommandHandler
             $content = File::loadFile($url, $this->client->hasSslVerify());
 
             if (false === $content) {
-                if(null !== $this->commandHandlerLogger){
+                if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('Something went wrong during getting content of \'%s\' item from \'%s\' bucket', $keyName, $bucketName), 'warning');
                 }
 
                 return null;
             }
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
             }
 
             return $content;
         } catch (\Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

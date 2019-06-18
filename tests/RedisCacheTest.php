@@ -58,7 +58,7 @@ class RedisCacheTest extends PHPUnit_Framework_TestCase
 
         $encoder = new UrlEncoder();
 
-        foreach ($unsafeStrings as $string){
+        foreach ($unsafeStrings as $string) {
             $this->cache->set(self::BUCKET_NAME, $encoder->encode($string), 'lorem ipsum');
         }
 

@@ -32,7 +32,7 @@ class HasFolder extends CommandHandler
         $bucketName = $params['bucket'];
         $prefix = $params['prefix'];
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $prefix = $this->client->getEncoder()->encode($prefix);
         }
 
@@ -82,7 +82,7 @@ class HasFolder extends CommandHandler
 
             return $result['Contents'] or $result['CommonPrefixes'];
         } catch (S3Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

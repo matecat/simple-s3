@@ -31,7 +31,7 @@ class GetPublicItemLink extends CommandHandler
         $keyName = $params['key'];
         $expires = (isset($params['expires'])) ? $params['expires'] : '+1 hour';
 
-        if($this->client->hasEncoder()){
+        if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
@@ -43,13 +43,13 @@ class GetPublicItemLink extends CommandHandler
 
             $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();
 
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
             }
 
             return $link;
         } catch (\InvalidArgumentException $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 

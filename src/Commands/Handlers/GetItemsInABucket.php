@@ -52,7 +52,7 @@ class GetItemsInABucket extends CommandHandler
 
             return $this->returnItemsFromS3($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
         } catch (S3Exception $e) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
 
@@ -88,7 +88,7 @@ class GetItemsInABucket extends CommandHandler
 
         // no hydrate, simply return the array of keys stored in redis
         if (null == $hydrate) {
-            if(null !== $this->commandHandlerLogger){
+            if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
             }
 
@@ -101,7 +101,7 @@ class GetItemsInABucket extends CommandHandler
             $items[$key] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
         }
 
-        if(null !== $this->commandHandlerLogger){
+        if (null !== $this->commandHandlerLogger) {
             $this->commandHandlerLogger->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
         }
 
@@ -124,8 +124,8 @@ class GetItemsInABucket extends CommandHandler
                 for ($i = 0; $i < count($contents); $i++) {
                     $key = $contents[$i]['Key'];
 
-                    if(false === File::endsWithSlash($key)){
-                        if($this->client->hasEncoder()){
+                    if (false === File::endsWithSlash($key)) {
+                        if ($this->client->hasEncoder()) {
                             $key = $this->client->getEncoder()->decode($key);
                         }
 
@@ -144,7 +144,7 @@ class GetItemsInABucket extends CommandHandler
             }
         }
 
-        if(null !== $this->commandHandlerLogger){
+        if (null !== $this->commandHandlerLogger) {
             $this->commandHandlerLogger->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
         }
 

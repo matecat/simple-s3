@@ -17,7 +17,7 @@ use RecursiveIteratorIterator;
 class File
 {
     /**
-     * @param $path
+     * @param string $path
      *
      * @return bool
      */
@@ -47,7 +47,7 @@ class File
      */
     public static function getBaseName($path)
     {
-        if(false == self::checkIfIsADir($path)){
+        if (false == self::checkIfIsADir($path)) {
             return $path;
         }
 

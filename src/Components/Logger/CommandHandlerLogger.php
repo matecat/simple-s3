@@ -25,7 +25,7 @@ class CommandHandlerLogger
     /**
      * Logger constructor.
      *
-     * @param Client $client
+     * @param LoggerInterface $logger
      */
     public function __construct(LoggerInterface $logger)
     {
