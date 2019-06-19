@@ -101,11 +101,14 @@ $s3Client->addEncoder($encoder);
 
 You can set the basic lifecycle for your bucket with ```setBucketLifecycleConfiguration``` method. 
 
-This method is automatically invoked when you try to create a new bucket with ```createBucketIfItDoesNotExist``` method.
+```php
+...
 
-For further details please refer to the official documentation:
+$s3Client->setBucketLifecycleConfiguration(['bucket' => $this->bucket, 'rules' => [...]]);
+```
 
-[Bucket lifecycle configuration complete reference](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html)
+For further details please refer to the [bucket lifecycle configuration official API documentation](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html):
+
 
 ## Bucket versioning
 
@@ -135,6 +138,9 @@ $hydrated = [
     'key<VERSION_ID=345678901>' => 'content',
 ];
 ```
+
+For further details please refer to the [bucket versioning  official API documentation](https://docs.aws.amazon.com/en_us/AmazonS3/latest/API/RESTBucketPUTVersioningStatus.html).
+
 
 ## Restoring an item
 
