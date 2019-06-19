@@ -181,6 +181,10 @@ class GetItemsInABucket extends CommandHandler
         $results = $this->client->getConn()->listObjectVersions($config);
         $items = [];
 
+        if(false === isset($results['Versions'])){
+            return $items;
+        }
+
         foreach ($results['Versions'] as $result) {
             $key = $result['Key'];
             $isLatest = $result['IsLatest'];
