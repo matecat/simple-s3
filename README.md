@@ -53,6 +53,7 @@ Here is the list of Client's public methods:
 *   `hasBucket` - check if a bucket exists
 *   `hasFolder` - check if a folder exists
 *   `hasItem` - check if an item exists
+*   `isBucketVersioned` - check if bucket has versioned enabled
 *   `openItem` - get the content of an item
 *   `restoreItem` - try to restore an item from archive
 *   `setBucketLifecycleConfiguration` - set bucket lifecycle configuration

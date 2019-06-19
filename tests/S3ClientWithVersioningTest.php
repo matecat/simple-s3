@@ -75,6 +75,7 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
         $upload = $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source]);
 
         $this->assertTrue($upload);
+        $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $keyname]));
 
         $items = $this->s3Client->getItemsInABucket([
             'bucket' => $this->bucket,
@@ -125,20 +126,29 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
         $this->assertContains('Here you can find activities to practise your reading skills.', $open);
     }
 
-//    /**
-//     * @test
-//     * @throws Exception
-//     */
-//    public function test_the_client_copy_an_item()
-//    {
-//        $copied = $this->s3Client->copyItem([
-//            'source_bucket' => $this->bucket,
-//            'source' => 'folder/仿宋人笔意.txt',
-//            'target_bucket' => $this->bucket,
-//            'target' => 'folder/仿宋人笔意.txt(1)'
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_copy_an_item()
+    {
+//        $source = __DIR__ . '/support/files/txt/test.txt';
+//        $upload = $this->s3Client->uploadItem([
+//            'bucket' => $this->bucket,
+//            'key' => 'folder/test.txt',
+//            'source' => $source
 //        ]);
-//        $this->assertTrue($copied);
-//    }
+//
+//        $this->assertTrue($upload);
+
+        $copied = $this->s3Client->copyItem([
+            'source_bucket' => $this->bucket,
+            'source' => 'folder/仿宋人笔意.txt',
+            'target_bucket' => $this->bucket.'-copied',
+            'target' => 'copied-file.txt'
+        ]);
+        $this->assertTrue($copied);
+    }
 
     /**
      * @test
@@ -147,7 +157,9 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_all_the_items()
     {
         $this->assertTrue($this->s3Client->clearBucket(['bucket' => $this->bucket]));
+        $this->assertTrue($this->s3Client->clearBucket(['bucket' => $this->bucket.'-copied']));
         $this->assertEquals(0, $this->s3Client->getBucketSize(['bucket' => $this->bucket]));
+        $this->assertEquals(0, $this->s3Client->getBucketSize(['bucket' => $this->bucket.'-copied']));
     }
 
     /**
@@ -157,6 +169,8 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_the_bucket()
     {
         $this->assertTrue($this->s3Client->deleteBucket(['bucket' => $this->bucket]));
+        $this->assertTrue($this->s3Client->deleteBucket(['bucket' => $this->bucket.'-copied']));
         $this->assertFalse($this->s3Client->hasBucket(['bucket' => $this->bucket]));
+        $this->assertFalse($this->s3Client->hasBucket(['bucket' => $this->bucket.'-copied']));
     }
 }

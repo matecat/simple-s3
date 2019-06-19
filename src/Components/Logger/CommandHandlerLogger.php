@@ -12,7 +12,6 @@
 namespace SimpleS3\Components\Logger;
 
 use Psr\Log\LoggerInterface;
-use SimpleS3\Client;
 use SimpleS3\Commands\CommandHandler;
 
 class CommandHandlerLogger

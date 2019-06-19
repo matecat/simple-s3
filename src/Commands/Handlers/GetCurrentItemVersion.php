@@ -12,6 +12,7 @@
 namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class GetCurrentItemVersion extends CommandHandler
 {
@@ -30,17 +31,24 @@ class GetCurrentItemVersion extends CommandHandler
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
 
+        $fileInfo = File::getPathInfo($keyName);
+        $prefix = $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
+
         $results = $this->client->getConn()->listObjectVersions([
             'Bucket' => $bucketName,
-            'Key' => $keyName
+            'Prefix' => $prefix
         ]);
 
         if(false === isset($results['Versions'])){
             return null;
         }
 
+        if ($this->client->hasEncoder()) {
+            $keyName = $this->client->getEncoder()->encode($keyName);
+        }
+
         foreach ($results['Versions'] as $result) {
-            if(true === $result['IsLatest']){
+            if(true === $result['IsLatest'] and $keyName === $result['Key']){
                 return $result['VersionId'];
             }
         }
@@ -54,8 +62,8 @@ class GetCurrentItemVersion extends CommandHandler
     public function validateParams($params = [])
     {
         return (
-                isset($params['bucket']) and
-                isset($params['key'])
+            isset($params['bucket']) and
+            isset($params['key'])
         );
     }
 }

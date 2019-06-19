@@ -41,12 +41,27 @@ class CopyItem extends CommandHandler
             $sourceKeyname = $this->client->getEncoder()->encode($sourceKeyname);
         }
 
+        // EVERY SOURCE MUST BE URLENCODED
+        $e = [];
+        foreach (explode(DIRECTORY_SEPARATOR, $sourceKeyname) as $word){
+            $e[] = urlencode($word);
+        }
+
+        $copySource = $sourceBucket . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $e);
+
         try {
-            $copied = $this->client->getConn()->copyObject([
+            $config = [
                 'Bucket' => $targetBucketName,
                 'Key'    => $targetKeyname,
-                'CopySource'    => $sourceBucket . DIRECTORY_SEPARATOR . $sourceKeyname,
-            ]);
+                'CopySource' => $copySource,
+            ];
+
+            if($this->client->isBucketVersioned(['bucket' => $sourceBucket])){
+                $version = $this->client->getCurrentItemVersion(['bucket' => $sourceBucket, 'key' => $params['source']]);
+                $config['CopySource'] = $copySource . '?versionId='.$version;
+            }
+
+            $copied = $this->client->getConn()->copyObject($config);
 
             if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
                 if (null !== $this->commandHandlerLogger) {

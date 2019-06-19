@@ -12,7 +12,6 @@
 namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Encoders\UrlEncoder;
 
 class HasItem extends CommandHandler
 {
