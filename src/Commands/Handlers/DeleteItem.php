@@ -39,8 +39,8 @@ class DeleteItem extends CommandHandler
 
         try {
             $config = [
-                    'Bucket' => $bucketName,
-                    'Key'    => $keyName,
+                'Bucket' => $bucketName,
+                'Key'    => $keyName,
             ];
 
             if(null != $version){

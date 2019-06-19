@@ -184,7 +184,7 @@ class GetItemsInABucket extends CommandHandler
         foreach ($results['Versions'] as $result) {
             $key = $result['Key'];
             $isLatest = $result['IsLatest'];
-            $version = ('null' != $result['VersionId']) ? $result['VersionId'] : null;
+            $version = $result['VersionId'];
 
             if (false === File::endsWithSlash($key)) {
                 if ($this->client->hasEncoder()) {
@@ -199,7 +199,7 @@ class GetItemsInABucket extends CommandHandler
 
                 // send to cache, just to be sure that S3 is syncronized with cache
                 if ($this->client->hasCache()) {
-                    $this->client->getCache()->set($bucketName, $result['Key'], $this->client->getItem(['bucket' => $bucketName, 'key' => $key]), $version);
+                    $this->client->getCache()->set($bucketName, $result['Key'], $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]), $version);
                 }
             }
         }

@@ -31,7 +31,15 @@ class ClearBucket extends CommandHandler
         if ($this->client->hasBucket(['bucket' => $bucketName])) {
             $items = $this->client->getItemsInABucket(['bucket' => $bucketName]);
             foreach ($items as $key) {
-                if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $key])) {
+
+                $version = null;
+                if (strpos($key, '<VERSION_ID:') !== false) {
+                    $v = explode('<VERSION_ID:', $key);
+                    $version = str_replace('>', '', $v[1]);
+                    $key = $v[0];
+                }
+
+                if (false === $delete = $this->client->deleteItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version])) {
                     $errors[] = $delete;
                 }
             }

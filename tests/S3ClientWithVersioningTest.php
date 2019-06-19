@@ -84,8 +84,8 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
 
         $this->assertCount(2, $items);
         $this->assertEquals(1496, $this->s3Client->getBucketSize([
-                'bucket' => $this->bucket,
-                'prefix' => 'folder/',
+            'bucket' => $this->bucket,
+            'prefix' => 'folder/',
         ]));
     }
 
