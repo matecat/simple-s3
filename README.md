@@ -94,7 +94,7 @@ interface:
 use SimpleS3\Components\Encoders\UrlEncoder;
 
 $encoder = new UrlEncoder();
-$this->s3Client->addEncoder($encoder);
+$s3Client->addEncoder($encoder);
 ```
 
 ## Bucket lifecycle
@@ -106,6 +106,35 @@ This method is automatically invoked when you try to create a new bucket with ``
 For further details please refer to the official documentation:
 
 [Bucket lifecycle configuration complete reference](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html)
+
+## Bucket versioning
+
+You can enable bucket versioning:
+
+```php
+...
+
+$s3Client->setBucketVersioning(['bucket' => $this->bucket]);
+```
+
+And now, when you use method ```getItemsInABucket``` a <VERSION_ID> tag will be added to keys:
+
+```php
+...
+
+// getItemsInABucket() will return something like this:
+$notHydrated = [
+    'key<VERSION_ID=123456789>',
+    'key<VERSION_ID=234567890>',
+    'key<VERSION_ID=345678901>',
+];
+
+$hydrated = [
+    'key<VERSION_ID=123456789>' => 'content',
+    'key<VERSION_ID=234567890>' => 'content',
+    'key<VERSION_ID=345678901>' => 'content',
+];
+```
 
 ## Restoring an item
 
