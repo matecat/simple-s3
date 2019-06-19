@@ -187,7 +187,6 @@ class GetItemsInABucket extends CommandHandler
 
         foreach ($results['Versions'] as $result) {
             $key = $result['Key'];
-            $isLatest = $result['IsLatest'];
             $version = $result['VersionId'];
 
             if (false === File::endsWithSlash($key)) {
@@ -195,10 +194,12 @@ class GetItemsInABucket extends CommandHandler
                     $key = $this->client->getEncoder()->decode($key);
                 }
 
+                $index = $key.'<VERSION_ID:'.$version.'>';
+
                 if (null != $hydrate and true === $hydrate) {
-                    $items[$key.'<VERSION_ID:'.$version.'>'] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]);
+                    $items[$index] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]);
                 } else {
-                    $items[] = $key.'<VERSION_ID:'.$version.'>';
+                    $items[] = $index;
                 }
 
                 // send to cache, just to be sure that S3 is syncronized with cache

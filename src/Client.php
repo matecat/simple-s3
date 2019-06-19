@@ -39,6 +39,7 @@ use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  * @method bool enableAcceleration(array $input)
  * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
  * @method int|mixed getBucketSize(array $input)
+ * @method int|mixed getCurrentItemVersion(array $input)
  * @method ResultInterface|mixed getItem(array $input)
  * @method array|mixed getItemsInABucket(array $input)
  * @method mixed|UriInterface getPublicItemLink(array $input)

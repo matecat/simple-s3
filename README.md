@@ -44,11 +44,11 @@ Here is the list of Client's public methods:
 *   `deleteItem` - delete an item
 *   `downloadItem` - download an item
 *   `enableAcceleration` - enable the acceleration mode for a bucket
-*   `enableVersioning` - enable the versioning for a bucket
 *   `getBucketLifeCycle` get the bucket lifecycle configuration
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getItem` - get all informations for an item
 *   `getItemsInABucket` get an array of items in a bucket
+*   `getCurrentItemVersion` - get the latest version of an item
 *   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
 *   `hasFolder` - check if a folder exists
@@ -56,6 +56,7 @@ Here is the list of Client's public methods:
 *   `openItem` - get the content of an item
 *   `restoreItem` - try to restore an item from archive
 *   `setBucketLifecycleConfiguration` - set bucket lifecycle configuration
+*   `setBucketVersioning` - set the bucket versioning 
 *   `transfer` - transfer content from/to buckets
 *   `uploadItem` - upload an item to a bucket from a file
 *   `uploadItemFromBody` - upload an item to a bucket from the body content

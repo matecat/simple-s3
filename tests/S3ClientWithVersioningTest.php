@@ -93,6 +93,57 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
+    public function test_the_client_gets_the_current_version_of_an_item()
+    {
+        $keyname = 'folder/仿宋人笔意.txt';
+        $version = $this->s3Client->getCurrentItemVersion(['bucket' => $this->bucket, 'key' => $keyname]);
+
+        $this->assertNotNull($version);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_gets_the_download_link_for_an_item()
+    {
+        $keyname = 'folder/仿宋人笔意.txt';
+        $link = $this->s3Client->getPublicItemLink(['bucket' => $this->bucket, 'key' => $keyname]);
+
+        $this->assertContains('Here you can find activities to practise your reading skills.', file_get_contents($link));
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function test_the_client_gets_the_content_of_an_item()
+    {
+        $keyname = 'folder/仿宋人笔意.txt';
+        $open = $this->s3Client->openItem(['bucket' => $this->bucket, 'key' => $keyname]);
+
+        $this->assertContains('Here you can find activities to practise your reading skills.', $open);
+    }
+
+//    /**
+//     * @test
+//     * @throws Exception
+//     */
+//    public function test_the_client_copy_an_item()
+//    {
+//        $copied = $this->s3Client->copyItem([
+//            'source_bucket' => $this->bucket,
+//            'source' => 'folder/仿宋人笔意.txt',
+//            'target_bucket' => $this->bucket,
+//            'target' => 'folder/仿宋人笔意.txt(1)'
+//        ]);
+//        $this->assertTrue($copied);
+//    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
     public function test_the_client_deletes_all_the_items()
     {
         $this->assertTrue($this->s3Client->clearBucket(['bucket' => $this->bucket]));

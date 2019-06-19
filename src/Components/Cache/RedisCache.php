@@ -97,8 +97,8 @@ class RedisCache implements CacheInterface
      * @param string $bucket
      * @param string $keyname
      * @param mixed  $content
-     * @param null $version
-     * @param null $ttl
+     * @param null   $version
+     * @param null   $ttl
      */
     public function set($bucket, $keyname, $content, $version = null, $ttl = null)
     {

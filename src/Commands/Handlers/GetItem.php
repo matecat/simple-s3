@@ -106,7 +106,6 @@ class GetItem extends CommandHandler
             $file = $this->client->getConn()->getObject($config);
 
             if ($this->client->hasCache()) {
-
                 $this->client->getCache()->set($bucketName, $keyName, $file->toArray(), $version);
             }
 
