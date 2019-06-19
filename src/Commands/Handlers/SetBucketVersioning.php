@@ -14,7 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 
-class EnableVersioning extends CommandHandler
+class setBucketVersioning extends CommandHandler
 {
     /**
      * Enable versioning for a bucket.
@@ -32,7 +32,7 @@ class EnableVersioning extends CommandHandler
         $config = [
             'Bucket' => $bucketName,
             'VersioningConfiguration' => [
-                'MFADelete' => 'Enabled',
+                'MFADelete' => 'Disabled',
                 'Status' => 'Enabled',
             ],
         ];

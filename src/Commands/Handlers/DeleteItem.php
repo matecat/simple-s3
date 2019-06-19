@@ -31,16 +31,23 @@ class DeleteItem extends CommandHandler
     {
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
+        $version = (isset($params['version'])) ? $params['version'] : null;
 
         if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
         try {
-            $delete = $this->client->getConn()->deleteObject([
-                'Bucket' => $bucketName,
-                'Key'    => $keyName,
-            ]);
+            $config = [
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyName,
+            ];
+
+            if(null != $version){
+                $config['VersionId'] = $version;
+            }
+
+            $delete = $this->client->getConn()->deleteObject($config);
 
             if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
                 if (null !== $this->commandHandlerLogger) {
@@ -48,7 +55,7 @@ class DeleteItem extends CommandHandler
                 }
 
                 if ($this->client->hasCache()) {
-                    $this->client->getCache()->remove($bucketName, $keyName);
+                    $this->client->getCache()->remove($bucketName, $keyName, $version);
                 }
 
                 return true;

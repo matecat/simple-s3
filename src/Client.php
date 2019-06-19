@@ -37,7 +37,6 @@ use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  * @method bool deleteItem(array $input)
  * @method bool downloadItem(array $input)
  * @method bool enableAcceleration(array $input)
- * @mwthod bool enableVersioning(array $input)
  * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
  * @method int|mixed getBucketSize(array $input)
  * @method ResultInterface|mixed getItem(array $input)
@@ -46,9 +45,11 @@ use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  * @method bool hasBucket(array $input)
  * @method bool hasFolder(array $input)
  * @method bool hasItem(array $input)
+ * @method bool isBucketVersioned(array $input)
  * @method mixed|UriInterface openItem(array $input)
  * @method bool restoreItem(array $input)
  * @method bool setBucketLifecycleConfiguration(array $input)
+ * @method bool setBucketVersioning(array $input)
  * @method bool transfer(array $input)
  * @method bool uploadItem(array $input)
  * @method bool uploadItemFromBody(array $input)
@@ -81,11 +82,6 @@ final class Client
      * @var bool
      */
     private $sslVerify = true;
-
-    /**
-     * @var bool
-     */
-    private $safeNames = false;
 
     /**
      * Client constructor.
@@ -224,13 +220,5 @@ final class Client
     public function hasSslVerify()
     {
         return $this->sslVerify;
-    }
-
-    /**
-     * set the "safeNames" modality to true
-     */
-    public function enableSafeNames()
-    {
-        $this->safeNames = true;
     }
 }

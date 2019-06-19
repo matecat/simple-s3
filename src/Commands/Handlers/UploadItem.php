@@ -133,7 +133,12 @@ class UploadItem extends CommandHandler
 
             // update cache
             if ((!isset($params['storage'])) and $this->client->hasCache()) {
-                $this->client->getCache()->set($bucketName, $keyName, '');
+                $version = null;
+                if(isset($upload['@metadata']['headers']['x-amz-version-id'])){
+                    $version = $upload['@metadata']['headers']['x-amz-version-id'];
+                }
+
+                $this->client->getCache()->set($bucketName, $keyName, '', $version);
             }
 
             return false;

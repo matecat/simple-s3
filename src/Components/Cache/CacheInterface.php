@@ -16,28 +16,32 @@ interface CacheInterface
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return mixed
      */
-    public function get($bucket, $keyname);
+    public function get($bucket, $keyname, $version = null);
 
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return bool
      */
-    public function has($bucket, $keyname);
+    public function has($bucket, $keyname, $version = null);
 
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      */
-    public function remove($bucket, $keyname);
+    public function remove($bucket, $keyname, $version = null);
 
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return array
      */
@@ -47,15 +51,17 @@ interface CacheInterface
      * @param string $bucket
      * @param string $keyname
      * @param mixed $content
+     * @param null $version
      * @param null $ttl
      */
-    public function set($bucket, $keyname, $content, $ttl = null);
+    public function set($bucket, $keyname, $content, $version = null, $ttl = null);
 
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return int
      */
-    public function ttl($bucket, $keyname);
+    public function ttl($bucket, $keyname, $version = null);
 }

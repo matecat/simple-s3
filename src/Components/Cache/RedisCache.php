@@ -39,31 +39,46 @@ class RedisCache implements CacheInterface
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return array|mixed
      */
-    public function get($bucket, $keyname)
+    public function get($bucket, $keyname, $version = null)
     {
+        if(null != $version){
+            $keyname .= '<VERSION_ID:'.$version.'>';
+        }
+
         return unserialize($this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $keyname));
     }
 
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return bool
      */
-    public function has($bucket, $keyname)
+    public function has($bucket, $keyname, $version = null)
     {
+        if(null != $version){
+            $keyname .= '<VERSION_ID:'.$version.'>';
+        }
+
         return (1 === $this->redisClient->hexists($this->getHashPrefix($bucket, $keyname), $keyname)) ? true : false;
     }
 
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      */
-    public function remove($bucket, $keyname)
+    public function remove($bucket, $keyname, $version = null)
     {
+        if(null != $version){
+            $keyname .= '<VERSION_ID:'.$version.'>';
+        }
+
         $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), [$keyname]);
     }
 
@@ -82,10 +97,15 @@ class RedisCache implements CacheInterface
      * @param string $bucket
      * @param string $keyname
      * @param mixed  $content
+     * @param null $version
      * @param null $ttl
      */
-    public function set($bucket, $keyname, $content, $ttl = null)
+    public function set($bucket, $keyname, $content, $version = null, $ttl = null)
     {
+        if(null != $version){
+            $keyname .= '<VERSION_ID:'.$version.'>';
+        }
+
         $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
 
         if ($this->ttl($bucket, $keyname) === -1) {
@@ -96,11 +116,16 @@ class RedisCache implements CacheInterface
     /**
      * @param string $bucket
      * @param string $keyname
+     * @param null $version
      *
      * @return int
      */
-    public function ttl($bucket, $keyname)
+    public function ttl($bucket, $keyname, $version = null)
     {
+        if(null != $version){
+            $keyname .= '<VERSION_ID:'.$version.'>';
+        }
+
         return $this->redisClient->ttl($this->getHashPrefix($bucket, $keyname));
     }
 

@@ -31,16 +31,17 @@ class GetItem extends CommandHandler
     {
         $bucketName = $params['bucket'];
         $keyName = $params['key'];
+        $version = (isset($params['version'])) ? $params['version'] : null;
 
         if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
-        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)) {
-            return $this->returnItemFromCache($bucketName, $keyName);
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName, $version)) {
+            return $this->returnItemFromCache($bucketName, $keyName, $version);
         }
 
-        return $this->returnItemFromS3($bucketName, $keyName);
+        return $this->returnItemFromS3($bucketName, $keyName, $version);
     }
 
     /**
@@ -59,40 +60,53 @@ class GetItem extends CommandHandler
     /**
      * @param string $bucketName
      * @param string $keyName
+     * @param null $version
      *
      * @return mixed
      */
-    private function returnItemFromCache($bucketName, $keyName)
+    private function returnItemFromCache($bucketName, $keyName, $version = null)
     {
-        if ('' === $this->client->getCache()->get($bucketName, $keyName)) {
-            $file = $this->client->getConn()->getObject([
+        if ('' === $this->client->getCache()->get($bucketName, $keyName, $version)) {
+            $config = [
                 'Bucket' => $bucketName,
                 'Key'    => $keyName
-            ]);
+            ];
 
-            $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
+            if(null != $version){
+                $config['VersionId'] = $version;
+            }
+
+            $file = $this->client->getConn()->getObject($config);
+            $this->client->getCache()->set($bucketName, $keyName, $file->toArray(), $version);
         }
 
-        return $this->client->getCache()->get($bucketName, $keyName);
+        return $this->client->getCache()->get($bucketName, $keyName, $version);
     }
 
     /**
      * @param string $bucketName
      * @param string $keyName
+     * @param null $version
      *
      * @return array
      * @throws \Exception
      */
-    private function returnItemFromS3($bucketName, $keyName)
+    private function returnItemFromS3($bucketName, $keyName, $version = null)
     {
         try {
-            $file = $this->client->getConn()->getObject([
+            $config = [
                 'Bucket' => $bucketName,
                 'Key'    => $keyName
-            ]);
+            ];
+
+            if(null != $version){
+                $config['VersionId'] = $version;
+            }
+
+            $file = $this->client->getConn()->getObject($config);
 
             if ($this->client->hasCache()) {
-                $this->client->getCache()->set($bucketName, $keyName, $file->toArray());
+                $this->client->getCache()->set($bucketName, $keyName, $file->toArray(), $version);
             }
 
             if (null !== $this->commandHandlerLogger) {

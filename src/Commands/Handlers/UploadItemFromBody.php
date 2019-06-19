@@ -103,7 +103,12 @@ class UploadItemFromBody extends CommandHandler
                 }
 
                 if (null == $storage and $this->client->hasCache()) {
-                    $this->client->getCache()->set($bucketName, $keyName, '');
+                    $version = null;
+                    if(isset($result['@metadata']['headers']['x-amz-version-id'])){
+                        $version = $result['@metadata']['headers']['x-amz-version-id'];
+                    }
+
+                    $this->client->getCache()->set($bucketName, $keyName, '', $version);
                 }
 
                 return true;
