@@ -120,7 +120,7 @@ You can enable bucket versioning:
 $s3Client->setBucketVersioning(['bucket' => $this->bucket]);
 ```
 
-And now, when you use method ```getItemsInABucket``` a <VERSION_ID> tag will be added to keys:
+And now, when you use ```getItemsInABucket``` method, a <VERSION_ID> tag will be added to keys:
 
 ```php
 ...
@@ -188,7 +188,7 @@ $s3Client->getItemsInABucket('your-bucket');
 
 ## Commands
 
-If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands avaliable:
+If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands available:
 
 *  ```ss3:batch:transfer```  Transfer files from/to a bucket.
 *  ```ss3:bucket:clear```    Clears a bucket.
