@@ -31,42 +31,38 @@ class DeleteBucket extends CommandHandler
     {
         $bucketName = $params['bucket'];
 
-        if ($this->client->hasBucket(['bucket' => $bucketName])) {
-            try {
-                $items = $this->client->getItemsInABucket(['Bucket' => $bucketName]);
-                $delete = $this->client->getConn()->deleteBucket(['Bucket' => $bucketName]);
-                
-                if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
-                    if (null != $items and count($items) > 0) {
-                        $this->removeItemsInCache($bucketName, $items);
-                    }
-
-                    if (null !== $this->commandHandlerLogger) {
-                        $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
-                    }
-
-                    return true;
-                }
-
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
-                }
-
-                return false;
-            } catch (S3Exception $e) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-                }
-
-                throw $e;
+        if (false === $this->client->hasBucket(['bucket' => $bucketName])) {
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' does not exists', $bucketName), 'warning');
             }
+
+            return false;
         }
 
-        if (null !== $this->commandHandlerLogger) {
-            $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was not found', $bucketName), 'warning');
-        }
+        try {
+            $this->client->clearBucket(['bucket' => $bucketName]);
+            $delete = $this->client->getConn()->deleteBucket(['Bucket' => $bucketName]);
 
-        return false;
+            if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
+                if (null !== $this->commandHandlerLogger) {
+                    $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
+                }
+
+                return true;
+            }
+
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
+            }
+
+            return false;
+        } catch (S3Exception $e) {
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -77,16 +73,5 @@ class DeleteBucket extends CommandHandler
     public function validateParams($params = [])
     {
         return (isset($params['bucket']));
-    }
-
-    /**
-     * @param string $bucketName
-     * @param array  $items
-     */
-    private function removeItemsInCache($bucketName, $items)
-    {
-        foreach ($items as $key) {
-            $this->client->getCache()->remove($bucketName, $key);
-        }
     }
 }

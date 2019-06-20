@@ -79,8 +79,6 @@ class CacheStatsCommand extends Command
         foreach ($tableFeed as $prefix => $data) {
             $count = (int)$data['count'];
 
-
-
             $files = implode(PHP_EOL, array_keys($data['files']));
             $enabled = implode(PHP_EOL, $data['files']);
             $enabled = str_replace('1', '<fg=green>✓</>', $enabled);

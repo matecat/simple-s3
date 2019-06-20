@@ -38,47 +38,47 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
             throw new InvalidS3NameException(sprintf('%s is not a valid bucket name. ['.implode(', ', S3BucketNameValidator::validate($bucketName)).']', $bucketName));
         }
 
-        if (false === $this->client->hasBucket(['bucket' => $bucketName])) {
-            try {
-                $bucket = $this->client->getConn()->createBucket([
-                    'Bucket' => $bucketName
-                ]);
-
-                if (isset($params['rules']) and count($params['rules']) > 0) {
-                    $this->client->setBucketLifecycleConfiguration(['bucket' => $bucketName, 'rules' => $params['rules']]);
-                }
-
-                if (isset($params['accelerate']) and true === $params['accelerate']) {
-                    $this->client->enableAcceleration(['bucket' => $bucketName]);
-                }
-
-                if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
-                    if (null !== $this->commandHandlerLogger) {
-                        $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully created', $bucketName));
-                    }
-
-                    return true;
-                }
-
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName), 'warning');
-                }
-
-                return false;
-            } catch (S3Exception $e) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-                }
-
-                throw $e;
+        if (true === $this->client->hasBucket(['bucket' => $bucketName])) {
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' already exists', $bucketName), 'warning');
             }
+
+            return false;
         }
 
-        if (null !== $this->commandHandlerLogger) {
-            $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' already exists', $bucketName), 'warning');
-        }
+        try {
+            $bucket = $this->client->getConn()->createBucket([
+                    'Bucket' => $bucketName
+            ]);
 
-        return false;
+            if (isset($params['rules']) and count($params['rules']) > 0) {
+                $this->client->setBucketLifecycleConfiguration(['bucket' => $bucketName, 'rules' => $params['rules']]);
+            }
+
+            if (isset($params['accelerate']) and true === $params['accelerate']) {
+                $this->client->enableAcceleration(['bucket' => $bucketName]);
+            }
+
+            if (($bucket instanceof ResultInterface) and $bucket['@metadata']['statusCode'] === 200) {
+                if (null !== $this->commandHandlerLogger) {
+                    $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully created', $bucketName));
+                }
+
+                return true;
+            }
+
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName), 'warning');
+            }
+
+            return false;
+        } catch (S3Exception $e) {
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
