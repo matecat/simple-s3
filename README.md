@@ -190,8 +190,16 @@ $s3Client->getItemsInABucket('your-bucket');
 
 If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands avaliable:
 
-* ```ss3:cache:flush``` - flush all data stored in cache
-* ```ss3:cache:stats``` - get the cache statistics
+*  ```ss3:batch:transfer```  Transfer files from/to a bucket.
+*  ```ss3:bucket:clear```    Clears a bucket.
+*  ```ss3:bucket:create```   Creates a bucket.
+*  ```ss3:bucket:delete```   Deletes a bucket.
+*  ```ss3:cache:flush```     Flush all data stored in cache.
+*  ```ss3:cache:stats```     Get the cache statistics.
+*  ```ss3:item:copy```       Copy an object from a bucket to another one.
+*  ```ss3:item:delete```     Deletes an object from a bucket.
+*  ```ss3:item:download```   Download an object from a bucket.
+*  ```ss3:item:upload```     Upload an object into a bucket.
 
 You can register the commands in your app, consider this example:
 
@@ -200,17 +208,7 @@ You can register the commands in your app, consider this example:
 <?php
 set_time_limit(0);
 
-require __DIR__.'/../vendor/autoload.php';
-
-$config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-$s3Client = new \SimpleS3\Client(
-    $config['ACCESS_KEY_ID'],
-    $config['SECRET_KEY'],
-    [
-        'version' => $config['VERSION'],
-        'region' => $config['REGION'],
-    ]
-);
+...
 
 $redis = new Predis\Client();
 $cacheAdapter = new \SimpleS3\Components\Cache\RedisCache($redis);
@@ -220,8 +218,16 @@ $s3Client->addCache($cacheAdapter);
 $app = new \Symfony\Component\Console\Application('Simple S3', 'console tool');
 
 // add commands here
+$app->add(new \SimpleS3\Console\BatchTransferCommand($s3Client));
+$app->add(new \SimpleS3\Console\BucketClearCommand($s3Client));
+$app->add(new \SimpleS3\Console\BucketCreateCommand($s3Client));
+$app->add(new \SimpleS3\Console\BucketDeleteCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheFlushCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheStatsCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemCopyCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemDeleteCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemDownloadCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemUploadCommand($s3Client));
 
 $app->run();
 ```

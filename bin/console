@@ -22,6 +22,7 @@ $s3Client->addCache($cacheAdapter);
 $app = new \Symfony\Component\Console\Application('Simple S3', 'console tool');
 
 // add commands here
+$app->add(new \SimpleS3\Console\BatchTransferCommand($s3Client));
 $app->add(new \SimpleS3\Console\BucketClearCommand($s3Client));
 $app->add(new \SimpleS3\Console\BucketCreateCommand($s3Client));
 $app->add(new \SimpleS3\Console\BucketDeleteCommand($s3Client));
