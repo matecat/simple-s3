@@ -42,7 +42,7 @@ class GetItemsInABucket extends CommandHandler
                     $params['prefix'] .= DIRECTORY_SEPARATOR;
                 }
 
-                $config['Delimiter'] = DIRECTORY_SEPARATOR;
+                $config['Delimiter'] = (isset($params['delimiter'])) ? $params['delimiter'] : DIRECTORY_SEPARATOR;
                 $config['Prefix'] = $params['prefix'];
             }
 
