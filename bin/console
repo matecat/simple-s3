@@ -22,7 +22,14 @@ $s3Client->addCache($cacheAdapter);
 $app = new \Symfony\Component\Console\Application('Simple S3', 'console tool');
 
 // add commands here
+$app->add(new \SimpleS3\Console\BucketClearCommand($s3Client));
+$app->add(new \SimpleS3\Console\BucketCreateCommand($s3Client));
+$app->add(new \SimpleS3\Console\BucketDeleteCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheFlushCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheStatsCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemCopyCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemDeleteCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemDownloadCommand($s3Client));
+$app->add(new \SimpleS3\Console\ItemUploadCommand($s3Client));
 
 $app->run();
