@@ -72,7 +72,7 @@ class GetItem extends CommandHandler
                 'Key'    => $keyName
             ];
 
-            if(null != $version){
+            if (null != $version) {
                 $config['VersionId'] = $version;
             }
 
@@ -99,7 +99,7 @@ class GetItem extends CommandHandler
                 'Key'    => $keyName
             ];
 
-            if(null != $version){
+            if (null != $version) {
                 $config['VersionId'] = $version;
             }
 

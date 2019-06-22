@@ -39,7 +39,7 @@ class GetCurrentItemVersion extends CommandHandler
             'Prefix' => $prefix
         ]);
 
-        if(false === isset($results['Versions'])){
+        if (false === isset($results['Versions'])) {
             return null;
         }
 
@@ -48,7 +48,7 @@ class GetCurrentItemVersion extends CommandHandler
         }
 
         foreach ($results['Versions'] as $result) {
-            if(true === $result['IsLatest'] and $keyName === $result['Key']){
+            if (true === $result['IsLatest'] and $keyName === $result['Key']) {
                 return $result['VersionId'];
             }
         }

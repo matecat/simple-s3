@@ -43,7 +43,7 @@ class CopyItem extends CommandHandler
 
         // EVERY SOURCE MUST BE URLENCODED
         $e = [];
-        foreach (explode(DIRECTORY_SEPARATOR, $sourceKeyname) as $word){
+        foreach (explode(DIRECTORY_SEPARATOR, $sourceKeyname) as $word) {
             $e[] = urlencode($word);
         }
 
@@ -56,7 +56,7 @@ class CopyItem extends CommandHandler
                 'CopySource' => $copySource,
             ];
 
-            if($this->client->isBucketVersioned(['bucket' => $sourceBucket])){
+            if ($this->client->isBucketVersioned(['bucket' => $sourceBucket])) {
                 $version = $this->client->getCurrentItemVersion(['bucket' => $sourceBucket, 'key' => $params['source']]);
                 $config['CopySource'] = $copySource . '?versionId='.$version;
             }

@@ -43,7 +43,7 @@ class DeleteItem extends CommandHandler
                 'Key'    => $keyName,
             ];
 
-            if(null != $version){
+            if (null != $version) {
                 $config['VersionId'] = $version;
             }
 

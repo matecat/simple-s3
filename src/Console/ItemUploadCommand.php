@@ -49,12 +49,12 @@ class ItemUploadCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->uploadItem(['bucket' => $bucket, 'key' => $key, 'source' => $src])){
+            if (true === $this->s3Client->uploadItem(['bucket' => $bucket, 'key' => $key, 'source' => $src])) {
                 $io->success('The item was successfully uploaded');
             } else {
                 $io->error('There was an error in the upload of the item');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

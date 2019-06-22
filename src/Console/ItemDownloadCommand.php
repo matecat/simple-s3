@@ -49,16 +49,16 @@ class ItemDownloadCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->downloadItem([
+            if (true === $this->s3Client->downloadItem([
                 'bucket' => $bucket,
                 'key' => $key,
                 'save_as' => $saveAs
-            ])){
+            ])) {
                 $io->success('The item was successfully downloaded into ['.$saveAs.']');
             } else {
                 $io->error('There was an error in the download of the item');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

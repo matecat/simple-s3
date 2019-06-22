@@ -110,7 +110,11 @@ class UploadItem extends CommandHandler
                         $command['StorageClass'] = $params['storage'];
                     }
 
-                    $command['Metadata'] = [ 'original_name' => File::getBaseName($keyName) ];
+                    if ((isset($params['Metadata']))) {
+                        $command['Metadata'] = $params['meta'];
+                    }
+
+                    $command['Metadata'][ 'original_name'] = File::getBaseName($keyName);
                     $command['MetadataDirective'] =  'REPLACE';
                 }
             ]
@@ -134,7 +138,7 @@ class UploadItem extends CommandHandler
             // update cache
             if ((!isset($params['storage'])) and $this->client->hasCache()) {
                 $version = null;
-                if(isset($upload['@metadata']['headers']['x-amz-version-id'])){
+                if (isset($upload['@metadata']['headers']['x-amz-version-id'])) {
                     $version = $upload['@metadata']['headers']['x-amz-version-id'];
                 }
 

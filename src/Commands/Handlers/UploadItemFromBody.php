@@ -52,7 +52,7 @@ class UploadItemFromBody extends CommandHandler
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
-        return $this->upload($bucketName, $keyName, $body, (isset($params['storage'])) ? $params['storage'] : null);
+        return $this->upload($bucketName, $keyName, $body, (isset($params['storage'])) ? $params['storage'] : null, (isset($params['meta'])) ? $params['meta'] : null);
     }
 
     /**
@@ -74,26 +74,30 @@ class UploadItemFromBody extends CommandHandler
      * @param string $keyName
      * @param string $body
      * @param null $storage
+     * @param null $meta
      *
      * @return bool
      * @throws \Exception
      */
-    private function upload($bucketName, $keyName, $body, $storage = null)
+    private function upload($bucketName, $keyName, $body, $storage = null, $meta = null)
     {
         try {
             $config = [
                 'Bucket' => $bucketName,
                 'Key'    => $keyName,
                 'Body'   => $body,
-                'Metadata' => [
-                    'original_name' => File::getBaseName($keyName),
-                ],
                 'MetadataDirective' => 'REPLACE',
             ];
 
             if (null != $storage) {
                 $config['StorageClass'] = $storage;
             }
+
+            if (null != $meta) {
+                $config['Metadata'] = $meta;
+            }
+
+            $config['Metadata']['original_name'] = File::getBaseName($keyName);
 
             $result = $this->client->getConn()->putObject($config);
 
@@ -104,7 +108,7 @@ class UploadItemFromBody extends CommandHandler
 
                 if (null == $storage and $this->client->hasCache()) {
                     $version = null;
-                    if(isset($result['@metadata']['headers']['x-amz-version-id'])){
+                    if (isset($result['@metadata']['headers']['x-amz-version-id'])) {
                         $version = $result['@metadata']['headers']['x-amz-version-id'];
                     }
 

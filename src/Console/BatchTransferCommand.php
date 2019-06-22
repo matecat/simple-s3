@@ -60,7 +60,7 @@ class BatchTransferCommand extends Command
 
         try {
             $manager = new Transfer($this->s3Client->getConn(), $src, $dest, [
-                'before' => function(CommandInterface $command) use($output, $from, $to) {
+                'before' => function (CommandInterface $command) use ($output, $from, $to) {
                     $output->writeln('Transferring <fg=green>['.$command['Key'].']</> from '. $from .' to ' . $to);
                 }
             ]);
@@ -68,7 +68,7 @@ class BatchTransferCommand extends Command
 
             $output->writeln('');
             $io->success('The files were successfully transfered');
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

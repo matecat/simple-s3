@@ -98,7 +98,6 @@ class GetItemsInABucket extends CommandHandler
         // hydrate the key with the entire AWS\Result Object
         $items = [];
         foreach ($itemsFromCache as $key) {
-
             $version = null;
             $originalKey = $key;
 
@@ -130,7 +129,7 @@ class GetItemsInABucket extends CommandHandler
      */
     private function returnItemsFromS3($bucketName, $config, $hydrate = null)
     {
-        if($this->client->isBucketVersioned(['bucket' => $bucketName])){
+        if ($this->client->isBucketVersioned(['bucket' => $bucketName])) {
             return $this->returnVersionedItemsFromS3($bucketName, $config, $hydrate);
         }
 
@@ -181,7 +180,7 @@ class GetItemsInABucket extends CommandHandler
         $results = $this->client->getConn()->listObjectVersions($config);
         $items = [];
 
-        if(false === isset($results['Versions'])){
+        if (false === isset($results['Versions'])) {
             return $items;
         }
 

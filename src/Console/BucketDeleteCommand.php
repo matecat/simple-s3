@@ -45,12 +45,12 @@ class BucketDeleteCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->deleteBucket(['bucket' => $bucket])){
+            if (true === $this->s3Client->deleteBucket(['bucket' => $bucket])) {
                 $io->success('The bucket was successfully deleted');
             } else {
                 $io->error('There was an error in deleting bucket');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

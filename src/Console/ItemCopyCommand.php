@@ -51,17 +51,17 @@ class ItemCopyCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->copyItem([
+            if (true === $this->s3Client->copyItem([
                 'source_bucket' => $sourceBucket,
                 'source' => $sourceKey,
                 'target_bucket' => $targetBucket,
                 'target' => $targetKey,
-            ])){
+            ])) {
                 $io->success('The item was successfully copied');
             } else {
                 $io->error('There was an error during copying the item');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

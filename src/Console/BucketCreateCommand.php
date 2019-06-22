@@ -45,12 +45,12 @@ class BucketCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $bucket])){
+            if (true === $this->s3Client->createBucketIfItDoesNotExist(['bucket' => $bucket])) {
                 $io->success('The bucket was successfully created');
             } else {
                 $io->error('There was an error in creating bucket');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

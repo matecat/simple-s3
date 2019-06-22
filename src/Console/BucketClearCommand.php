@@ -45,12 +45,12 @@ class BucketClearCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->clearBucket(['bucket' => $bucket])){
+            if (true === $this->s3Client->clearBucket(['bucket' => $bucket])) {
                 $io->success('The bucket was successfully cleared');
             } else {
                 $io->error('There was an error in clearing bucket');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

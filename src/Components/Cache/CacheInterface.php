@@ -54,7 +54,7 @@ interface CacheInterface
      * @param null   $version
      * @param null   $ttl
      */
-    public function set( $bucket, $keyname, $content, $version = null, $ttl = null);
+    public function set($bucket, $keyname, $content, $version = null, $ttl = null);
 
     /**
      * @param string $bucket

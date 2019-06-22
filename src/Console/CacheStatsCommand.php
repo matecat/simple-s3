@@ -69,7 +69,7 @@ class CacheStatsCommand extends Command
                     $index = $this->getDirName($inCache[0]);
 
                     $files = [];
-                    foreach ($inCache as $item){
+                    foreach ($inCache as $item) {
                         $files[$item] =  $this->s3Client->getConn()->doesObjectExist($bucket, $item);
                     }
 
@@ -97,8 +97,7 @@ class CacheStatsCommand extends Command
                 ]);
             }
             $table->render();
-
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io = new SymfonyStyle($input, $output);
             $io->error('No results were found');
         }

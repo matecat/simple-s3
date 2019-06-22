@@ -47,12 +47,12 @@ class ItemDeleteCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         try {
-            if(true === $this->s3Client->deleteItem(['bucket' => $bucket, 'key' => $key])){
+            if (true === $this->s3Client->deleteItem(['bucket' => $bucket, 'key' => $key])) {
                 $io->success('The item was successfully cleared');
             } else {
                 $io->error('There was an error in deleting the item');
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
     }

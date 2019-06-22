@@ -45,7 +45,7 @@ class RedisCache implements CacheInterface
      */
     public function get($bucket, $keyname, $version = null)
     {
-        if(null != $version){
+        if (null != $version) {
             $keyname .= '<VERSION_ID:'.$version.'>';
         }
 
@@ -61,7 +61,7 @@ class RedisCache implements CacheInterface
      */
     public function has($bucket, $keyname, $version = null)
     {
-        if(null != $version){
+        if (null != $version) {
             $keyname .= '<VERSION_ID:'.$version.'>';
         }
 
@@ -75,7 +75,7 @@ class RedisCache implements CacheInterface
      */
     public function remove($bucket, $keyname, $version = null)
     {
-        if(null != $version){
+        if (null != $version) {
             $keyname .= '<VERSION_ID:'.$version.'>';
         }
 
@@ -102,7 +102,7 @@ class RedisCache implements CacheInterface
      */
     public function set($bucket, $keyname, $content, $version = null, $ttl = null)
     {
-        if(null != $version){
+        if (null != $version) {
             $keyname .= '<VERSION_ID:'.$version.'>';
         }
 
@@ -122,7 +122,7 @@ class RedisCache implements CacheInterface
      */
     public function ttl($bucket, $keyname, $version = null)
     {
-        if(null != $version){
+        if (null != $version) {
             $keyname .= '<VERSION_ID:'.$version.'>';
         }
 
