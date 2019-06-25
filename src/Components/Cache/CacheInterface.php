@@ -41,7 +41,6 @@ interface CacheInterface
     /**
      * @param string $bucket
      * @param string $keyname
-     * @param null $version
      *
      * @return array
      */
@@ -55,6 +54,11 @@ interface CacheInterface
      * @param null   $ttl
      */
     public function set($bucket, $keyname, $content, $version = null, $ttl = null);
+
+    /**
+     * @param string $separator
+     */
+    public function setPrefixSeparator($separator);
 
     /**
      * @param string $bucket

@@ -42,12 +42,12 @@ class CopyItem extends CommandHandler
         }
 
         // EVERY SOURCE MUST BE URLENCODED
-        $e = [];
-        foreach (explode(DIRECTORY_SEPARATOR, $sourceKeyname) as $word) {
-            $e[] = urlencode($word);
+        $encoded = [];
+        foreach (explode($this->client->getPrefixSeparator(), $sourceKeyname) as $word) {
+            $encoded[] = urlencode($word);
         }
 
-        $copySource = $sourceBucket . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $e);
+        $copySource = $sourceBucket . $this->client->getPrefixSeparator() . implode($this->client->getPrefixSeparator(), $encoded);
 
         try {
             $config = [
@@ -80,12 +80,12 @@ class CopyItem extends CommandHandler
             }
 
             return false;
-        } catch (S3Exception $e) {
+        } catch (S3Exception $encoded) {
             if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($encoded);
             }
 
-            throw $e;
+            throw $encoded;
         }
     }
 

@@ -37,8 +37,8 @@ class CreateFolder extends CommandHandler
             $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
-        if (false === File::endsWithSlash($keyName)) {
-            $keyName .= DIRECTORY_SEPARATOR;
+        if (false === File::endsWith($keyName, $this->client->getPrefixSeparator())) {
+            $keyName .= $this->client->getPrefixSeparator();
         }
 
         try {

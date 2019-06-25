@@ -8,6 +8,11 @@ use SimpleS3\Helpers\File;
 class RedisCache implements CacheInterface
 {
     /**
+     * @var string
+     */
+    private $prefixSeparator = DIRECTORY_SEPARATOR;
+
+    /**
      * @var Redis
      */
     private $redisClient;
@@ -114,6 +119,14 @@ class RedisCache implements CacheInterface
     }
 
     /**
+     * @param string $separator
+     */
+    public function setPrefixSeparator($separator)
+    {
+        $this->prefixSeparator = $separator;
+    }
+
+    /**
      * @param string $bucket
      * @param string $keyname
      * @param null $version
@@ -147,12 +160,12 @@ class RedisCache implements CacheInterface
      */
     private function getDirName($item)
     {
-        if (File::endsWithSlash($item)) {
+        if (File::endsWith($item, $this->prefixSeparator)) {
             return $item;
         }
 
         $fileInfo = File::getPathInfo($item);
 
-        return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
+        return $fileInfo['dirname'] . $this->prefixSeparator;
     }
 }

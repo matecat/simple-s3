@@ -35,9 +35,9 @@ class File
      *
      * @return bool
      */
-    public static function endsWithSlash($string)
+    public static function endsWith($string, $separator)
     {
-        return substr($string, -1) === DIRECTORY_SEPARATOR;
+        return substr($string, -1) === $separator;
     }
 
     /**

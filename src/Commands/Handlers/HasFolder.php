@@ -36,8 +36,8 @@ class HasFolder extends CommandHandler
             $prefix = $this->client->getEncoder()->encode($prefix);
         }
 
-        if (false === File::endsWithSlash($prefix)) {
-            $prefix .= DIRECTORY_SEPARATOR;
+        if (false === File::endsWith($prefix, $this->client->getPrefixSeparator())) {
+            $prefix .= $this->client->getPrefixSeparator();
         }
 
         if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $prefix)) {

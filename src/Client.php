@@ -39,7 +39,7 @@ use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  * @method bool enableAcceleration(array $input)
  * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
  * @method int|mixed getBucketSize(array $input)
- * @method int|mixed getCurrentItemVersion(array $input)
+ * @method null|string getCurrentItemVersion(array $input)
  * @method ResultInterface|mixed getItem(array $input)
  * @method array|mixed getItemsInABucket(array $input)
  * @method mixed|UriInterface getPublicItemLink(array $input)
@@ -59,6 +59,11 @@ use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  */
 final class Client
 {
+    /**
+     * @var string
+     */
+    private $prefixSeparator = DIRECTORY_SEPARATOR;
+
     /**
      * @var CacheInterface
      */
@@ -133,6 +138,7 @@ final class Client
     public function addCache(CacheInterface $cache)
     {
         $this->cache = $cache;
+        $this->cache->setPrefixSeparator($this->prefixSeparator);
     }
 
     /**
@@ -221,5 +227,21 @@ final class Client
     public function hasSslVerify()
     {
         return $this->sslVerify;
+    }
+
+    /**
+     * @var string
+     */
+    public function setPrefixSeparator($separator)
+    {
+        $this->prefixSeparator = $separator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefixSeparator()
+    {
+        return $this->prefixSeparator;
     }
 }

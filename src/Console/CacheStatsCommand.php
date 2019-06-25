@@ -110,12 +110,12 @@ class CacheStatsCommand extends Command
      */
     private function getDirName($item)
     {
-        if (File::endsWithSlash($item)) {
+        if (File::endsWith($item, $this->s3Client->getPrefixSeparator())) {
             return $item;
         }
 
         $fileInfo = File::getPathInfo($item);
 
-        return $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
+        return $fileInfo['dirname'] . $this->s3Client->getPrefixSeparator();
     }
 }

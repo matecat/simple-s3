@@ -132,15 +132,6 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_copy_an_item()
     {
-//        $source = __DIR__ . '/support/files/txt/test.txt';
-//        $upload = $this->s3Client->uploadItem([
-//            'bucket' => $this->bucket,
-//            'key' => 'folder/test.txt',
-//            'source' => $source
-//        ]);
-//
-//        $this->assertTrue($upload);
-
         $copied = $this->s3Client->copyItem([
             'source_bucket' => $this->bucket,
             'source' => 'folder/仿宋人笔意.txt',

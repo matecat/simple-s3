@@ -31,8 +31,8 @@ class DeleteFolder extends CommandHandler
         $bucketName = $params['bucket'];
         $prefix = $params['prefix'];
 
-        if (false === File::endsWithSlash($prefix)) {
-            $prefix .= DIRECTORY_SEPARATOR;
+        if (false === File::endsWith($prefix, $this->client->getPrefixSeparator())) {
+            $prefix .= $this->client->getPrefixSeparator();
         }
 
         try {

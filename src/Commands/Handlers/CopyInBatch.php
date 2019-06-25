@@ -70,7 +70,7 @@ class CopyInBatch extends CommandHandler
             $commands[] = $this->client->getConn()->getCommand('CopyObject', [
                 'Bucket'     => $targetBucket,
                 'Key'        => $targetKey,
-                'CopySource' => $params['source_bucket'] . DIRECTORY_SEPARATOR . $file,
+                'CopySource' => $params['source_bucket'] . $this->client->getPrefixSeparator() . $file,
             ]);
         }
 

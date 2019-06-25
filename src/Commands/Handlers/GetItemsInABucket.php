@@ -38,11 +38,11 @@ class GetItemsInABucket extends CommandHandler
             if (isset($params['prefix'])) {
 
                 // add a final slash to prefix
-                if (false === File::endsWithSlash($params['prefix'])) {
-                    $params['prefix'] .= DIRECTORY_SEPARATOR;
+                if (false === File::endsWith($params['prefix'], $this->client->getPrefixSeparator())) {
+                    $params['prefix'] .= $this->client->getPrefixSeparator();
                 }
 
-                $config['Delimiter'] = (isset($params['delimiter'])) ? $params['delimiter'] : DIRECTORY_SEPARATOR;
+                $config['Delimiter'] = (isset($params['delimiter'])) ? $params['delimiter'] : $this->client->getPrefixSeparator();
                 $config['Prefix'] = $params['prefix'];
             }
 
@@ -141,7 +141,7 @@ class GetItemsInABucket extends CommandHandler
                 for ($i = 0; $i < count($contents); $i++) {
                     $key = $contents[$i]['Key'];
 
-                    if (false === File::endsWithSlash($key)) {
+                    if (false === File::endsWith($key, $this->client->getPrefixSeparator())) {
                         if ($this->client->hasEncoder()) {
                             $key = $this->client->getEncoder()->decode($key);
                         }
@@ -188,7 +188,7 @@ class GetItemsInABucket extends CommandHandler
             $key = $result['Key'];
             $version = $result['VersionId'];
 
-            if (false === File::endsWithSlash($key)) {
+            if (false === File::endsWith($key, $this->client->getPrefixSeparator())) {
                 if ($this->client->hasEncoder()) {
                     $key = $this->client->getEncoder()->decode($key);
                 }

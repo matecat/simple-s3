@@ -14,7 +14,7 @@ namespace SimpleS3\Commands\Handlers;
 use Aws\ResultInterface;
 use SimpleS3\Commands\CommandHandler;
 
-class setBucketVersioning extends CommandHandler
+class SetBucketVersioning extends CommandHandler
 {
     /**
      * Enable versioning for a bucket.

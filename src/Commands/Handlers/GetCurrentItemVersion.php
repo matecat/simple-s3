@@ -23,7 +23,7 @@ class GetCurrentItemVersion extends CommandHandler
      *
      * @param array $params
      *
-     * @return string
+     * @return null|string
      * @throws \Exception
      */
     public function handle($params = [])
@@ -32,7 +32,7 @@ class GetCurrentItemVersion extends CommandHandler
         $keyName = $params['key'];
 
         $fileInfo = File::getPathInfo($keyName);
-        $prefix = $fileInfo['dirname'] . DIRECTORY_SEPARATOR;
+        $prefix = $fileInfo['dirname'] . $this->client->getPrefixSeparator();
 
         $results = $this->client->getConn()->listObjectVersions([
             'Bucket' => $bucketName,
