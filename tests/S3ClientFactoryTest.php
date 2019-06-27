@@ -17,10 +17,6 @@ class S3ClientFactoryTest extends PHPUnit_Framework_TestCase
                 'not-allowed-key' => 'xxxx',
                 'version' => $config['VERSION'],
                 'region' => $config['REGION'],
-                'credentials' => [
-                    'key' => $config['ACCESS_KEY_ID'],
-                    'secret' => $config['SECRET_KEY']
-                ]
             ]
         );
     }
@@ -39,6 +35,22 @@ class S3ClientFactoryTest extends PHPUnit_Framework_TestCase
                     'key' => $config['ACCESS_KEY_ID'],
                     'secret' => $config['SECRET_KEY']
                 ]
+            ]
+        );
+
+        $this->assertInstanceOf(S3Client::class, $client);
+    }
+
+    /**
+     * @test
+     */
+    public function test_it_initialize_without_credentials_S3Client()
+    {
+        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
+        $client = ClientFactory::create(
+            [
+                'version' => $config['VERSION'],
+                'region' => $config['REGION'],
             ]
         );
 

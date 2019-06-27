@@ -55,12 +55,10 @@ final class ClientFactory
      *
      * @return S3Client
      */
-    public static function create(
-        array $config = []
-    ) {
-        self::validateConfig($config);
+    public static function create(array $config = []) {
+       self::validateConfig($config);
 
-        return new S3Client(self::createConfigArray($config));
+       return new S3Client(self::createConfigArray($config));
     }
 
     /**
@@ -73,11 +71,13 @@ final class ClientFactory
     private static function createConfigArray(array $config)
     {
         $credentials = self::getCredentials($config);
-        $config['credentials'] = new Credentials(
-            $credentials['key'],
-            $credentials['secret'],
-            $credentials['token']
-        );
+        if(!empty($credentials)){
+            $config['credentials'] = new Credentials(
+                $credentials['key'],
+                $credentials['secret'],
+                $credentials['token']
+            );
+        }
 
         return $config;
     }
@@ -125,7 +125,16 @@ final class ClientFactory
      */
     private static function getCredentials(array $config)
     {
-        // 1. IAM
+        // 1. credentials
+        if (isset($config['credentials']['key']) and isset($config['credentials']['secret'])) {
+            return [
+                    'key'    => $config['credentials']['key'],
+                    'secret' => $config['credentials']['secret'],
+                    'token'  => isset($config['credentials']['token']) ? $config['credentials']['token'] : null
+            ];
+        }
+
+        // 2. IAM
         if (isset($config['iam'])) {
             $stsClient = new StsClient([
                 'profile' => (isset($config['profile'])) ? $config['profile'] : 'default',
@@ -145,25 +154,15 @@ final class ClientFactory
             ];
         }
 
-        // 2. credentials
-        if (isset($config['credentials']['key']) and isset($config['credentials']['secret'])) {
-            return [
-                'key'    => $config['credentials']['key'],
-                'secret' => $config['credentials']['secret'],
-                'token'  => isset($config['credentials']['token']) ? $config['credentials']['token'] : null
-            ];
-        }
-
         // 3. env
-        if (null !== getenv('AWS_ACCESS_KEY_ID') and null !== getenv('AWS_SECRET_ACCESS_KEY')) {
+        if (false !== getenv('AWS_ACCESS_KEY_ID') and false !== getenv('AWS_SECRET_ACCESS_KEY')) {
             return [
                 'key'    => getenv('AWS_ACCESS_KEY_ID'),
                 'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
-                'token'  => (null !== getenv('AWS_SESSION_TOKEN')) ? getenv('AWS_SESSION_TOKEN') : null
+                'token'  => (false !== getenv('AWS_SESSION_TOKEN')) ? getenv('AWS_SESSION_TOKEN') : null
             ];
         }
 
-        // 4. exception
-        throw new \InvalidArgumentException('S3 credentials not found');
+        return [];
     }
 }

@@ -15,9 +15,9 @@ To instantiate the Client do the following:
 use SimpleS3\Client;
 
 $s3Client = new Client([
-    'version' => 'latest',
-    'region' => 'us-west-2',
-    'credentials' => [ // OPTIONAL IF YOU HAVE SET YOUR ENVIRONMENT VARIABLES
+    'version' => 'latest',   // REQUIRED 
+    'region' => 'us-west-2', // REQUIRED
+    'credentials' => [       // OPTIONAL 
         'key' => 'YOUR-ACCESS-KEY', 
         'secret' => 'YOUR-SECRET-KEY', 
         'token' => 'SESSION-TOKEN', 

@@ -94,9 +94,7 @@ final class Client
      *
      * @param array $config
      */
-    public function __construct(
-        array $config
-    ) {
+    public function __construct(array $config) {
         $this->s3 = ClientFactory::create($config);
     }
 
