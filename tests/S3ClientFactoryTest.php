@@ -13,12 +13,14 @@ class S3ClientFactoryTest extends PHPUnit_Framework_TestCase
     {
         $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
         ClientFactory::create(
-            $config['ACCESS_KEY_ID'],
-            $config['SECRET_KEY'],
             [
                 'not-allowed-key' => 'xxxx',
                 'version' => $config['VERSION'],
                 'region' => $config['REGION'],
+                'credentials' => [
+                    'key' => $config['ACCESS_KEY_ID'],
+                    'secret' => $config['SECRET_KEY']
+                ]
             ]
         );
     }
@@ -30,11 +32,13 @@ class S3ClientFactoryTest extends PHPUnit_Framework_TestCase
     {
         $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
         $client = ClientFactory::create(
-            $config['ACCESS_KEY_ID'],
-            $config['SECRET_KEY'],
             [
                 'version' => $config['VERSION'],
                 'region' => $config['REGION'],
+                'credentials' => [
+                    'key' => $config['ACCESS_KEY_ID'],
+                    'secret' => $config['SECRET_KEY']
+                ]
             ]
         );
 

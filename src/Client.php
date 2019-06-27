@@ -92,16 +92,12 @@ final class Client
     /**
      * Client constructor.
      *
-     * @param string $accessKeyId
-     * @param string $secretKey
      * @param array $config
      */
     public function __construct(
-        $accessKeyId,
-        $secretKey,
         array $config
     ) {
-        $this->s3 = ClientFactory::create($accessKeyId, $secretKey, $config);
+        $this->s3 = ClientFactory::create($config);
     }
 
     /**

@@ -14,19 +14,40 @@ To instantiate the Client do the following:
 ```php
 use SimpleS3\Client;
 
-$s3Client = new Client(
-    $access_key_id,
-    $secret_key,
-    $config = [
-        'version' => $verion,
-        'region' => $region,
+$s3Client = new Client([
+    'version' => 'latest',
+    'region' => 'us-west-2',
+    'credentials' => [ // OPTIONAL IF YOU HAVE SET YOUR ENVIRONMENT VARIABLES
+        'key' => 'YOUR-ACCESS-KEY', 
+        'secret' => 'YOUR-SECRET-KEY', 
+        'token' => 'SESSION-TOKEN', 
     ]
-);
+];
 ```
 
-You MUST provide your ```$access_key_id``` and ```$secret_key```, plus an optional ```$config``` array.
+Please note that if you don't provide the credentials array, the Client will try to [get values 
+from the following environments variables on your system as the original S3Client](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/guide_credentials_environment.html):
 
-For further details please refer to the official documentation:
+* `AWS_ACCESS_KEY_ID`
+* `AWS_SECRET_ACCESS_KEY`
+* `AWS_SESSION_TOKEN`
+
+If you instead want to authenticate assuming an IAM Role in another AWS Account do the following:
+
+```php
+use SimpleS3\Client;
+
+$s3Client = new Client([
+    'version' => 'latest',
+    'region' => 'us-west-2',
+    'iam' => [ 
+        'arn' => 'arn:aws:iam::123456789012:role/xaccounts3acces', 
+        'session' => 's3-access-example', 
+    ]
+];
+```
+
+For further config details please refer to the official documentation:
 
 [Configuration for the AWS SDK for PHP Version 3](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/guide_configuration.html#credentials)
 
