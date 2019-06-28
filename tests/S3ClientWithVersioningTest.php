@@ -134,25 +134,17 @@ class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_copy_an_item()
     {
+        $keyname = 'folder/test.txt';
+        $source = __DIR__ . '/support/files/txt/test.txt';
+        $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $keyname, 'source' => $source]);
+
         $copied = $this->s3Client->copyItem([
             'source_bucket' => $this->bucket,
-            'source' => 'folder/仿宋人笔意.txt',
+            'source' => 'folder/test.txt',
             'target_bucket' => $this->bucket.'-copied',
             'target' => 'copied-file.txt'
         ]);
         $this->assertTrue($copied);
-    }
-
-    /**
-     * @test
-     * @throws Exception
-     */
-    public function test_the_client_deletes_all_the_items()
-    {
-        $this->assertTrue($this->s3Client->clearBucket(['bucket' => $this->bucket]));
-        $this->assertTrue($this->s3Client->clearBucket(['bucket' => $this->bucket.'-copied']));
-        $this->assertEquals(0, $this->s3Client->getBucketSize(['bucket' => $this->bucket]));
-        $this->assertEquals(0, $this->s3Client->getBucketSize(['bucket' => $this->bucket.'-copied']));
     }
 
     /**

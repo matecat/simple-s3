@@ -18,7 +18,7 @@ use Aws\ResultInterface;
 use GuzzleHttp\Promise\PromiseInterface;
 use SimpleS3\Commands\CommandHandler;
 
-class CopyInBatch extends CommandHandler
+class CopyInBatch extends CopyItem
 {
     /**
      * Copy in batch items from a bucket to another one.
@@ -59,19 +59,28 @@ class CopyInBatch extends CommandHandler
 
         foreach ($params['files']['source'] as $key => $file) {
             $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
+            $sourceBucket = $params['source_bucket'];
 
             if ($this->client->hasEncoder()) {
                 $targetKey = $this->client->getEncoder()->encode($targetKey);
                 $file = $this->client->getEncoder()->encode($file);
             }
 
+            $copySource = $this->getCopySource($sourceBucket, $file);
             $targetKeys[] = $targetKey;
 
-            $commands[] = $this->client->getConn()->getCommand('CopyObject', [
-                'Bucket'     => $targetBucket,
-                'Key'        => $targetKey,
-                'CopySource' => $params['source_bucket'] . $this->client->getPrefixSeparator() . $file,
-            ]);
+            $config = [
+                'Bucket' => $targetBucket,
+                'Key'    => $targetKey,
+                'CopySource' => $copySource,
+            ];
+
+            if ($this->client->isBucketVersioned(['bucket' => $sourceBucket])) {
+                $version = $this->client->getCurrentItemVersion(['bucket' => $sourceBucket, 'key' => $params['source']]);
+                $config['CopySource'] = $copySource . '?versionId='.$version;
+            }
+
+            $commands[] = $this->client->getConn()->getCommand('CopyObject', $config);
         }
 
         try {

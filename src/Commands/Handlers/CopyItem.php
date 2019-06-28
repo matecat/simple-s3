@@ -41,13 +41,7 @@ class CopyItem extends CommandHandler
             $sourceKeyname = $this->client->getEncoder()->encode($sourceKeyname);
         }
 
-        // EVERY SOURCE MUST BE URLENCODED
-        $encoded = [];
-        foreach (explode($this->client->getPrefixSeparator(), $sourceKeyname) as $word) {
-            $encoded[] = urlencode($word);
-        }
-
-        $copySource = $sourceBucket . $this->client->getPrefixSeparator() . implode($this->client->getPrefixSeparator(), $encoded);
+        $copySource = $this->getCopySource($sourceBucket, $sourceKeyname);
 
         try {
             $config = [
@@ -102,5 +96,25 @@ class CopyItem extends CommandHandler
             isset($params['source_bucket']) and
             isset($params['source'])
         );
+    }
+
+    /**
+     * @param string $sourceBucket
+     * @param string $sourceKeyname
+     *
+     * @return string
+     */
+    protected function getCopySource($sourceBucket, $sourceKeyname)
+    {
+        if ($this->client->hasEncoder()) {
+            return $sourceBucket . $this->client->getPrefixSeparator() . $sourceKeyname;
+        }
+
+        $encoded = [];
+        foreach (explode($this->client->getPrefixSeparator(), $sourceKeyname) as $word) {
+            $encoded[] = urlencode($word);
+        }
+
+        return $sourceBucket . $this->client->getPrefixSeparator() . implode($this->client->getPrefixSeparator(), $encoded);
     }
 }
