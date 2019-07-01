@@ -63,8 +63,6 @@ final class ClientFactory
     }
 
     /**
-     * @param string $accessKeyId
-     * @param string $secretKey
      * @param array $config
      *
      * @return array
@@ -129,9 +127,9 @@ final class ClientFactory
         // 1. credentials
         if (isset($config['credentials']['key']) and isset($config['credentials']['secret'])) {
             return [
-                    'key'    => $config['credentials']['key'],
-                    'secret' => $config['credentials']['secret'],
-                    'token'  => isset($config['credentials']['token']) ? $config['credentials']['token'] : null
+                'key'    => $config['credentials']['key'],
+                'secret' => $config['credentials']['secret'],
+                'token'  => isset($config['credentials']['token']) ? $config['credentials']['token'] : null
             ];
         }
 
@@ -143,7 +141,7 @@ final class ClientFactory
                 'version' => $config['version']
             ]);
 
-            $result = $stsClient->AssumeRole([
+            $result = $stsClient->assumeRole([
                 'RoleArn' => $config['iam']['arn'],
                 'RoleSessionName' => $config['iam']['session'],
             ]);
