@@ -27,13 +27,13 @@ class IsBucketVersioned extends CommandHandler
      */
     public function handle($params = [])
     {
-        try{
+        try {
             $ver = $this->client->getConn()->getBucketVersioning([
                     'Bucket' => $params['bucket']
             ]);
 
             return ($ver['Status'] === 'Enabled') ? true : false;
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             return false;
         }
     }

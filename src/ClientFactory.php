@@ -55,10 +55,11 @@ final class ClientFactory
      *
      * @return S3Client
      */
-    public static function create(array $config = []) {
-       self::validateConfig($config);
+    public static function create(array $config = [])
+    {
+        self::validateConfig($config);
 
-       return new S3Client(self::createConfigArray($config));
+        return new S3Client(self::createConfigArray($config));
     }
 
     /**
@@ -71,7 +72,7 @@ final class ClientFactory
     private static function createConfigArray(array $config)
     {
         $credentials = self::getCredentials($config);
-        if(!empty($credentials)){
+        if (!empty($credentials)) {
             $config['credentials'] = new Credentials(
                 $credentials['key'],
                 $credentials['secret'],

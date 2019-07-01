@@ -36,11 +36,11 @@ class SetBucketPolicy extends CommandHandler
             'Policy' => $policy,
         ];
 
-        if(isset($params['access'])){
+        if (isset($params['access'])) {
             $config['ConfirmRemoveSelfBucketAccess'] = $params['access'];
         }
 
-        if(isset($params['md5'])){
+        if (isset($params['md5'])) {
             $config['ContentMD5'] = $params['md5'];
         }
 
