@@ -16,7 +16,6 @@ use Aws\CommandPool;
 use Aws\Exception\AwsException;
 use Aws\ResultInterface;
 use GuzzleHttp\Promise\PromiseInterface;
-use SimpleS3\Commands\CommandHandler;
 
 class CopyInBatch extends CopyItem
 {

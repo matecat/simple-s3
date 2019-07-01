@@ -13,29 +13,29 @@ namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
 
-class IsBucketVersioned extends CommandHandler
+class GetBucketPolicy extends CommandHandler
 {
     /**
-     * Check if is enabled versioning for a bucket.
-     * For a complete reference:
-     * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-versioning.html?highlight=versioning%20bucket
+     * Get the policy of a bucket.
      *
-     * @param mixed $params
+     * @param array $params
      *
-     * @return bool
+     * @return int|mixed
      * @throws \Exception
      */
     public function handle($params = [])
     {
-        try{
-            $ver = $this->client->getConn()->getBucketVersioning([
-                    'Bucket' => $params['bucket']
-            ]);
+        $bucketName = $params['bucket'];
 
-            return ($ver['Status'] === 'Enabled') ? true : false;
-        } catch (\Exception $e){
-            return false;
+        $result = $this->client->getConn()->getBucketPolicy([
+            'Bucket' => $bucketName,
+        ]);
+
+        if (null !== $this->commandHandlerLogger) {
+            $this->commandHandlerLogger->log($this, sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
         }
+
+        return (isset($result['Policy'])) ? json_decode($result['Policy']->getContents(), true) : '';
     }
 
     /**

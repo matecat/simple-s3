@@ -61,11 +61,13 @@ Here is the list of Client's public methods:
 *   `createBucketIfItDoesNotExist` . create a bucket if it does not exists
 *   `createFolder` . create an empty folder in a bucket if it does not exists
 *   `deleteBucket` - delete a bucket
+*   `deleteBucketPolicy` - delete the bucket policy
 *   `deleteFolder` - delete a folder
 *   `deleteItem` - delete an item
 *   `downloadItem` - download an item
 *   `enableAcceleration` - enable the acceleration mode for a bucket
 *   `getBucketLifeCycle` get the bucket lifecycle configuration
+*   `getBucketPolicy` get the bucket policy
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getItem` - get all informations for an item
 *   `getItemsInABucket` get an array of items in a bucket
@@ -78,6 +80,7 @@ Here is the list of Client's public methods:
 *   `openItem` - get the content of an item
 *   `restoreItem` - try to restore an item from archive
 *   `setBucketLifecycleConfiguration` - set bucket lifecycle configuration
+*   `setBucketPolicy` - set the bucket policy 
 *   `setBucketVersioning` - set the bucket versioning 
 *   `transfer` - transfer content from/to buckets
 *   `uploadItem` - upload an item to a bucket from a file

@@ -15,14 +15,14 @@ use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
 
-class DownloadItem extends CommandHandler
+class DeleteBucketPolicy extends CommandHandler
 {
     /**
-     * Downaload an item.
+     * Delete the bucket policy.
      * For a complete reference:
-     * https://docs.aws.amazon.com/cli/latest/reference/s3api/get-object.html
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/delete-bucket-policy.html?highlight=delete%20policy
      *
-     * @param array $params
+     * @param mixed $params
      *
      * @return bool
      * @throws \Exception
@@ -30,29 +30,28 @@ class DownloadItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if (false === $this->client->hasBucket(['bucket' => $bucketName])) {
+            if (null !== $this->commandHandlerLogger) {
+                $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' does not exists', $bucketName), 'warning');
+            }
+
+            return false;
         }
 
         try {
-            $download = $this->client->getConn()->getObject([
-                'Bucket'  => $bucketName,
-                'Key'     => $keyName,
-                'SaveAs'  => (isset($params['save_as'])) ? $params['save_as'] : $params['key'],
-            ]);
+            $delete = $this->client->getConn()->deleteBucketPolicy(['Bucket' => $bucketName]);
 
-            if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {
+            if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
                 if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
+                    $this->commandHandlerLogger->log($this, sprintf('Policy was successfully deleted for bucket \'%s\'', $bucketName));
                 }
 
                 return true;
             }
 
             if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting policy of bucket \'%s\'', $bucketName), 'warning');
             }
 
             return false;
@@ -72,9 +71,6 @@ class DownloadItem extends CommandHandler
      */
     public function validateParams($params = [])
     {
-        return (
-            isset($params['bucket']) and
-            isset($params['key'])
-        );
+        return (isset($params['bucket']));
     }
 }

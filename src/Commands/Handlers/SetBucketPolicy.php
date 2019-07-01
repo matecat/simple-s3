@@ -12,17 +12,16 @@
 namespace SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
-use Aws\S3\Exception\S3Exception;
 use SimpleS3\Commands\CommandHandler;
 
-class DownloadItem extends CommandHandler
+class SetBucketPolicy extends CommandHandler
 {
     /**
-     * Downaload an item.
+     * Set policy for a bucket.
      * For a complete reference:
-     * https://docs.aws.amazon.com/cli/latest/reference/s3api/get-object.html
+     * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-policy.html?highlight=put%20policy
      *
-     * @param array $params
+     * @param mixed $params
      *
      * @return bool
      * @throws \Exception
@@ -30,33 +29,38 @@ class DownloadItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $policy = $params['policy'];
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        $config = [
+            'Bucket' => $bucketName,
+            'Policy' => $policy,
+        ];
+
+        if(isset($params['access'])){
+            $config['ConfirmRemoveSelfBucketAccess'] = $params['access'];
+        }
+
+        if(isset($params['md5'])){
+            $config['ContentMD5'] = $params['md5'];
         }
 
         try {
-            $download = $this->client->getConn()->getObject([
-                'Bucket'  => $bucketName,
-                'Key'     => $keyName,
-                'SaveAs'  => (isset($params['save_as'])) ? $params['save_as'] : $params['key'],
-            ]);
+            $policy = $this->client->getConn()->putBucketPolicy($config);
 
-            if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {
+            if (($policy instanceof ResultInterface) and $policy['@metadata']['statusCode'] === 204) {
                 if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
+                    $this->commandHandlerLogger->log($this, sprintf('Policy was successfully set for bucket \'%s\'', $bucketName));
                 }
 
                 return true;
             }
 
             if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
+                $this->commandHandlerLogger->log($this, sprintf('Something went wrong while setting policy of bucket \'%s\'', $bucketName), 'warning');
             }
 
             return false;
-        } catch (S3Exception $e) {
+        } catch (\Exception $e) {
             if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
@@ -74,7 +78,7 @@ class DownloadItem extends CommandHandler
     {
         return (
             isset($params['bucket']) and
-            isset($params['key'])
+            isset($params['policy'])
         );
     }
 }

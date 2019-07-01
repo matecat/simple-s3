@@ -77,7 +77,7 @@ class GetItemsInABucket extends CommandHandler
      *
      * @return array
      */
-    private function returnItemsFromCache($bucketName, $config, $hydrate = null)
+    protected function returnItemsFromCache($bucketName, $config, $hydrate = null)
     {
         $itemsFromCache = $this->client->getCache()->search($bucketName, $config['Prefix']);
 
@@ -127,7 +127,7 @@ class GetItemsInABucket extends CommandHandler
      *
      * @return array
      */
-    private function returnItemsFromS3($bucketName, $config, $hydrate = null)
+    protected function returnItemsFromS3($bucketName, $config, $hydrate = null)
     {
         if ($this->client->isBucketVersioned(['bucket' => $bucketName])) {
             return $this->returnVersionedItemsFromS3($bucketName, $config, $hydrate);
@@ -175,7 +175,7 @@ class GetItemsInABucket extends CommandHandler
      *
      * @return array
      */
-    private function returnVersionedItemsFromS3($bucketName, $config, $hydrate = null)
+    protected function returnVersionedItemsFromS3($bucketName, $config, $hydrate = null)
     {
         $results = $this->client->getConn()->listObjectVersions($config);
         $items = [];
