@@ -131,7 +131,36 @@ You can set the basic lifecycle for your bucket with ```setBucketLifecycleConfig
 $s3Client->setBucketLifecycleConfiguration(['bucket' => $this->bucket, 'rules' => [...]]);
 ```
 
-For further details please refer to the [bucket lifecycle configuration official API documentation](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html):
+For further details please refer to the [bucket lifecycle configuration official API documentation](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-lifecycle-configuration.html).
+
+## Bucket policy
+
+You can set the bucket policy using ```setBucketPolicy``` method. Consider the following example:
+
+```php
+...
+
+$s3Client->setBucketPolicy([
+    'bucket' => 'mauretto78-bucket-test-policy', 
+    'policy' => '{
+        "Version": "2012-10-17",
+        "Id": "Versioning",
+        "Statement": [
+            {
+                "Effect": "Deny",
+                "Principal": "*",
+                "Action": "s3:GetBucketVersioning",
+                "Resource": "arn:aws:s3:::mauretto78-bucket-test-policy"
+            }
+        ]
+    }'
+]);
+```
+
+You can grab bucket policy and delete it by using respectively ```getBucketPolicy``` and ```deleteBucketPolicy``` methods.
+
+For further details please refer to the [bucket policy official API documentation](https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-policy.html).
+
 
 
 ## Bucket versioning
