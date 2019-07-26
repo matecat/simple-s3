@@ -71,6 +71,7 @@ Here is the list of Client's public methods:
 *   `getBucketSize` get the size (in Bytes) of files in a bucket
 *   `getItem` - get all informations for an item
 *   `getItemsInABucket` get an array of items in a bucket
+*   `getItemsInAVersionedBucket` get an array of items in a versioned bucket
 *   `getCurrentItemVersion` - get the latest version of an item
 *   `getPublicItemLink` - get the public link to download the item
 *   `hasBucket` - check if a bucket exists
