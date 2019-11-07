@@ -49,7 +49,7 @@ class DeleteItem extends CommandHandler
 
             $delete = $this->client->getConn()->deleteObject($config);
 
-            if (($delete instanceof ResultInterface) and $delete['DeleteMarker'] === false and $delete['@metadata']['statusCode'] === 204) {
+            if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
                 if (null !== $this->commandHandlerLogger) {
                     $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
                 }
