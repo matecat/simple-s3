@@ -56,6 +56,7 @@ For further config details please refer to the official documentation:
 Here is the list of Client's public methods:
 
 *   `clearBucket` - clear a bucket from all files
+*   `copyFolder` - copy the items from a folder to another one
 *   `copyItem` - copy an item from a bucket to another one
 *   `copyInBatch` - copy in batch items from a bucket to another one
 *   `createBucketIfItDoesNotExist` . create a bucket if it does not exists

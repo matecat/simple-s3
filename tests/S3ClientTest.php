@@ -446,11 +446,34 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     */
+    public function test_the_client_can_copy_a_folder()
+    {
+        $copyFolder = $this->s3Client->copyFolder([
+                'source_bucket' => $this->bucket,
+                'source_folder' => 'folder',
+                'target_folder' => 'target'
+        ]);
+
+        $items = $this->s3Client->getItemsInABucket(
+                [
+                        'bucket' => $this->bucket,
+                        'prefix' => 'target'
+                ]
+        );
+
+        $this->assertCount(3, $items);
+        $this->assertTrue($copyFolder);
+    }
+
+    /**
+     * @test
      * @throws Exception
      */
     public function test_the_client_deletes_a_folder()
     {
         $delete = $this->s3Client->deleteFolder(['bucket' => $this->bucket, 'prefix' => 'folder']);
+        $delete = $this->s3Client->deleteFolder(['bucket' => $this->bucket, 'prefix' => 'target']);
 
         $this->assertTrue($delete);
     }

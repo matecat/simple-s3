@@ -28,6 +28,7 @@ use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  * Method list:
  *
  * @method bool clearBucket(array $input)
+ * @method bool copyFolder(array $input)
  * @method bool copyInBatch(array $input)
  * @method bool copyItem(array $input)
  * @method bool createBucketIfItDoesNotExist(array $input)
