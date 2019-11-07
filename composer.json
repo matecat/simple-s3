@@ -1,12 +1,12 @@
 {
-  "name": "mauretto78/simple-s3",
+  "name": "matecat/simple-s3",
   "type": "library",
   "description": "Simple S3 Client",
   "keywords": ["AWS", "SDK", "S3", "php"],
-  "homepage": "https://github.com/mauretto78/simple-s3",
+  "homepage": "https://github.com/matecat/simple-s3",
   "license": "MIT",
   "support": {
-    "issues": "https://github.com/mauretto78/simple-s3/issues"
+    "issues": "https://github.com/matecat/simple-s3/issues"
   },
   "authors": [
     {
