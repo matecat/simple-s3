@@ -28,6 +28,7 @@ $app->add(new \SimpleS3\Console\BucketCreateCommand($s3Client));
 $app->add(new \SimpleS3\Console\BucketDeleteCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheFlushCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheStatsCommand($s3Client));
+$app->add(new \SimpleS3\Console\FolderCopyCommand($s3Client));
 $app->add(new \SimpleS3\Console\ItemCopyCommand($s3Client));
 $app->add(new \SimpleS3\Console\ItemDeleteCommand($s3Client));
 $app->add(new \SimpleS3\Console\ItemDownloadCommand($s3Client));

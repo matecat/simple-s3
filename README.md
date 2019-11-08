@@ -251,6 +251,7 @@ If you have an application which uses [Symfony Console](https://github.com/symfo
 *  ```ss3:bucket:delete```   Deletes a bucket.
 *  ```ss3:cache:flush```     Flush all data stored in cache.
 *  ```ss3:cache:stats```     Get the cache statistics.
+*  ```ss3:folder:copy```     Copy the items from a folder to another one.
 *  ```ss3:item:copy```       Copy an object from a bucket to another one.
 *  ```ss3:item:delete```     Deletes an object from a bucket.
 *  ```ss3:item:download```   Download an object from a bucket.
@@ -279,6 +280,7 @@ $app->add(new \SimpleS3\Console\BucketCreateCommand($s3Client));
 $app->add(new \SimpleS3\Console\BucketDeleteCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheFlushCommand($s3Client));
 $app->add(new \SimpleS3\Console\CacheStatsCommand($s3Client));
+$app->add(new \SimpleS3\Console\FolderCopyCommand($s3Client));
 $app->add(new \SimpleS3\Console\ItemCopyCommand($s3Client));
 $app->add(new \SimpleS3\Console\ItemDeleteCommand($s3Client));
 $app->add(new \SimpleS3\Console\ItemDownloadCommand($s3Client));
