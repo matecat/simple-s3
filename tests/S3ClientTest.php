@@ -452,13 +452,13 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $copyFolder = $this->s3Client->copyFolder([
                 'source_bucket' => $this->bucket,
                 'source_folder' => 'folder',
-                'target_folder' => 'target'
+                'target_folder' => 'target/copied'
         ]);
 
         $items = $this->s3Client->getItemsInABucket(
                 [
                         'bucket' => $this->bucket,
-                        'prefix' => 'target'
+                        'prefix' => 'target/copied'
                 ]
         );
 
@@ -473,9 +473,10 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     public function test_the_client_deletes_a_folder()
     {
         $delete = $this->s3Client->deleteFolder(['bucket' => $this->bucket, 'prefix' => 'folder']);
-        $delete = $this->s3Client->deleteFolder(['bucket' => $this->bucket, 'prefix' => 'target']);
+        $delete2 = $this->s3Client->deleteFolder(['bucket' => $this->bucket, 'prefix' => 'target/copied']);
 
         $this->assertTrue($delete);
+        $this->assertTrue($delete2);
     }
 
     /**

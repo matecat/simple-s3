@@ -12,6 +12,7 @@
 namespace SimpleS3\Commands\Handlers;
 
 use SimpleS3\Commands\CommandHandler;
+use SimpleS3\Helpers\File;
 
 class CopyFolder extends CommandHandler
 {
@@ -37,8 +38,12 @@ class CopyFolder extends CommandHandler
             $success = true;
 
             foreach ($sourceItems as $sourceItem){
-                $targetFileName = explode($this->client->getPrefixSeparator(), $sourceItem);
-                $targetKeyName =  $targetFolder . $this->client->getPrefixSeparator() .  end($targetFileName);
+
+                if(false === File::endsWith($sourceFolder, $this->client->getPrefixSeparator())){
+                    $sourceFolder = $sourceFolder . $this->client->getPrefixSeparator();
+                }
+
+                $targetKeyName = $targetFolder .  $this->client->getPrefixSeparator(). str_replace($sourceFolder,"",$sourceItem);
 
                 $copiedSourceItems = $this->client->copyItem([
                         'target_bucket' => $targetBucketName,
