@@ -1,16 +1,18 @@
 <?php
 
-use SimpleS3\Components\Cache\RedisCache;
-
 require __DIR__.'/../vendor/autoload.php';
 
+use Matecat\SimpleS3\Components\Cache\RedisCache;
+
 $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-$s3Client = new \SimpleS3\Client(
-    $config['ACCESS_KEY_ID'],
-    $config['SECRET_KEY'],
+$s3Client = new Matecat\SimpleS3\Client(
     [
         'version' => $config['VERSION'],
         'region' => $config['REGION'],
+        'credentials' => [
+            'key' => $config['ACCESS_KEY_ID'],
+            'secret' => $config['SECRET_KEY']
+        ]
     ]
 );
 
