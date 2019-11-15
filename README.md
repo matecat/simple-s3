@@ -211,7 +211,7 @@ For further details please refer to the official documentation:
 
 ## Caching
 
-In order speed up data retrieval, you can inject a cache handler. Please note that the cache MUST implement ```SimpleS3\Components\Cache\CacheInterface```.
+In order speed up data retrieval, you can inject a cache handler. Please note that the cache MUST implement ```Matecat\SimpleS3\Components\Cache\CacheInterface```.
 The client comes with a Redis implementation:
 
 ```php
