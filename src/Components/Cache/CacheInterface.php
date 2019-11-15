@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleS3\Components\Cache;
+namespace Matecat\SimpleS3\Components\Cache;
 
 interface CacheInterface
 {

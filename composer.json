@@ -17,11 +17,11 @@
   ],
   "autoload": {
     "psr-4": {
-      "SimpleS3\\": "src/"
+      "Matecat\\SimpleS3\\": "src/"
     }
   },
   "autoload-dev": {
-    "psr-4": { "SimpleS3\\Tests\\": "tests/" }
+    "psr-4": { "Matecat\\SimpleS3\\Tests\\": "tests/" }
   },
   "require": {
     "php": ">=5.5",

@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleS3\Components\Cache;
+namespace Matecat\SimpleS3\Components\Cache;
 
 use Predis\Client as Redis;
-use SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Helpers\File;
 
 class RedisCache implements CacheInterface
 {

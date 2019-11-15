@@ -1,7 +1,7 @@
 <?php
 
 use Aws\S3\S3Client;
-use SimpleS3\ClientFactory;
+use Matecat\SimpleS3\ClientFactory;
 
 class S3ClientFactoryTest extends PHPUnit_Framework_TestCase
 {

@@ -9,10 +9,10 @@
  *
  */
 
-namespace SimpleS3\Commands;
+namespace Matecat\SimpleS3\Commands;
 
-use SimpleS3\Client;
-use SimpleS3\Components\Logger\CommandHandlerLogger;
+use Matecat\SimpleS3\Client;
+use Matecat\SimpleS3\Components\Logger\CommandHandlerLogger;
 
 abstract class CommandHandler implements CommandHandlerInterface
 {

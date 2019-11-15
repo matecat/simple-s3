@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleS3\Console;
+namespace Matecat\SimpleS3\Console;
 
-use SimpleS3\Client;
-use SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Client;
+use Matecat\SimpleS3\Helpers\File;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;

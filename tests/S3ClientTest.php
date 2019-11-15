@@ -1,11 +1,11 @@
 <?php
 
 use Aws\ResultInterface;
+use Matecat\SimpleS3\Client;
+use Matecat\SimpleS3\Components\Cache\RedisCache;
+use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use SimpleS3\Client;
-use SimpleS3\Components\Cache\RedisCache;
-use SimpleS3\Components\Encoders\UrlEncoder;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -63,7 +63,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException \SimpleS3\Exceptions\InvalidS3NameException
+     * @expectedException Matecat\SimpleS3\Exceptions\InvalidS3NameException
      */
     public function test_the_client_creates_a_bucket_with_an_invalid_name()
     {
@@ -179,7 +179,11 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
             'check_bucket' => true
         ]);
 
-        $this->assertCount(1, $this->s3Client->getItemsInABucket(['bucket' => $this->bucket, 'prefix' => 'folder']));
+        $this->assertCount(1, $this->s3Client->getItemsInABucket([
+                'bucket' => $this->bucket,
+                'prefix' => 'folder',
+                'exclude-cache' => true
+        ]));
     }
 
     /**
@@ -200,6 +204,31 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($upload);
         $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $this->keyname]));
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
+    public function copyInBatch_throws_an_exception_if_an_emtpy_soruce_array_is_provided()
+    {
+        $input = [
+                'source_bucket' => $this->bucket,
+                'target_bucket' => $this->bucket.'-copied',
+                'files' => [
+                        'source' => [],
+                        'target' => [
+                                $this->keyname,
+                                $this->keyname.'(1)',
+                        ],
+                ],
+        ];
+
+        try {
+            $this->s3Client->copyInBatch($input);
+        } catch (\Exception $e){
+            $this->assertEquals($e->getMessage(), 'source files array cannot be empty.');
+        }
     }
 
     /**
@@ -328,7 +357,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_dir($dest));
 
-        SimpleS3\Helpers\File::removeDir($dest);
+        Matecat\SimpleS3\Helpers\File::removeDir($dest);
     }
 
     /**

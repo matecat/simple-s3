@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Components\Validators;
+namespace Matecat\SimpleS3\Components\Validators;
 
 abstract class S3NameValidator implements S3NameValidatorInterface
 {

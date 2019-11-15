@@ -12,7 +12,7 @@
 To instantiate the Client do the following:
 
 ```php
-use SimpleS3\Client;
+use Matecat\SimpleS3\Client;
 
 $s3Client = new Client([
     'version' => 'latest',   // REQUIRED 
@@ -35,7 +35,7 @@ from the following environments variables on your system as the original S3Clien
 If you instead want to authenticate assuming an IAM Role in another AWS Account do the following:
 
 ```php
-use SimpleS3\Client;
+use Matecat\SimpleS3\Client;
 
 $s3Client = new Client([
     'version' => 'latest',
@@ -110,14 +110,14 @@ Please read carefully the [object safe naming rules](https://docs.aws.amazon.com
 
 Escaping object names is entirely up to you.
 
-You can use the provided ```SimpleS3\Components\Encoders\UrlEncoder``` class, or inject in Client your own encoder if you prefer, but please note that it MUST implement 
-```SimpleS3\Components\Encoders\SafeNameEncoderInterface``` 
+You can use the provided ```Matecat\SimpleS3\Components\Encoders\UrlEncoder``` class, or inject in Client your own encoder if you prefer, but please note that it MUST implement 
+```Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface``` 
 interface:
 
 ```php
 ...
 
-use SimpleS3\Components\Encoders\UrlEncoder;
+use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 
 $encoder = new UrlEncoder();
 $s3Client->addEncoder($encoder);
@@ -217,7 +217,7 @@ The client comes with a Redis implementation:
 ```php
 ...
 
-use SimpleS3\Components\Cache\RedisCache;
+use Matecat\SimpleS3\Components\Cache\RedisCache;
 
 $redis = new Predis\Client();
 $cacheAdapter = new RedisCache($redis);
@@ -238,6 +238,20 @@ $s3Client->getItemsInABucket([
 
 // this will EVER get keys from S3
 $s3Client->getItemsInABucket('your-bucket');
+
+```
+
+If you need to skip the cache you can add an extra parameter called `exclude-cache`:
+
+```php
+...
+
+// this will get keys from S3
+$s3Client->getItemsInABucket([
+    'bucket' => 'your-bucket', 
+    'prefix' => 'prefix/',
+    'exclude-cache' => true 
+]);
 
 ```
 
@@ -264,27 +278,39 @@ You can register the commands in your app, consider this example:
 <?php
 set_time_limit(0);
 
-...
+require __DIR__.'/../vendor/autoload.php';
+
+$config = parse_ini_file(__DIR__.'/../config/credentials.ini');
+$s3Client = new \Matecat\SimpleS3\Client(
+    [
+        'version' => $config['VERSION'],
+        'region' => $config['REGION'],
+        'credentials' => [
+            'key' => $config['ACCESS_KEY_ID'],
+            'secret' => $config['SECRET_KEY']
+        ]
+    ]
+);
 
 $redis = new Predis\Client();
-$cacheAdapter = new \SimpleS3\Components\Cache\RedisCache($redis);
+$cacheAdapter = new \Matecat\SimpleS3\Components\Cache\RedisCache($redis);
 $s3Client->addCache($cacheAdapter);
 
 // create symfony console app
 $app = new \Symfony\Component\Console\Application('Simple S3', 'console tool');
 
 // add commands here
-$app->add(new \SimpleS3\Console\BatchTransferCommand($s3Client));
-$app->add(new \SimpleS3\Console\BucketClearCommand($s3Client));
-$app->add(new \SimpleS3\Console\BucketCreateCommand($s3Client));
-$app->add(new \SimpleS3\Console\BucketDeleteCommand($s3Client));
-$app->add(new \SimpleS3\Console\CacheFlushCommand($s3Client));
-$app->add(new \SimpleS3\Console\CacheStatsCommand($s3Client));
-$app->add(new \SimpleS3\Console\FolderCopyCommand($s3Client));
-$app->add(new \SimpleS3\Console\ItemCopyCommand($s3Client));
-$app->add(new \SimpleS3\Console\ItemDeleteCommand($s3Client));
-$app->add(new \SimpleS3\Console\ItemDownloadCommand($s3Client));
-$app->add(new \SimpleS3\Console\ItemUploadCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\BatchTransferCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\BucketClearCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\BucketCreateCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\BucketDeleteCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\CacheFlushCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\CacheStatsCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\FolderCopyCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\ItemCopyCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\ItemDeleteCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\ItemDownloadCommand($s3Client));
+$app->add(new \Matecat\SimpleS3\Console\ItemUploadCommand($s3Client));
 
 $app->run();
 ```

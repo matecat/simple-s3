@@ -9,10 +9,10 @@
  *
  */
 
-namespace SimpleS3\Components\Logger;
+namespace Matecat\SimpleS3\Components\Logger;
 
 use Psr\Log\LoggerInterface;
-use SimpleS3\Commands\CommandHandler;
+use Matecat\SimpleS3\Commands\CommandHandler;
 
 class CommandHandlerLogger
 {

@@ -1,6 +1,6 @@
 <?php
 
-use SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Helpers\File;
 
 class FileTest extends PHPUnit_Framework_TestCase
 {

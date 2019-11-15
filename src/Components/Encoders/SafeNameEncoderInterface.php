@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Components\Encoders;
+namespace Matecat\SimpleS3\Components\Encoders;
 
 /**
  * Amazon S3 object safe naming Requirements

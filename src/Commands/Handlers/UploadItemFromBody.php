@@ -9,14 +9,14 @@
  *
  */
 
-namespace SimpleS3\Commands\Handlers;
+namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
-use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
-use SimpleS3\Components\Validators\S3StorageClassNameValidator;
-use SimpleS3\Exceptions\InvalidS3NameException;
-use SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Commands\CommandHandler;
+use Matecat\SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
+use Matecat\SimpleS3\Components\Validators\S3StorageClassNameValidator;
+use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
+use Matecat\SimpleS3\Helpers\File;
 
 class UploadItemFromBody extends CommandHandler
 {

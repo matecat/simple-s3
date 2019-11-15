@@ -1,11 +1,10 @@
 <?php
 
-use Aws\ResultInterface;
+use Matecat\SimpleS3\Client;
+use Matecat\SimpleS3\Components\Cache\RedisCache;
+use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use SimpleS3\Client;
-use SimpleS3\Components\Cache\RedisCache;
-use SimpleS3\Components\Encoders\UrlEncoder;
 
 class S3ClientWithVersioningTest extends PHPUnit_Framework_TestCase
 {

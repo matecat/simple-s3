@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Components\Validators;
+namespace Matecat\SimpleS3\Components\Validators;
 
 /**
  * This class check if a string is a valid S3 Storage Class name

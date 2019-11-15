@@ -1,11 +1,7 @@
 <?php
 
-use Aws\ResultInterface;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use SimpleS3\Client;
-use SimpleS3\Components\Cache\RedisCache;
-use SimpleS3\Components\Encoders\UrlEncoder;
+use Matecat\SimpleS3\Client;
+use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 
 class S3ClientWithPolicyTest extends PHPUnit_Framework_TestCase
 {

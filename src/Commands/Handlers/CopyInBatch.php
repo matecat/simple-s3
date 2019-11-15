@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Commands\Handlers;
+namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\CommandInterface;
 use Aws\CommandPool;
@@ -49,6 +49,10 @@ class CopyInBatch extends CopyItem
     {
         if (isset($params['target_bucket'])) {
             $this->client->createBucketIfItDoesNotExist(['bucket' => $params['target_bucket']]);
+        }
+
+        if (empty($params['files']['source'])){
+            throw new \InvalidArgumentException('source files array cannot be empty.');
         }
 
         $commands = [];

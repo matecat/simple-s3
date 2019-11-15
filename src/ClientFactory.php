@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3;
+namespace Matecat\SimpleS3;
 
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;

@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Helpers;
+namespace Matecat\SimpleS3\Helpers;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

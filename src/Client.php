@@ -9,15 +9,15 @@
  *
  */
 
-namespace SimpleS3;
+namespace Matecat\SimpleS3;
 
 use Aws\ResultInterface;
 use Aws\S3\S3Client;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
-use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Components\Cache\CacheInterface;
-use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
+use Matecat\SimpleS3\Commands\CommandHandler;
+use Matecat\SimpleS3\Components\Cache\CacheInterface;
+use Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface;
 
 /**
  * Class Client
@@ -118,7 +118,7 @@ final class Client
     {
         $params = isset($args[0]) ? $args[0] : [];
 
-        $commandHandler = 'SimpleS3\\Commands\\Handlers\\'.ucfirst($name);
+        $commandHandler = 'Matecat\\SimpleS3\\Commands\\Handlers\\'.ucfirst($name);
 
         if (false === class_exists($commandHandler)) {
             throw new \InvalidArgumentException($commandHandler . ' is not a valid command name. Please refer to README to get the complete command list.');

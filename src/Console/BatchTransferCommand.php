@@ -1,10 +1,10 @@
 <?php
 
-namespace SimpleS3\Console;
+namespace Matecat\SimpleS3\Console;
 
 use Aws\CommandInterface;
 use Aws\S3\Transfer;
-use SimpleS3\Client;
+use Matecat\SimpleS3\Client;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

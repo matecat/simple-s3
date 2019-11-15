@@ -9,12 +9,12 @@
  *
  */
 
-namespace SimpleS3\Commands\Handlers;
+namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
-use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Commands\CommandHandler;
+use Matecat\SimpleS3\Helpers\File;
 
 class CreateFolder extends CommandHandler
 {

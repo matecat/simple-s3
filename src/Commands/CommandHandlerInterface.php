@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Commands;
+namespace Matecat\SimpleS3\Commands;
 
 interface CommandHandlerInterface
 {

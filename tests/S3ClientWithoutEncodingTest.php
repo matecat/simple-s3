@@ -1,9 +1,8 @@
 <?php
 
+use Matecat\SimpleS3\Client;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use SimpleS3\Client;
-use SimpleS3\Components\Cache\RedisCache;
 
 class S3ClientWithoutEncodingTest extends PHPUnit_Framework_TestCase
 {

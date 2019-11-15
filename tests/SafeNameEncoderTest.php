@@ -1,7 +1,7 @@
 <?php
 
-use SimpleS3\Components\Encoders\UrlEncoder;
-use SimpleS3\Components\Encoders\SafeNameEncoderInterface;
+use Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface;
+use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 
 class SafeNameEncoderTest extends PHPUnit_Framework_TestCase
 {

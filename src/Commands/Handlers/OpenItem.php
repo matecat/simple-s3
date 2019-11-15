@@ -9,11 +9,11 @@
  *
  */
 
-namespace SimpleS3\Commands\Handlers;
+namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Psr\Http\Message\UriInterface;
-use SimpleS3\Commands\CommandHandler;
-use SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Commands\CommandHandler;
+use Matecat\SimpleS3\Helpers\File;
 
 class OpenItem extends CommandHandler
 {

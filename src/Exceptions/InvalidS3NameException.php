@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Exceptions;
+namespace Matecat\SimpleS3\Exceptions;
 
 final class InvalidS3NameException extends \Exception
 {

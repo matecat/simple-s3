@@ -9,7 +9,7 @@
  *
  */
 
-namespace SimpleS3\Components\Validators;
+namespace Matecat\SimpleS3\Components\Validators;
 
 interface S3NameValidatorInterface
 {

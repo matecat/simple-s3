@@ -1,7 +1,7 @@
 <?php
 
-use SimpleS3\Components\Cache\RedisCache;
-use SimpleS3\Components\Encoders\UrlEncoder;
+use Matecat\SimpleS3\Components\Cache\RedisCache;
+use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 
 class RedisCacheTest extends PHPUnit_Framework_TestCase
 {
