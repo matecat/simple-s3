@@ -32,7 +32,7 @@ class Filename
      */
     public static function getSafe($string)
     {
-        if (self::isValid($string)){
+        if (self::isValid($string)) {
             return $string;
         }
 
@@ -58,4 +58,3 @@ class Filename
         return strlen($string) <= self::FILENAME_BYTES_LIMIT;
     }
 }
-

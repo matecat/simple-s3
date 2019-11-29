@@ -51,7 +51,7 @@ class CopyInBatch extends CopyItem
             $this->client->createBucketIfItDoesNotExist(['bucket' => $params['target_bucket']]);
         }
 
-        if (empty($params['files']['source'])){
+        if (empty($params['files']['source'])) {
             throw new \InvalidArgumentException('source files array cannot be empty.');
         }
 

@@ -22,7 +22,7 @@ class CopyFolder extends CommandHandler
      * @return mixed
      * @throws \Exception
      */
-    public function handle( $params = [] )
+    public function handle($params = [])
     {
         $targetBucketName = (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket'];
         $targetFolder = $params['target_folder'];
@@ -37,13 +37,12 @@ class CopyFolder extends CommandHandler
 
             $success = true;
 
-            foreach ($sourceItems as $sourceItem){
-
-                if(false === File::endsWith($sourceFolder, $this->client->getPrefixSeparator())){
+            foreach ($sourceItems as $sourceItem) {
+                if (false === File::endsWith($sourceFolder, $this->client->getPrefixSeparator())) {
                     $sourceFolder = $sourceFolder . $this->client->getPrefixSeparator();
                 }
 
-                $targetKeyName = $targetFolder .  $this->client->getPrefixSeparator(). str_replace($sourceFolder,"",$sourceItem);
+                $targetKeyName = $targetFolder .  $this->client->getPrefixSeparator(). str_replace($sourceFolder, "", $sourceItem);
 
                 $copiedSourceItems = $this->client->copyItem([
                         'target_bucket' => $targetBucketName,
@@ -57,7 +56,7 @@ class CopyFolder extends CommandHandler
                 }
             }
 
-            if(isset($params['delete_source']) and true === $params['delete_source'] ){
+            if (isset($params['delete_source']) and true === $params['delete_source']) {
                 $deleteSource = $this->client->deleteFolder([
                         'bucket' => $sourceBucketName,
                         'prefix' => $sourceFolder,
@@ -69,7 +68,7 @@ class CopyFolder extends CommandHandler
             }
 
             return $success;
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }
@@ -83,7 +82,7 @@ class CopyFolder extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams( $params = [] )
+    public function validateParams($params = [])
     {
         return (
                 isset($params['target_folder']) and

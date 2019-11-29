@@ -226,7 +226,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         try {
             $this->s3Client->copyInBatch($input);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->assertEquals($e->getMessage(), 'source files array cannot be empty.');
         }
     }
@@ -485,7 +485,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         ]);
 
         $items = $this->s3Client->getItemsInABucket(
-                [
+            [
                         'bucket' => $this->bucket,
                         'prefix' => 'target/copied'
                 ]

@@ -47,7 +47,7 @@ class GetItemsInABucket extends CommandHandler
             }
 
             // 1. If 'exclude-cache' is set, return records always from S3
-            if(isset($params['exclude-cache']) and true === $params['exclude-cache']) {
+            if (isset($params['exclude-cache']) and true === $params['exclude-cache']) {
                 return $this->returnItemsFromS3($bucketName, $config, (isset($params['hydrate'])) ? $params['hydrate'] : null);
             }
 
