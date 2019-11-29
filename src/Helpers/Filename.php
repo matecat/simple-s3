@@ -23,7 +23,8 @@ namespace Matecat\SimpleS3\Helpers;
  */
 class Filename
 {
-    const FILENAME_BYTES_LIMIT = 255;
+    const FILENAME_SAFE_BYTES_LIMIT = 221;
+    const FILENAME_MAX_BYTES_LIMIT  = 255;
 
     /**
      * @param string $string
@@ -32,7 +33,7 @@ class Filename
      */
     public static function getSafe($string)
     {
-        if (self::isValid($string)) {
+        if (false === self::hasToBeReduced($string)) {
             return $string;
         }
 
@@ -40,7 +41,7 @@ class Filename
         $ext = File::getExtension($string);
         $tmp = '/tmp/5ddfab5e8a6aa9.45666312_.out.';
 
-        $limit = self::FILENAME_BYTES_LIMIT - strlen($ext) - 1 - strlen($tmp);
+        $limit = self::FILENAME_MAX_BYTES_LIMIT - strlen($ext) - 1 - strlen($tmp);
 
         $filename = ($pathInfo['dirname']) ? $pathInfo['dirname'] . DIRECTORY_SEPARATOR : '';
         $filename .= $pathInfo['filename'];
@@ -53,8 +54,8 @@ class Filename
      *
      * @return bool
      */
-    private static function isValid($string)
+    private static function hasToBeReduced( $string)
     {
-        return strlen($string) <= self::FILENAME_BYTES_LIMIT;
+        return strlen($string) > self::FILENAME_SAFE_BYTES_LIMIT;
     }
 }
