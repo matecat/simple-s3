@@ -123,6 +123,24 @@ $encoder = new UrlEncoder();
 $s3Client->addEncoder($encoder);
 ```
 
+## Filename trimming
+
+As the [Amazon official documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html) reports, the filename max size on S3 is **1024 characters**.
+
+__**But you MUST be aware of filename max size of your operating system.**__ 
+
+For example, if you run the application on a Linux system, this limit is **255 bytes**, so you cannot download a file with a name which exceeds this value.
+
+S3Client comes with a `FilenameTrimmer` helper class, which automatically trims the filenames. Default limit value is 255.
+
+To override this limit, use `setFilenameMaxSize` method:
+
+```php
+...
+
+$client->setFilenameMaxSize(512);
+```
+
 ## Bucket lifecycle
 
 You can set the basic lifecycle for your bucket with ```setBucketLifecycleConfiguration``` method. 

@@ -39,7 +39,7 @@ class UploadItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
         $source = $params['source'];
 
         if (isset($params['bucket_check']) and true === $params['bucket_check']) {

@@ -30,7 +30,7 @@ class GetItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
         $version = (isset($params['version'])) ? $params['version'] : null;
 
         if ($this->client->hasEncoder()) {

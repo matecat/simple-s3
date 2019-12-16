@@ -29,7 +29,7 @@ class GetCurrentItemVersion extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
 
         $fileInfo = File::getPathInfo($keyName);
         $prefix = $fileInfo['dirname'] . $this->client->getPrefixSeparator();

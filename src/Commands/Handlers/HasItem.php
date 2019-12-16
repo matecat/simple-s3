@@ -27,7 +27,7 @@ class HasItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
 
         if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);

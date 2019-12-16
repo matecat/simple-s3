@@ -21,17 +21,35 @@ namespace Matecat\SimpleS3\Helpers;
  *
  * https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html
  */
-class Filename
+class FilenameTrimmer
 {
-    const FILENAME_SAFE_BYTES_LIMIT = 221;
-    const FILENAME_MAX_BYTES_LIMIT  = 255;
+    /**
+     * @var int
+     */
+    private $max_size;
+
+    /**
+     * @var int
+     */
+    private $safe_size;
+
+    /**
+     * FilenameTrimmer constructor.
+     *
+     * @param null $max_size
+     */
+    public function __construct($max_size = null)
+    {
+        $this->max_size = ($max_size and $max_size > 34) ? $max_size : 255;
+        $this->safe_size = $this->max_size - 34;
+    }
 
     /**
      * @param string $string
      *
      * @return string
      */
-    public static function getSafe($string)
+    public function trim($string)
     {
         if (false === self::hasToBeReduced($string)) {
             return $string;
@@ -39,9 +57,7 @@ class Filename
 
         $pathInfo =  File::getPathInfo($string);
         $ext = File::getExtension($string);
-        $tmp = '/tmp/5ddfab5e8a6aa9.45666312_.out.';
-
-        $limit = self::FILENAME_MAX_BYTES_LIMIT - strlen($ext) - 1 - strlen($tmp);
+        $limit = $this->max_size - strlen($ext) - 35;
 
         $filename = ($pathInfo['dirname']) ? $pathInfo['dirname'] . DIRECTORY_SEPARATOR : '';
         $filename .= $pathInfo['filename'];
@@ -54,8 +70,8 @@ class Filename
      *
      * @return bool
      */
-    private static function hasToBeReduced( $string)
+    private function hasToBeReduced($string)
     {
-        return strlen($string) > self::FILENAME_SAFE_BYTES_LIMIT;
+        return strlen($string) > $this->safe_size;
     }
 }

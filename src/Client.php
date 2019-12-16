@@ -95,6 +95,11 @@ final class Client
     private $sslVerify = true;
 
     /**
+     * @var int
+     */
+    private $filenameMaxSize;
+
+    /**
      * Client constructor.
      *
      * @param array $config
@@ -102,6 +107,7 @@ final class Client
     public function __construct(array $config)
     {
         $this->s3 = ClientFactory::create($config);
+        $this->filenameMaxSize = 255;
     }
 
     /**
@@ -243,5 +249,21 @@ final class Client
     public function getPrefixSeparator()
     {
         return $this->prefixSeparator;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFilenameMaxSize()
+    {
+        return $this->filenameMaxSize;
+    }
+
+    /**
+     * @param int $filenameMaxSize
+     */
+    public function setFilenameMaxSize($filenameMaxSize)
+    {
+        $this->filenameMaxSize = $filenameMaxSize;
     }
 }

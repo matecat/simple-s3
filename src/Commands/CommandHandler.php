@@ -13,6 +13,7 @@ namespace Matecat\SimpleS3\Commands;
 
 use Matecat\SimpleS3\Client;
 use Matecat\SimpleS3\Components\Logger\CommandHandlerLogger;
+use Matecat\SimpleS3\Helpers\FilenameTrimmer;
 
 abstract class CommandHandler implements CommandHandlerInterface
 {
@@ -37,5 +38,13 @@ abstract class CommandHandler implements CommandHandlerInterface
         if ($this->client->hasLogger()) {
             $this->commandHandlerLogger = new CommandHandlerLogger($client->getLogger());
         }
+    }
+
+    /**
+     * @return FilenameTrimmer
+     */
+    protected function getFilenameTrimmer()
+    {
+        return new FilenameTrimmer($this->client->getFilenameMaxSize());
     }
 }

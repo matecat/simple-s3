@@ -30,9 +30,9 @@ class CopyItem extends CommandHandler
     public function handle($params = [])
     {
         $targetBucketName = $params['target_bucket'];
-        $targetKeyname = $params['target'];
+        $targetKeyname = $this->getFilenameTrimmer()->trim($params['target']);
         $sourceBucket = $params['source_bucket'];
-        $sourceKeyname = $params['source'];
+        $sourceKeyname = $this->getFilenameTrimmer()->trim($params['source']);
 
         $this->client->createBucketIfItDoesNotExist(['bucket' => $targetBucketName]);
 
@@ -41,7 +41,7 @@ class CopyItem extends CommandHandler
             $sourceKeyname = $this->client->getEncoder()->encode($sourceKeyname);
         }
 
-        $copySource = $this->getCopySource($sourceBucket, $sourceKeyname);
+        $copySource = $this->getFilenameTrimmer()->trim($this->getCopySource($sourceBucket, $sourceKeyname));
 
         try {
             $config = [

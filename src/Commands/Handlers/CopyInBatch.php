@@ -69,8 +69,8 @@ class CopyInBatch extends CopyItem
                 $file = $this->client->getEncoder()->encode($file);
             }
 
-            $copySource = $this->getCopySource($sourceBucket, $file);
-            $targetKeys[] = $targetKey;
+            $copySource = $this->getFilenameTrimmer()->trim($this->getCopySource($sourceBucket, $file));
+            $targetKeys[] = $this->getFilenameTrimmer()->trim($targetKey);
 
             $config = [
                 'Bucket' => $targetBucket,

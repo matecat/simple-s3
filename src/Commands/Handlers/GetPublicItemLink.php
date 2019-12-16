@@ -28,7 +28,7 @@ class GetPublicItemLink extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
         $expires = (isset($params['expires'])) ? $params['expires'] : '+1 hour';
 
         if ($this->client->hasEncoder()) {
