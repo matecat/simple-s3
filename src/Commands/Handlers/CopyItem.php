@@ -41,7 +41,7 @@ class CopyItem extends CommandHandler
             $sourceKeyname = $this->client->getEncoder()->encode($sourceKeyname);
         }
 
-        $copySource = $this->getFilenameTrimmer()->trim($this->getCopySource($sourceBucket, $sourceKeyname));
+        $copySource = trim($this->getCopySource($sourceBucket, $sourceKeyname));
 
         try {
             $config = [
@@ -74,12 +74,12 @@ class CopyItem extends CommandHandler
             }
 
             return false;
-        } catch (S3Exception $encoded) {
+        } catch (S3Exception $exception) {
             if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($encoded);
+                $this->commandHandlerLogger->logExceptionAndReturnFalse($exception);
             }
 
-            throw $encoded;
+            throw $exception;
         }
     }
 
@@ -99,6 +99,8 @@ class CopyItem extends CommandHandler
     }
 
     /**
+     * Returns an urlencoded string for PUT requests
+     *
      * @param string $sourceBucket
      * @param string $sourceKeyname
      *
@@ -111,6 +113,7 @@ class CopyItem extends CommandHandler
         }
 
         $encoded = [];
+
         foreach (explode($this->client->getPrefixSeparator(), $sourceKeyname) as $word) {
             $encoded[] = urlencode($word);
         }

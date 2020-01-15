@@ -91,10 +91,6 @@ class UploadItem extends CommandHandler
      */
     private function multipartUpload($bucketName, $keyName, $source, $params = [])
     {
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
-        }
-
         $uploader = new MultipartUploader(
             $this->client->getConn(),
             $source,

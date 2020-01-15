@@ -115,6 +115,59 @@ class S3ClientWithoutEncodingTest extends PHPUnit_Framework_TestCase
      * @test
      * @throws Exception
      */
+    public function test_the_client_uploads_and_then_copy_an_item_with_cyrillic_name()
+    {
+        $source = __DIR__ . '/support/files/txt/Образование_Зависимость_от_мобильных_телефонов_Статья_24122019.docx';
+        $key = 'Образование_Зависимость_от_мобильных_телефонов_Статья_24122019.docx';
+
+        $upload = $this->s3Client->uploadItem([
+                'bucket' => $this->bucket,
+                'key' => $key,
+                'source' => $source
+        ]);
+
+        $this->assertTrue($upload);
+        $this->assertTrue($this->s3Client->hasItem(['bucket' => $this->bucket, 'key' => $key]));
+
+        $copied = $this->s3Client->copyItem([
+                'source_bucket' => $this->bucket,
+                'source' => $key,
+                'target_bucket' => $this->bucket,
+                'target' => $key.'(1)'
+        ]);
+        $this->assertTrue($copied);
+
+        $this->s3Client->uploadItem([
+                'bucket' => $this->bucket,
+                'key' => 'folder/'.$key,
+                'source' => $source,
+                'check_bucket' => true
+        ]);
+
+        $this->assertCount(3, $this->s3Client->getItemsInABucket([
+                'bucket' => $this->bucket,
+                'prefix' => 'folder',
+                'exclude-cache' => true
+        ]));
+
+        $copied = $this->s3Client->copyInBatch([
+                'source_bucket' => $this->bucket,
+                'files' => [
+                        'source' => [
+                                $key,
+                        ],
+                        'target' => [
+                                $key . '(222)',
+                        ],
+                ],
+        ]);
+        $this->assertTrue($copied);
+    }
+
+    /**
+     * @test
+     * @throws Exception
+     */
     public function test_the_client_deletes_the_bucket()
     {
         $this->assertTrue($this->s3Client->deleteBucket(['bucket' => $this->bucket]));
