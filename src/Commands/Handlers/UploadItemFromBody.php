@@ -17,6 +17,7 @@ use Matecat\SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
 use Matecat\SimpleS3\Components\Validators\S3StorageClassNameValidator;
 use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
 use Matecat\SimpleS3\Helpers\File;
+use Matecat\SimpleS3\Helpers\FilenameValidator;
 
 class UploadItemFromBody extends CommandHandler
 {
@@ -33,7 +34,7 @@ class UploadItemFromBody extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
+        $keyName = $params['key'];
         $body = $params['body'];
 
         if (isset($params['bucket_check']) and true === $params['bucket_check']) {

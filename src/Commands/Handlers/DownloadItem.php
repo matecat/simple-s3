@@ -30,7 +30,7 @@ class DownloadItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
+        $keyName = $params['key'];
 
         if ($this->client->hasEncoder()) {
             $keyName = $this->client->getEncoder()->encode($keyName);

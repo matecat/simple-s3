@@ -40,6 +40,11 @@ final class S3ObjectSafeNameValidator extends S3NameValidator
             $errors[] = 'The string cannot starts with .';
         }
 
+        // check for string length
+        if(strlen(urlencode($string)) > 221){
+            $errors[] = 'The string is too long (max length of urlencoded string is 221 bytes)';
+        }
+
         return $errors;
     }
 }

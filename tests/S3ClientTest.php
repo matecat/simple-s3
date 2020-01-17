@@ -6,6 +6,7 @@ use Matecat\SimpleS3\Components\Cache\RedisCache;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
 
 class S3ClientTest extends PHPUnit_Framework_TestCase
 {
@@ -133,6 +134,21 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         ]));
         $this->assertTrue($this->s3Client->hasFolder(['bucket' => $this->bucket, 'prefix' => 'folder']));
         $this->assertFalse($this->s3Client->hasFolder(['bucket' => $this->bucket, 'prefix' => 'not_existing_folder']));
+    }
+
+    /**
+     * @test
+     */
+    public function test_the_client_throws_exception_if_filename_is_too_long()
+    {
+        $source = __DIR__ . '/support/files/txt/Образование_Зависимость_от_мобильных_телефонов_Статья_24122019.docx';
+        $key = 'Образование_Зависимость_от_мобильных_телефонов_Статья_24122019.docx';
+
+        try {
+            $this->s3Client->uploadItem(['bucket' => $this->bucket, 'key' => $key, 'source' => $source]);
+        } catch (InvalidS3NameException $e){
+            $this->assertEquals($e->getMessage(), $key . ' is not a valid S3 object name. [The string is too long (max length of urlencoded string is 221 bytes)]');
+        }
     }
 
     /**

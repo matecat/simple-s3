@@ -28,7 +28,7 @@ class OpenItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
+        $keyName = $params['key'];
 
         try {
             $url = $this->client->getPublicItemLink(['bucket' => $bucketName, 'key' => $keyName]);

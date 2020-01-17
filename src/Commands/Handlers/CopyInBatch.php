@@ -61,7 +61,6 @@ class CopyInBatch extends CopyItem
         $targetBucket = (isset($params['target_bucket'])) ? $params['target_bucket'] : $params['source_bucket'];
 
         foreach ($params['files']['source'] as $key => $file) {
-            $file = $this->getFilenameTrimmer()->trim($file);
             $targetKey  = (isset($params['files']['target'][$key])) ? $params['files']['target'][$key] : $file;
             $sourceBucket = $params['source_bucket'];
 
@@ -71,7 +70,7 @@ class CopyInBatch extends CopyItem
             }
 
             $copySource = $this->getCopySource($sourceBucket, $file);
-            $targetKeys[] = $this->getFilenameTrimmer()->trim($targetKey);
+            $targetKeys[] = $targetKey;
 
             $config = [
                 'Bucket' => $targetBucket,

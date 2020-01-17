@@ -30,7 +30,7 @@ class RestoreItem extends CommandHandler
     public function handle($params = [])
     {
         $bucketName = $params['bucket'];
-        $keyName = $this->getFilenameTrimmer()->trim($params['key']);
+        $keyName = $params['key'];
         $days =(isset($params['days'])) ? $params['days'] : 5;
         $tier = (isset($params['tier'])) ? $params['tier'] : 'Expedited';
 

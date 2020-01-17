@@ -43,7 +43,6 @@ class CopyFolder extends CommandHandler
                 }
 
                 $targetKeyName = $targetFolder . $this->client->getPrefixSeparator() . str_replace($sourceFolder, "", $sourceItem);
-                $targetKeyName = $this->getFilenameTrimmer()->trim($targetKeyName);
 
                 $copiedSourceItems = $this->client->copyItem([
                         'target_bucket' => $targetBucketName,
