@@ -1,7 +1,7 @@
 # Simple S3 Client
 
 [![license](https://img.shields.io/github/license/mauretto78/simple-s3.svg)]()
-[![Packagist](https://img.shields.io/packagist/v/mauretto78/simple-s3.svg)]()
+[![Packagist](https://img.shields.io/packagist/v/matecat/simple-s3.svg)]()
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauretto78/simple-s3/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauretto78/simple-s3/?branch=master)
 
 **Simple S3 Client** is a simple wrapper of the official SDK PHP Client.
