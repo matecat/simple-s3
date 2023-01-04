@@ -1,6 +1,6 @@
 # Simple S3 Client
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c131920fb28d46ce8ee0a629099d2bdf)](https://app.codacy.com/app/mauretto78_2/simple-s3?utm_source=github.com&utm_medium=referral&utm_content=mauretto78/simple-s3&utm_campaign=Badge_Grade_Settings)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c131920fb28d46ce8ee0a629099d2bdf)](https://app.codacy.com/app/matecat/simple-s3?utm_source=github.com&utm_medium=referral&utm_content=matecat/simple-s3&utm_campaign=Badge_Grade_Settings)
 [![license](https://img.shields.io/github/license/mauretto78/simple-s3.svg)]()
 [![Packagist](https://img.shields.io/packagist/v/mauretto78/simple-s3.svg)]()
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauretto78/simple-s3/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauretto78/simple-s3/?branch=master)
