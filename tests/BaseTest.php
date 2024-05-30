@@ -40,8 +40,8 @@ abstract class BaseTest extends PHPUnit_Framework_TestCase {
         } elseif ( !empty( $config[ 'AWS_ACCESS_KEY_ID' ] ) && !empty( $config[ 'AWS_SECRET_ACCESS_KEY' ] ) ) {
             $this->s3Client = new Client(
                     [
-                            'version'     => $config[ 'VERSION' ],
-                            'region'      => $config[ 'REGION' ],
+                            'version'     => '2006-03-01',
+                            'region'      => 'eu-central-1',
                             'credentials' => [
                                     'key'    => $config[ 'AWS_ACCESS_KEY_ID' ],
                                     'secret' => $config[ 'AWS_SECRET_ACCESS_KEY' ]
