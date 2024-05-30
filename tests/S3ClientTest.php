@@ -1,19 +1,22 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
 use Aws\ResultInterface;
+use Exception;
 use Matecat\SimpleS3\Client;
 use Matecat\SimpleS3\Components\Cache\RedisCache;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
+use Matecat\SimpleS3\Helpers\File;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
 
-class S3ClientTest extends PHPUnit_Framework_TestCase
+class S3ClientTest extends BaseTest
 {
     /**
      * @var Client
      */
-    private $s3Client;
+    protected $s3Client;
 
     /**
      * @var string
@@ -32,17 +35,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $this->s3Client = new Client(
-            [
-                'version' => $config['VERSION'],
-                'region' => $config['REGION'],
-                'credentials' => [
-                    'key' => $config['ACCESS_KEY_ID'],
-                    'secret' => $config['SECRET_KEY']
-                ]
-            ]
-        );
+        $this->getClient();
 
         // Inject Encoder
         $encoder = new UrlEncoder();
@@ -54,20 +47,21 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
         $this->s3Client->addLogger($logger);
 
         // Inject Cache
-        $redis = new Predis\Client();
+        $redis = new \Predis\Client();
         $cacheAdapter = new RedisCache($redis);
         $this->s3Client->addCache($cacheAdapter);
 
-        $this->bucket      = 'mauretto78-bucket-test';
+        $this->bucket      = $this->base_bucket_name;
         $this->keyname     = 'test.txt';
     }
 
     /**
      * @test
-     * @expectedException Matecat\SimpleS3\Exceptions\InvalidS3NameException
+     * @expectException Matecat\SimpleS3\Exceptions\InvalidS3NameException
      */
     public function test_the_client_creates_a_bucket_with_an_invalid_name()
     {
+        $this->expectException( InvalidS3NameException::class );
         $this->s3Client->createBucketIfItDoesNotExist(['bucket' => '172.0.0.1']);
     }
 
@@ -373,7 +367,7 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_dir($dest));
 
-        Matecat\SimpleS3\Helpers\File::removeDir($dest);
+        File::removeDir($dest);
     }
 
     /**
@@ -401,23 +395,6 @@ class S3ClientTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_gets_items_in_a_bucket_from_s3()
     {
-        // override s3Client
-        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $s3Client = new Client(
-            [
-                'version' => $config['VERSION'],
-                'region' => $config['REGION'],
-                'credentials' => [
-                   'key' => $config['ACCESS_KEY_ID'],
-                   'secret' => $config['SECRET_KEY'],
-                ]
-            ]
-        );
-
-        // Inject Logger
-        $logger = new Logger('channel-test');
-        $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
-        $s3Client->addLogger($logger);
 
         $items = $this->s3Client->getItemsInABucket(
             [

@@ -15,7 +15,9 @@ use Aws\CommandInterface;
 use Aws\CommandPool;
 use Aws\Exception\AwsException;
 use Aws\ResultInterface;
+use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
+use InvalidArgumentException;
 
 class CopyInBatch extends CopyItem
 {
@@ -43,7 +45,7 @@ class CopyInBatch extends CopyItem
      * ];
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function handle($params = [])
     {
@@ -52,7 +54,7 @@ class CopyInBatch extends CopyItem
         }
 
         if (empty($params['files']['source'])) {
-            throw new \InvalidArgumentException('source files array cannot be empty.');
+            throw new InvalidArgumentException('source files array cannot be empty.');
         }
 
         $commands = [];
@@ -98,8 +100,7 @@ class CopyInBatch extends CopyItem
                 // Invoke this function for each successful transfer
                 'fulfilled' => function (
                     ResultInterface $result,
-                    $iterKey,
-                    PromiseInterface $aggregatePromise
+                    $iterKey
                 ) use ($targetBucket, $targetKeys) {
                     if (null !== $this->commandHandlerLogger) {
                         $this->commandHandlerLogger->log($this, sprintf('Completed copy of \'%s\'', $targetKeys[$iterKey]));
@@ -111,10 +112,8 @@ class CopyInBatch extends CopyItem
                 },
                 // Invoke this function for each failed transfer
                 'rejected' => function (
-                    AwsException $reason,
-                    $iterKey,
-                    PromiseInterface $aggregatePromise
-                ) {
+                    AwsException $reason
+                ) use (&$errors) {
                     $errors[] = $reason;
 
                     if (null !== $this->commandHandlerLogger) {
@@ -141,7 +140,7 @@ class CopyInBatch extends CopyItem
             }
 
             return false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if (null !== $this->commandHandlerLogger) {
                 $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
             }

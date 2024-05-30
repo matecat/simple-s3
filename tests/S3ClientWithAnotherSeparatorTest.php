@@ -1,17 +1,19 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
+use Exception;
 use Matecat\SimpleS3\Client;
 use Matecat\SimpleS3\Components\Cache\RedisCache;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
-class S3ClientWithAnotherSeparatorTest extends PHPUnit_Framework_TestCase
+class S3ClientWithAnotherSeparatorTest extends BaseTest
 {
     /**
      * @var Client
      */
-    private $s3Client;
+    protected $s3Client;
 
     /**
      * @var string
@@ -25,17 +27,8 @@ class S3ClientWithAnotherSeparatorTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $this->s3Client = new Client(
-            [
-                'version' => $config['VERSION'],
-                'region' => $config['REGION'],
-                'credentials' => [
-                    'key' => $config['ACCESS_KEY_ID'],
-                    'secret' => $config['SECRET_KEY']
-                ]
-            ]
-        );
+        $this->getClient();
+
         $this->s3Client->setPrefixSeparator('---');
 
         // Inject Encoder
@@ -48,11 +41,11 @@ class S3ClientWithAnotherSeparatorTest extends PHPUnit_Framework_TestCase
         $this->s3Client->addLogger($logger);
 
         // Inject Cache
-        $redis = new Predis\Client();
+        $redis = new \Predis\Client();
         $cacheAdapter = new RedisCache($redis);
         $this->s3Client->addCache($cacheAdapter);
 
-        $this->bucket      = 'mauretto78-bucket-test-separator';
+        $this->bucket      = 'matecat-phpunit-tests-s3-3-empty';
     }
 
     /**

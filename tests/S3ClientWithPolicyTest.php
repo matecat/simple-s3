@@ -1,14 +1,16 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
+use Exception;
 use Matecat\SimpleS3\Client;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 
-class S3ClientWithPolicyTest extends PHPUnit_Framework_TestCase
+class S3ClientWithPolicyTest extends BaseTest
 {
     /**
      * @var Client
      */
-    private $s3Client;
+    protected $s3Client;
 
     /**
      * @var string
@@ -22,23 +24,13 @@ class S3ClientWithPolicyTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $this->s3Client = new Client(
-            [
-                'version' => $config['VERSION'],
-                'region' => $config['REGION'],
-                'credentials' => [
-                    'key' => $config['ACCESS_KEY_ID'],
-                    'secret' => $config['SECRET_KEY']
-                ]
-            ]
-        );
+        $this->getClient();
 
         // Inject Encoder
         $encoder = new UrlEncoder();
         $this->s3Client->addEncoder($encoder);
 
-        $this->bucket      = 'mauretto78-bucket-test-policy';
+        $this->bucket      = $this->base_bucket_name;
     }
 
     /**
@@ -57,7 +49,7 @@ class S3ClientWithPolicyTest extends PHPUnit_Framework_TestCase
                         "Effect": "Deny",
                         "Principal": "*",
                         "Action": "s3:GetBucketVersioning",
-                        "Resource": "arn:aws:s3:::mauretto78-bucket-test-policy"
+                        "Resource": "arn:aws:s3:::matecat-phpunit-tests-s3-3"
                     }
                 ]
             }',
@@ -73,7 +65,7 @@ class S3ClientWithPolicyTest extends PHPUnit_Framework_TestCase
                     "Effect" => "Deny",
                     "Principal" => "*",
                     "Action" => "s3:GetBucketVersioning",
-                    "Resource" => "arn:aws:s3:::mauretto78-bucket-test-policy"
+                    "Resource" => "arn:aws:s3:::matecat-phpunit-tests-s3-3"
                 ]
             ]
         ];

@@ -46,7 +46,7 @@ class CreateFolder extends CommandHandler
                 'Bucket' => $bucketName,
                 'Key'    => $keyName,
                 'Body'   => '',
-                'ACL'    => 'public-read'
+//                'ACL'    => 'public-read' // only bucket owners are allowed to create folder with ACL or bucket owner enforcement must be disabled
             ]);
 
             if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {

@@ -24,18 +24,19 @@
     "psr-4": { "Matecat\\SimpleS3\\Tests\\": "tests/" }
   },
   "require": {
-    "php": ">=5.5",
-    "aws/aws-sdk-php": "^3.93"
-  },
-  "require-dev": {
-    "symfony/console": "^3.4.17 || ^4.1.6",
+    "php": ">=5.6",
+    "predis/predis": "^2.0",
+    "aws/aws-sdk-php": "^3.93",
     "ext-curl": "^7.3",
     "ext-fileinfo": "^7.3",
     "ext-redis": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "symfony/console": "^3.4.17 || ^4.1.6",
     "friendsofphp/php-cs-fixer": "^2.3",
     "monolog/monolog": "^1.24",
     "phpunit/phpunit": "~5.7",
-    "phpstan/phpstan": "^0.11.8",
-    "predis/predis": "^1.1"
+    "phpstan/phpstan": "^0.11.8"
   }
 }

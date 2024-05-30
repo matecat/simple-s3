@@ -1,0 +1,54 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": "s3:PutObjectAcl",
+      "Resource": "arn:aws:s3:::matecat-phpunit-tests-s3*/*"
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutAccelerateConfiguration",
+        "s3:CreateBucket",
+        "s3:ListBucket",
+        "s3:Get*",
+        "s3:DeleteBucketPolicy",
+        "s3:PutLifecycleConfiguration",
+        "s3:PutBucketAcl",
+        "s3:GetBucketAcl",
+        "s3:PutBucketPolicy",
+        "s3:DeleteBucket",
+        "s3:PutBucketVersioning"
+      ],
+      "Resource": "arn:aws:s3:::matecat-phpunit-tests-s3*"
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:Get*",
+        "s3:DeleteObjectVersion",
+        "s3:PutObjectVersionAcl",
+        "s3:RestoreObject",
+        "s3:DeleteObject",
+        "s3:PutObjectAcl"
+      ],
+      "Resource": "arn:aws:s3:::matecat-phpunit-tests-s3*/*"
+    },
+    {
+      "Sid": "VisualEditor3",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBuckets",
+        "s3:ListBucketVersions",
+        "s3:GetObjectVersionAcl",
+        "s3:GetObjectVersion"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

@@ -1,9 +1,10 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
 use Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 
-class SafeNameEncoderTest extends PHPUnit_Framework_TestCase
+class SafeNameEncoderTest extends BaseTest
 {
     /**
      * @var SafeNameEncoderInterface

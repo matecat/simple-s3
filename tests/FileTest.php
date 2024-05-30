@@ -1,8 +1,9 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
 use Matecat\SimpleS3\Helpers\File;
 
-class FileTest extends PHPUnit_Framework_TestCase
+class FileTest extends BaseTest
 {
     /**
      * @test

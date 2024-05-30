@@ -1,8 +1,9 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
 use Matecat\SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
 
-class S3ObjectSafeNameValidatorTest extends PHPUnit_Framework_TestCase
+class S3ObjectSafeNameValidatorTest extends BaseTest
 {
     /**
      * @test

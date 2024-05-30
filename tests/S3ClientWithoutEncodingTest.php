@@ -1,15 +1,17 @@
 <?php
+namespace Matecat\SimpleS3\Tests;
 
+use Exception;
 use Matecat\SimpleS3\Client;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
-class S3ClientWithoutEncodingTest extends PHPUnit_Framework_TestCase
+class S3ClientWithoutEncodingTest extends BaseTest
 {
     /**
      * @var Client
      */
-    private $s3Client;
+    protected $s3Client;
 
     /**
      * @var string
@@ -28,24 +30,14 @@ class S3ClientWithoutEncodingTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $config = parse_ini_file(__DIR__.'/../config/credentials.ini');
-        $this->s3Client = new Client(
-            [
-                'version' => $config['VERSION'],
-                'region' => $config['REGION'],
-                'credentials' => [
-                    'key' => $config['ACCESS_KEY_ID'],
-                    'secret' => $config['SECRET_KEY']
-                ]
-            ]
-        );
+        $this->getClient();
 
         // Inject Logger
         $logger = new Logger('channel-test');
         $logger->pushHandler(new StreamHandler(__DIR__.'/../log/test.log', Logger::DEBUG));
         $this->s3Client->addLogger($logger);
 
-        $this->bucket      = 'mauretto78-bucket-test-no-encoding';
+        $this->bucket      = $this->base_bucket_name;
         $this->keyname     = 'test.txt';
 
         $this->s3Client->createBucketIfItDoesNotExist([
@@ -117,8 +109,8 @@ class S3ClientWithoutEncodingTest extends PHPUnit_Framework_TestCase
      */
     public function test_the_client_uploads_and_then_copy_an_item_with_cyrillic_name()
     {
-        $source = __DIR__ . '/support/files/txt/Образование_Зависимость_от_мобильных_телефонов_Статья_24122019.docx';
-        $key = 'Образование_Зависимость_от_мобильных_телефонов_Статья_24122019.docx';
+        $source = __DIR__ . '/support/files/txt/Образование.docx';
+        $key = 'Образование.docx';
 
         $upload = $this->s3Client->uploadItem([
                 'bucket' => $this->bucket,

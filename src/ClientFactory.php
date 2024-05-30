@@ -14,6 +14,7 @@ namespace Matecat\SimpleS3;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Aws\Sts\StsClient;
+use InvalidArgumentException;
 
 /**
  * Class ClientFactory
@@ -112,7 +113,7 @@ final class ClientFactory
         
         foreach (array_keys($config) as $key) {
             if (!in_array($key, $allowedKeys)) {
-                throw new \InvalidArgumentException(sprintf('%s is not an allowed key', $key));
+                throw new InvalidArgumentException(sprintf('%s is not an allowed key', $key));
             }
         }
     }
