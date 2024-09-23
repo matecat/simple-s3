@@ -79,6 +79,9 @@ final class ClientFactory
             );
         }
 
+        // Temp fix: suppressing PHP < 8.1 warnings
+        $config['suppress_php_deprecation_warning'] = true;
+
         return $config;
     }
 
