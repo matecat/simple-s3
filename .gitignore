@@ -1,6 +1,7 @@
 .idea
 .php_cs.cache
 build
-config/credentials.*.ini
+config/credentials.ini
 log
 vendor
+composer.lock
