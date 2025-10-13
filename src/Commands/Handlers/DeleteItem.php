@@ -13,63 +13,56 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class DeleteItem extends CommandHandler
-{
+class DeleteItem extends CommandHandler {
     /**
      * Delete an item.
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/delete-object.html
      *
-     * @param mixed $params
+     * @param array $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
-        $version = (isset($params['version'])) ? $params['version'] : null;
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
+        $version    = ( isset( $params[ 'version' ] ) ) ? $params[ 'version' ] : null;
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if ( $this->client->hasEncoder() ) {
+            $keyName = $this->client->getEncoder()->encode( $keyName );
         }
 
         try {
             $config = [
-                'Bucket' => $bucketName,
-                'Key'    => $keyName,
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyName,
             ];
 
-            if (null != $version) {
-                $config['VersionId'] = $version;
+            if ( null != $version ) {
+                $config[ 'VersionId' ] = $version;
             }
 
-            $delete = $this->client->getConn()->deleteObject($config);
+            $delete = $this->client->getConn()->deleteObject( $config );
 
-            if (($delete instanceof ResultInterface) and $delete['@metadata']['statusCode'] === 204) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName));
-                }
+            if ( ( $delete instanceof ResultInterface ) and $delete[ '@metadata' ][ 'statusCode' ] === 204 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( 'File \'%s\' was successfully deleted from \'%s\' bucket', $keyName, $bucketName ) );
 
-                if ($this->client->hasCache()) {
-                    $this->client->getCache()->remove($bucketName, $keyName, $version);
+                if ( $this->client->hasCache() ) {
+                    $this->client->getCache()->remove( $bucketName, $keyName, $version );
                 }
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyName, $bucketName), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong in deleting file \'%s\' from \'%s\' bucket', $keyName, $bucketName ), 'warning' );
 
             return false;
-        } catch (S3Exception $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( S3Exception $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -80,11 +73,10 @@ class DeleteItem extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] )
         );
     }
 }

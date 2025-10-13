@@ -19,7 +19,7 @@ class S3ClientTest extends BaseTest {
     /**
      * @var Client
      */
-    protected $s3Client;
+    protected Client $s3Client;
 
     /**
      * @var string
@@ -338,7 +338,7 @@ class S3ClientTest extends BaseTest {
 
         foreach ( $items as $key => $item ) {
             $this->assertTrue( is_array( $item ) );
-            $this->assertEquals( $item[ '@metadata' ][ 'statusCode' ], 200 );
+            $this->assertEquals( 200, $item[ '@metadata' ][ 'statusCode' ] );
         }
     }
 
@@ -354,7 +354,7 @@ class S3ClientTest extends BaseTest {
 
         $this->assertTrue( is_dir( $dest ) );
 
-        File::removeDir( $dest );
+        File::cleanDir( $dest );
     }
 
     /**

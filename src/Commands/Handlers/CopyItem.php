@@ -13,71 +13,64 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class CopyItem extends CommandHandler
-{
+class CopyItem extends CommandHandler {
     /**
      * Copy an item from a bucket to another one.
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/copy-object.html?highlight=copy
      *
-     * @param mixed $params
+     * @param array $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $targetBucketName = $params['target_bucket'];
-        $targetKeyname = $params['target'];
-        $sourceBucket = $params['source_bucket'];
-        $sourceKeyname = $params['source'];
+    public function handle( array $params = [] ): bool {
+        $targetBucketName = $params[ 'target_bucket' ];
+        $targetKeyname    = $params[ 'target' ];
+        $sourceBucket     = $params[ 'source_bucket' ];
+        $sourceKeyname    = $params[ 'source' ];
 
-        $this->client->createBucketIfItDoesNotExist(['bucket' => $targetBucketName]);
+        $this->client->createBucketIfItDoesNotExist( [ 'bucket' => $targetBucketName ] );
 
-        if ($this->client->hasEncoder()) {
-            $targetKeyname = $this->client->getEncoder()->encode($targetKeyname);
-            $sourceKeyname = $this->client->getEncoder()->encode($sourceKeyname);
+        if ( $this->client->hasEncoder() ) {
+            $targetKeyname = $this->client->getEncoder()->encode( $targetKeyname );
+            $sourceKeyname = $this->client->getEncoder()->encode( $sourceKeyname );
         }
 
-        $copySource = trim($this->getCopySource($sourceBucket, $sourceKeyname));
+        $copySource = trim( $this->getCopySource( $sourceBucket, $sourceKeyname ) );
 
         try {
             $config = [
-                'Bucket' => $targetBucketName,
-                'Key'    => $targetKeyname,
-                'CopySource' => $copySource,
+                    'Bucket'     => $targetBucketName,
+                    'Key'        => $targetKeyname,
+                    'CopySource' => $copySource,
             ];
 
-            if ($this->client->isBucketVersioned(['bucket' => $sourceBucket])) {
-                $version = $this->client->getCurrentItemVersion(['bucket' => $sourceBucket, 'key' => $params['source']]);
-                $config['CopySource'] = $copySource . '?versionId='.$version;
+            if ( $this->client->isBucketVersioned( [ 'bucket' => $sourceBucket ] ) ) {
+                $version                = $this->client->getCurrentItemVersion( [ 'bucket' => $sourceBucket, 'key' => $params[ 'source' ] ] );
+                $config[ 'CopySource' ] = $copySource . '?versionId=' . $version;
             }
 
-            $copied = $this->client->getConn()->copyObject($config);
+            $copied = $this->client->getConn()->copyObject( $config );
 
-            if (($copied instanceof ResultInterface) and $copied['@metadata']['statusCode'] === 200) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname));
-                }
+            if ( ( $copied instanceof ResultInterface ) and $copied[ '@metadata' ][ 'statusCode' ] === 200 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( 'File \'%s/%s\' was successfully copied to \'%s/%s\'', $sourceBucket, $sourceKeyname, $targetBucketName, $targetKeyname ) );
 
-                if ($this->client->hasCache()) {
-                    $this->client->getCache()->set($targetBucketName, $targetKeyname, '');
+                if ( $this->client->hasCache() ) {
+                    $this->client->getCache()->set( $targetBucketName, $targetKeyname, '' );
                 }
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong in copying file \'%s/%s\'', $sourceBucket, $sourceKeyname ), 'warning' );
 
             return false;
-        } catch (S3Exception $exception) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($exception);
-            }
+        } catch ( S3Exception $exception ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $exception );
 
             throw $exception;
         }
@@ -88,13 +81,12 @@ class CopyItem extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['target_bucket']) and
-            isset($params['target']) and
-            isset($params['source_bucket']) and
-            isset($params['source'])
+                isset( $params[ 'target_bucket' ] ) and
+                isset( $params[ 'target' ] ) and
+                isset( $params[ 'source_bucket' ] ) and
+                isset( $params[ 'source' ] )
         );
     }
 
@@ -106,18 +98,17 @@ class CopyItem extends CommandHandler
      *
      * @return string
      */
-    protected function getCopySource($sourceBucket, $sourceKeyname)
-    {
-        if ($this->client->hasEncoder()) {
+    protected function getCopySource( string $sourceBucket, string $sourceKeyname ): string {
+        if ( $this->client->hasEncoder() ) {
             return $sourceBucket . $this->client->getPrefixSeparator() . $sourceKeyname;
         }
 
         $encoded = [];
 
-        foreach (explode($this->client->getPrefixSeparator(), $sourceKeyname) as $word) {
-            $encoded[] = urlencode($word);
+        foreach ( explode( $this->client->getPrefixSeparator(), $sourceKeyname ) as $word ) {
+            $encoded[] = urlencode( $word );
         }
 
-        return $sourceBucket . $this->client->getPrefixSeparator() . implode($this->client->getPrefixSeparator(), $encoded);
+        return $sourceBucket . $this->client->getPrefixSeparator() . implode( $this->client->getPrefixSeparator(), $encoded );
     }
 }

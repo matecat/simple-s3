@@ -20,28 +20,26 @@ namespace Matecat\SimpleS3\Components\Validators;
  *
  * @package SimpleS3
  */
-final class S3StorageClassNameValidator extends S3NameValidator
-{
+final class S3StorageClassNameValidator extends S3NameValidator {
     /**
      * @param string $string
      *
      * @return array
      */
-    public static function validate($string)
-    {
+    public static function validate( string $string ): array {
         $errors = [];
 
         $allowedStorageClasses = [
-            'STANDARD',
-            'REDUCED_REDUNDANCY',
-            'STANDARD_IA',
-            'ONEZONE_IA',
-            'INTELLIGENT_TIERING',
-            'GLACIER',
-            'DEEP_ARCHIVE',
+                'STANDARD',
+                'REDUCED_REDUNDANCY',
+                'STANDARD_IA',
+                'ONEZONE_IA',
+                'INTELLIGENT_TIERING',
+                'GLACIER',
+                'DEEP_ARCHIVE',
         ];
 
-        if (!in_array($string, $allowedStorageClasses)) {
+        if ( !in_array( $string, $allowedStorageClasses ) ) {
             $errors[] = 'The string is not a valid StorageClass';
         }
 

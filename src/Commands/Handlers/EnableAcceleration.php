@@ -12,51 +12,44 @@
 namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class EnableAcceleration extends CommandHandler
-{
+class EnableAcceleration extends CommandHandler {
     /**
      * Enable acceleration for a bucket.
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-accelerate-configuration.html
      *
-     * @param mixed $params
+     * @param array $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
 
         try {
             $accelerate = $this->client->getConn()->putBucketAccelerateConfiguration(
-                [
-                    'AccelerateConfiguration' => [
-                        'Status' => 'Enabled',
-                    ],
-                    'Bucket' => $bucketName,
-                ]
+                    [
+                            'AccelerateConfiguration' => [
+                                    'Status' => 'Enabled',
+                            ],
+                            'Bucket'                  => $bucketName,
+                    ]
             );
 
-            if (($accelerate instanceof ResultInterface) and $accelerate['@metadata']['statusCode'] === 200) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('Bucket \'%s\' was successfully set to transfer accelerated mode', $bucketName));
-                }
+            if ( ( $accelerate instanceof ResultInterface ) and $accelerate[ '@metadata' ][ 'statusCode' ] === 200 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( 'Bucket \'%s\' was successfully set to transfer accelerated mode', $bucketName ) );
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during setting of bucket \'%s\' to transfer accelerated mode', $bucketName), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during setting of bucket \'%s\' to transfer accelerated mode', $bucketName ), 'warning' );
 
             return false;
-        } catch (\Exception $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( Exception $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -67,8 +60,7 @@ class EnableAcceleration extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
-        return isset($params['bucket']);
+    public function validateParams( array $params = [] ): bool {
+        return isset( $params[ 'bucket' ] );
     }
 }

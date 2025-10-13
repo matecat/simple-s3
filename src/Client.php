@@ -13,11 +13,12 @@ namespace Matecat\SimpleS3;
 
 use Aws\ResultInterface;
 use Aws\S3\S3Client;
-use Psr\Http\Message\UriInterface;
-use Psr\Log\LoggerInterface;
+use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Components\Cache\CacheInterface;
 use Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface;
+use Psr\Http\Message\UriInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Client
@@ -27,86 +28,84 @@ use Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface;
  *
  * Method list:
  *
- * @method bool clearBucket(array $input)
- * @method bool copyFolder(array $input)
- * @method bool copyInBatch(array $input)
- * @method bool copyItem(array $input)
- * @method bool createBucketIfItDoesNotExist(array $input)
- * @method bool createFolder(array $input)
- * @method bool deleteBucket(array $input)
- * @method bool deleteBucketPolicy(array $input)
- * @method bool deleteFolder(array $input)
- * @method bool deleteItem(array $input)
- * @method bool downloadItem(array $input)
- * @method bool enableAcceleration(array $input)
- * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
- * @method mixed getBucketPolicy(array $input)
- * @method int|mixed getBucketSize(array $input)
- * @method null|string getCurrentItemVersion(array $input)
- * @method ResultInterface|mixed getItem(array $input)
- * @method array|mixed getItemsInABucket(array $input)
- * @method array|mixed getItemsInAVersionedBucket(array $input)
- * @method mixed|UriInterface getPublicItemLink(array $input)
- * @method bool hasBucket(array $input)
- * @method bool hasFolder(array $input)
- * @method bool hasItem(array $input)
- * @method bool isBucketVersioned(array $input)
- * @method mixed|UriInterface openItem(array $input)
- * @method bool restoreItem(array $input)
- * @method bool setBucketLifecycleConfiguration(array $input)
- * @method bool setBucketPolicy(array $input)
- * @method bool setBucketVersioning(array $input)
- * @method bool transfer(array $input)
- * @method bool uploadItem(array $input)
- * @method bool uploadItemFromBody(array $input)
+ * @method bool clearBucket( array $input )
+ * @method bool copyFolder( array $input )
+ * @method bool copyInBatch( array $input )
+ * @method bool copyItem( array $input )
+ * @method bool createBucketIfItDoesNotExist( array $input )
+ * @method bool createFolder( array $input )
+ * @method bool deleteBucket( array $input )
+ * @method bool deleteBucketPolicy( array $input )
+ * @method bool deleteFolder( array $input )
+ * @method bool deleteItem( array $input )
+ * @method bool downloadItem( array $input )
+ * @method bool enableAcceleration( array $input )
+ * @method ResultInterface|mixed getBucketLifeCycleConfiguration( array $input )
+ * @method mixed getBucketPolicy( array $input )
+ * @method int|mixed getBucketSize( array $input )
+ * @method null|string getCurrentItemVersion( array $input )
+ * @method ResultInterface|mixed getItem( array $input )
+ * @method array getItemsInABucket( array $input )
+ * @method array getItemsInAVersionedBucket( array $input )
+ * @method UriInterface getPublicItemLink( array $input )
+ * @method bool hasBucket( array $input )
+ * @method bool hasFolder( array $input )
+ * @method bool hasItem( array $input )
+ * @method bool isBucketVersioned( array $input )
+ * @method mixed|UriInterface openItem( array $input )
+ * @method bool restoreItem( array $input )
+ * @method bool setBucketLifecycleConfiguration( array $input )
+ * @method bool setBucketPolicy( array $input )
+ * @method bool setBucketVersioning( array $input )
+ * @method bool transfer( array $input )
+ * @method bool uploadItem( array $input )
+ * @method bool uploadItemFromBody( array $input )
  *
  * @package SimpleS3
  */
-final class Client
-{
+final class Client {
     /**
      * @var string
      */
-    private $prefixSeparator = DIRECTORY_SEPARATOR;
+    private string $prefixSeparator = DIRECTORY_SEPARATOR;
 
     /**
-     * @var CacheInterface
+     * @var CacheInterface|null
      */
-    private $cache;
+    private ?CacheInterface $cache = null;
 
     /**
-     * @var SafeNameEncoderInterface
+     * @var SafeNameEncoderInterface|null
      */
-    private $encoder;
+    private ?SafeNameEncoderInterface $encoder = null;
 
     /**
-     * @var LoggerInterface
+     * @var ?LoggerInterface
      */
-    private $logger;
+    private ?LoggerInterface $logger = null;
 
     /**
      * @var S3Client
      */
-    private $s3;
+    private S3Client $s3;
 
     /**
      * @var bool
      */
-    private $sslVerify = true;
+    private bool $sslVerify = true;
 
     /**
      * @var int
      */
-    private $filenameMaxSize;
+    private int $filenameMaxSize;
 
     /**
      * Client constructor.
      *
      * @param array $config
      */
-    public function __construct(array $config)
-    {
-        $this->s3 = ClientFactory::create($config);
+    public function __construct( array $config ) {
+        $this->s3              = ClientFactory::create( $config );
         $this->filenameMaxSize = 255;
     }
 
@@ -116,154 +115,137 @@ final class Client
      * if the passed parameters are valid
      *
      * @param string $name
-     * @param mixed $args
+     * @param array  $args
      *
      * @return mixed
      */
-    public function __call($name, $args)
-    {
-        $params = isset($args[0]) ? $args[0] : [];
+    public function __call( string $name, array $args ) {
+        $params = $args[ 0 ] ?? [];
 
-        $commandHandler = 'Matecat\\SimpleS3\\Commands\\Handlers\\'.ucfirst($name);
+        $commandHandler = 'Matecat\\SimpleS3\\Commands\\Handlers\\' . ucfirst( $name );
 
-        if (false === class_exists($commandHandler)) {
-            throw new \InvalidArgumentException($commandHandler . ' is not a valid command name. Please refer to README to get the complete command list.');
+        if ( false === class_exists( $commandHandler ) ) {
+            throw new InvalidArgumentException( $commandHandler . ' is not a valid command name. Please refer to README to get the complete command list.' );
         }
 
         /** @var CommandHandler $commandHandler */
-        $commandHandler = new $commandHandler($this);
+        $commandHandler = new $commandHandler( $this );
 
-        if ($commandHandler->validateParams($params)) {
-            return $commandHandler->handle($params);
+        if ( $commandHandler->validateParams( $params ) ) {
+            return $commandHandler->handle( $params );
         }
     }
 
     /**
      * @param CacheInterface $cache
      */
-    public function addCache(CacheInterface $cache)
-    {
+    public function addCache( CacheInterface $cache ): void {
         $this->cache = $cache;
-        $this->cache->setPrefixSeparator($this->prefixSeparator);
+        $this->cache->setPrefixSeparator( $this->prefixSeparator );
     }
 
     /**
      * @return bool
      */
-    public function hasCache()
-    {
+    public function hasCache(): bool {
         return null !== $this->cache;
     }
 
     /**
-     * @return CacheInterface
+     * @return CacheInterface|null
      */
-    public function getCache()
-    {
+    public function getCache(): ?CacheInterface {
         return $this->cache;
     }
 
     /**
      * @param SafeNameEncoderInterface $encoder
      */
-    public function addEncoder(SafeNameEncoderInterface $encoder)
-    {
+    public function addEncoder( SafeNameEncoderInterface $encoder ): void {
         $this->encoder = $encoder;
     }
 
     /**
      * @return bool
      */
-    public function hasEncoder()
-    {
+    public function hasEncoder(): bool {
         return null !== $this->encoder;
     }
 
     /**
-     * @return SafeNameEncoderInterface
+     * @return SafeNameEncoderInterface|null
      */
-    public function getEncoder()
-    {
+    public function getEncoder(): ?SafeNameEncoderInterface {
         return $this->encoder;
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function addLogger(LoggerInterface $logger)
-    {
+    public function addLogger( LoggerInterface $logger ): void {
         $this->logger = $logger;
     }
 
     /**
      * @return bool
      */
-    public function hasLogger()
-    {
+    public function hasLogger(): bool {
         return null !== $this->logger;
     }
 
     /**
-     * @return LoggerInterface
+     * @return LoggerInterface|null
      */
-    public function getLogger()
-    {
+    public function getLogger(): ?LoggerInterface {
         return $this->logger;
     }
 
     /**
      * @return S3Client
      */
-    public function getConn()
-    {
+    public function getConn(): S3Client {
         return $this->s3;
     }
 
     /**
      * Disable SSL verify
      */
-    public function disableSslVerify()
-    {
+    public function disableSslVerify() {
         $this->sslVerify = false;
     }
 
     /**
      * @return bool
      */
-    public function hasSslVerify()
-    {
+    public function hasSslVerify(): bool {
         return $this->sslVerify;
     }
 
     /**
-     * @var string
+     * @param string $separator
      */
-    public function setPrefixSeparator($separator)
-    {
+    public function setPrefixSeparator( string $separator ): void {
         $this->prefixSeparator = $separator;
     }
 
     /**
      * @return string
      */
-    public function getPrefixSeparator()
-    {
+    public function getPrefixSeparator(): string {
         return $this->prefixSeparator;
     }
 
     /**
      * @return int
      */
-    public function getFilenameMaxSize()
-    {
+    public function getFilenameMaxSize(): int {
         return $this->filenameMaxSize;
     }
 
     /**
      * @param int $filenameMaxSize
      */
-    public function setFilenameMaxSize($filenameMaxSize)
-    {
+    public function setFilenameMaxSize( int $filenameMaxSize ): void {
         $this->filenameMaxSize = $filenameMaxSize;
     }
 }

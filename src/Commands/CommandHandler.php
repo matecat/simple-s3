@@ -14,28 +14,26 @@ namespace Matecat\SimpleS3\Commands;
 use Matecat\SimpleS3\Client;
 use Matecat\SimpleS3\Components\Logger\CommandHandlerLogger;
 
-abstract class CommandHandler implements CommandHandlerInterface
-{
+abstract class CommandHandler implements CommandHandlerInterface {
     /**
      * @var Client
      */
-    protected $client;
+    protected Client $client;
 
     /**
-     * @var CommandHandlerLogger
+     * @var CommandHandlerLogger|null
      */
-    protected $commandHandlerLogger;
+    protected ?CommandHandlerLogger $commandHandlerLogger = null;
 
     /**
      * CommandHandler constructor.
      *
      * @param Client $client
      */
-    public function __construct(Client $client)
-    {
+    public function __construct( Client $client ) {
         $this->client = $client;
-        if ($this->client->hasLogger()) {
-            $this->commandHandlerLogger = new CommandHandlerLogger($client->getLogger());
+        if ( $this->client->hasLogger() ) {
+            $this->commandHandlerLogger = new CommandHandlerLogger( $client->getLogger() );
         }
     }
 }

@@ -11,47 +11,43 @@
 
 namespace Matecat\SimpleS3\Commands\Handlers;
 
-use Psr\Http\Message\UriInterface;
+use Exception;
+use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
+use Psr\Http\Message\UriInterface;
 
-class GetPublicItemLink extends CommandHandler
-{
+class GetPublicItemLink extends CommandHandler {
     /**
      * Get the temporary public link of an item.
      * It return a presigned URL.
      *
      * @param array $params
      *
-     * @return mixed|UriInterface
-     * @throws \Exception
+     * @return UriInterface
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
-        $expires = (isset($params['expires'])) ? $params['expires'] : '+1 hour';
+    public function handle( array $params = [] ): UriInterface {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
+        $expires    = ( isset( $params[ 'expires' ] ) ) ? $params[ 'expires' ] : '+1 hour';
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if ( $this->client->hasEncoder() ) {
+            $keyName = $this->client->getEncoder()->encode( $keyName );
         }
 
         try {
-            $cmd = $this->client->getConn()->getCommand('GetObject', [
-                'Bucket' => $bucketName,
-                'Key'    => $keyName,
-            ]);
+            $cmd = $this->client->getConn()->getCommand( 'GetObject', [
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyName,
+            ] );
 
-            $link = $this->client->getConn()->createPresignedRequest($cmd, $expires)->getUri();
+            $link = $this->client->getConn()->createPresignedRequest( $cmd, $expires )->getUri();
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Public link of \'%s\' file was successfully obtained from \'%s\' bucket', $keyName, $bucketName ) );
 
             return $link;
-        } catch (\InvalidArgumentException $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( InvalidArgumentException $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -62,11 +58,10 @@ class GetPublicItemLink extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] )
         );
     }
 }

@@ -11,12 +11,12 @@
 
 namespace Matecat\SimpleS3\Commands\Handlers;
 
-use Aws\ResultInterface;
+use Aws\Result;
 use Aws\S3\Exception\S3Exception;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class GetBucketLifeCycleConfiguration extends CommandHandler
-{
+class GetBucketLifeCycleConfiguration extends CommandHandler {
     /**
      * Get the lifecycle configuration of a bucket.
      * For a complete reference:
@@ -24,27 +24,22 @@ class GetBucketLifeCycleConfiguration extends CommandHandler
      *
      * @param array $params
      *
-     * @return ResultInterface|mixed
-     * @throws \Exception
+     * @return Result
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
+    public function handle( array $params = [] ): Result {
+        $bucketName = $params[ 'bucket' ];
 
         try {
-            $result = $this->client->getConn()->getBucketLifecycle([
-                'Bucket' => $bucketName
-            ]);
+            $result = $this->client->getConn()->getBucketLifecycle( [
+                    'Bucket' => $bucketName
+            ] );
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName));
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName ) );
 
             return $result;
-        } catch (S3Exception $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( S3Exception $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -55,8 +50,7 @@ class GetBucketLifeCycleConfiguration extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
-        return isset($params['bucket']);
+    public function validateParams( array $params = [] ): bool {
+        return isset( $params[ 'bucket' ] );
     }
 }

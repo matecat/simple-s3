@@ -11,44 +11,42 @@
 
 namespace Matecat\SimpleS3\Components\Logger;
 
-use Psr\Log\LoggerInterface;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
+use Psr\Log\LoggerInterface;
 
-class CommandHandlerLogger
-{
+class CommandHandlerLogger {
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /**
      * Logger constructor.
      *
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
-    {
+    public function __construct( LoggerInterface $logger ) {
         $this->logger = $logger;
     }
 
     /**
      * @param CommandHandler $commandHandler
-     * @param string $message
-     * @param string $level
+     * @param string         $message
+     * @param string         $level
      */
-    public function log(CommandHandler $commandHandler, $message, $level = 'info')
-    {
-        $msg = '['.get_class($commandHandler).'] ' . $message;
-        $this->logger->{$level}($msg);
+    public function log( CommandHandler $commandHandler, string $message, string $level = 'info' ): void {
+        $msg = '[' . get_class( $commandHandler ) . '] ' . $message;
+        $this->logger->{$level}( $msg );
     }
 
     /**
-     * @param \Exception $exception
+     * @param Exception $exception
+     *
      * @return bool
      */
-    public function logExceptionAndReturnFalse(\Exception $exception)
-    {
-        $this->logger->error($exception->getMessage());
+    public function logExceptionAndReturnFalse( Exception $exception ): bool {
+        $this->logger->error( $exception->getMessage() );
 
         return false;
     }

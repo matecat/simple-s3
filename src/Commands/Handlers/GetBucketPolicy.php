@@ -11,31 +11,28 @@
 
 namespace Matecat\SimpleS3\Commands\Handlers;
 
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class GetBucketPolicy extends CommandHandler
-{
+class GetBucketPolicy extends CommandHandler {
     /**
      * Get the policy of a bucket.
      *
      * @param array $params
      *
      * @return int|mixed
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
+    public function handle( array $params = [] ): mixed {
+        $bucketName = $params[ 'bucket' ];
 
-        $result = $this->client->getConn()->getBucketPolicy([
-            'Bucket' => $bucketName,
-        ]);
+        $result = $this->client->getConn()->getBucketPolicy( [
+                'Bucket' => $bucketName,
+        ] );
 
-        if (null !== $this->commandHandlerLogger) {
-            $this->commandHandlerLogger->log($this, sprintf('Size of \'%s\' bucket was successfully obtained', $bucketName));
-        }
+        $this->commandHandlerLogger?->log( $this, sprintf( 'Size of \'%s\' bucket was successfully obtained', $bucketName ) );
 
-        return (isset($result['Policy'])) ? json_decode($result['Policy']->getContents(), true) : '';
+        return ( isset( $result[ 'Policy' ] ) ) ? json_decode( $result[ 'Policy' ]->getContents(), true ) : '';
     }
 
     /**
@@ -43,8 +40,7 @@ class GetBucketPolicy extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
-        return isset($params['bucket']);
+    public function validateParams( array $params = [] ): bool {
+        return isset( $params[ 'bucket' ] );
     }
 }

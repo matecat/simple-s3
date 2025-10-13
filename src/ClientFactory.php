@@ -56,8 +56,7 @@ final class ClientFactory
      *
      * @return S3Client
      */
-    public static function create(array $config = [])
-    {
+    public static function create(array $config = []): S3Client {
         self::validateConfig($config);
 
         return new S3Client(self::createConfigArray($config));
@@ -68,8 +67,7 @@ final class ClientFactory
      *
      * @return array
      */
-    private static function createConfigArray(array $config)
-    {
+    private static function createConfigArray(array $config): array {
         $credentials = self::getCredentials($config);
         if (!empty($credentials)) {
             $config['credentials'] = new Credentials(
@@ -88,8 +86,7 @@ final class ClientFactory
     /**
      * @param array $config
      */
-    private static function validateConfig(array $config)
-    {
+    private static function validateConfig(array $config): void {
         $allowedKeys = [
             'api_provider',
             'credentials',
@@ -126,14 +123,13 @@ final class ClientFactory
      *
      * @return array
      */
-    private static function getCredentials(array $config)
-    {
+    private static function getCredentials(array $config): array {
         // 1. credentials
         if (isset($config['credentials']['key']) and isset($config['credentials']['secret'])) {
             return [
                 'key'    => $config['credentials']['key'],
                 'secret' => $config['credentials']['secret'],
-                'token'  => isset($config['credentials']['token']) ? $config['credentials']['token'] : null
+                'token'  => $config[ 'credentials' ][ 'token' ] ?? null
             ];
         }
 

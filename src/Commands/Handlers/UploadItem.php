@@ -15,15 +15,16 @@ use Aws\CommandInterface;
 use Aws\Exception\MultipartUploadException;
 use Aws\ResultInterface;
 use Aws\S3\MultipartUploader;
+use Exception;
+use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
 use Matecat\SimpleS3\Components\Validators\S3StorageClassNameValidator;
 use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
 use Matecat\SimpleS3\Helpers\File;
 
-class UploadItem extends CommandHandler
-{
-    const MAX_FILESIZE = 6291456; // 6 Mb
+class UploadItem extends CommandHandler {
+    const int MAX_FILESIZE = 6291456; // 6 Mb
 
     /**
      * Upload a file to S3.
@@ -34,36 +35,35 @@ class UploadItem extends CommandHandler
      * @param array $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
-        $source = $params['source'];
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
+        $source     = $params[ 'source' ];
 
-        if (isset($params['bucket_check']) and true === $params['bucket_check']) {
-            $this->client->createBucketIfItDoesNotExist(['bucket' => $bucketName]);
+        if ( isset( $params[ 'bucket_check' ] ) and true === $params[ 'bucket_check' ] ) {
+            $this->client->createBucketIfItDoesNotExist( [ 'bucket' => $bucketName ] );
         }
 
-        if (false === S3ObjectSafeNameValidator::isValid($keyName)) {
-            throw new InvalidS3NameException(sprintf('%s is not a valid S3 object name. ['.implode(', ', S3ObjectSafeNameValidator::validate($keyName)).']', $keyName));
+        if ( false === S3ObjectSafeNameValidator::isValid( $keyName ) ) {
+            throw new InvalidS3NameException( sprintf( '%s is not a valid S3 object name. [' . implode( ', ', S3ObjectSafeNameValidator::validate( $keyName ) ) . ']', $keyName ) );
         }
 
-        if ((isset($params['storage']) and false === S3StorageClassNameValidator::isValid($params['storage']))) {
-            throw new \InvalidArgumentException(S3StorageClassNameValidator::validate($params['storage'])[0]);
+        if ( ( isset( $params[ 'storage' ] ) and false === S3StorageClassNameValidator::isValid( $params[ 'storage' ] ) ) ) {
+            throw new InvalidArgumentException( S3StorageClassNameValidator::validate( $params[ 'storage' ] )[ 0 ] );
         }
 
-        if (File::getSize($source) > self::MAX_FILESIZE) {
-            return $this->multipartUpload($bucketName, $keyName, $source, $params);
+        if ( File::getSize( $source ) > self::MAX_FILESIZE ) {
+            return $this->multipartUpload( $bucketName, $keyName, $source, $params );
         }
 
-        return (new UploadItemFromBody($this->client))->handle([
-            'bucket' => $bucketName,
-            'key' => $keyName,
-            'body' => File::open($source),
-            'storage' => (isset($params['storage'])) ? $params['storage'] : null
-        ]);
+        return ( new UploadItemFromBody( $this->client ) )->handle( [
+                'bucket'  => $bucketName,
+                'key'     => $keyName,
+                'body'    => File::open( $source ),
+                'storage' => ( isset( $params[ 'storage' ] ) ) ? $params[ 'storage' ] : null
+        ] );
     }
 
     /**
@@ -71,12 +71,11 @@ class UploadItem extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key']) and
-            isset($params['source'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] ) and
+                isset( $params[ 'source' ] )
         );
     }
 
@@ -84,68 +83,60 @@ class UploadItem extends CommandHandler
      * @param string $bucketName
      * @param string $keyName
      * @param string $source
-     * @param array $params
+     * @param array  $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    private function multipartUpload($bucketName, $keyName, $source, $params = [])
-    {
+    private function multipartUpload( string $bucketName, string $keyName, string $source, array $params = [] ): bool {
         $uploader = new MultipartUploader(
-            $this->client->getConn(),
-            $source,
-            [
-                'bucket' => $bucketName,
-                'key'    => $keyName,
-                'before_initiate' => function (CommandInterface $command) use ($source, $params, $keyName) {
-                    if (extension_loaded('fileinfo')) {
-                        $command['ContentType'] = File::getMimeType($source);
-                    }
+                $this->client->getConn(),
+                $source,
+                [
+                        'bucket'          => $bucketName,
+                        'key'             => $keyName,
+                        'before_initiate' => function ( CommandInterface $command ) use ( $source, $params, $keyName ) {
 
-                    if ((isset($params['storage']))) {
-                        $command['StorageClass'] = $params['storage'];
-                    }
+                            $command[ 'ContentType' ] = File::getMimeType( $source );
 
-                    if ((isset($params['Metadata']))) {
-                        $command['Metadata'] = $params['meta'];
-                    }
+                            if ( ( isset( $params[ 'storage' ] ) ) ) {
+                                $command[ 'StorageClass' ] = $params[ 'storage' ];
+                            }
 
-                    $command['Metadata'][ 'original_name'] = File::getBaseName($keyName);
-                    $command['MetadataDirective'] =  'REPLACE';
-                }
-            ]
+                            if ( ( isset( $params[ 'Metadata' ] ) ) ) {
+                                $command[ 'Metadata' ] = $params[ 'meta' ];
+                            }
+
+                            $command[ 'Metadata' ][ 'original_name' ] = File::getBaseName( $keyName );
+                            $command[ 'MetadataDirective' ]           = 'REPLACE';
+                        }
+                ]
         );
 
         try {
             $upload = $uploader->upload();
 
-            if (($upload instanceof ResultInterface) and $upload['@metadata']['statusCode'] === 200) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName));
-                }
+            if ( ( $upload instanceof ResultInterface ) and $upload[ '@metadata' ][ 'statusCode' ] === 200 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( 'File \'%s\' was successfully uploaded in \'%s\' bucket', $keyName, $bucketName ) );
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during upload of file \'%s\' in \'%s\' bucket', $keyName, $bucketName ), 'warning' );
 
             // update cache
-            if ((!isset($params['storage'])) and $this->client->hasCache()) {
+            if ( ( !isset( $params[ 'storage' ] ) ) and $this->client->hasCache() ) {
                 $version = null;
-                if (isset($upload['@metadata']['headers']['x-amz-version-id'])) {
-                    $version = $upload['@metadata']['headers']['x-amz-version-id'];
+                if ( isset( $upload[ '@metadata' ][ 'headers' ][ 'x-amz-version-id' ] ) ) {
+                    $version = $upload[ '@metadata' ][ 'headers' ][ 'x-amz-version-id' ];
                 }
 
-                $this->client->getCache()->set($bucketName, $keyName, '', $version);
+                $this->client->getCache()->set( $bucketName, $keyName, '', $version );
             }
 
             return false;
-        } catch (MultipartUploadException $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( MultipartUploadException $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }

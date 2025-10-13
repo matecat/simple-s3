@@ -17,14 +17,14 @@ abstract class BaseTest extends TestCase {
     /**
      * @var Client
      */
-    protected $s3Client;
+    protected Client $s3Client;
 
-    protected $base_bucket_name = 'matecat-phpunit-tests-s3-4';
+    protected string $base_bucket_name = 'matecat-phpunit-tests-s3-4';
 
     /**
      * @return Client
      */
-    public function getClient() {
+    public function getClient(): Client {
 
         parent::setUp();
 

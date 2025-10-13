@@ -13,59 +13,52 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class CreateFolder extends CommandHandler
-{
+class CreateFolder extends CommandHandler {
     /**
      * Create a folder.
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-object.html?highlight=put
      *
-     * @param mixed $params
+     * @param array $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if ( $this->client->hasEncoder() ) {
+            $keyName = $this->client->getEncoder()->encode( $keyName );
         }
 
-        if (false === File::endsWith($keyName, $this->client->getPrefixSeparator())) {
+        if ( false === File::endsWith( $keyName, $this->client->getPrefixSeparator() ) ) {
             $keyName .= $this->client->getPrefixSeparator();
         }
 
         try {
-            $folder = $this->client->getConn()->putObject([
-                'Bucket' => $bucketName,
-                'Key'    => $keyName,
-                'Body'   => '',
+            $folder = $this->client->getConn()->putObject( [
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyName,
+                    'Body'   => '',
 //                'ACL'    => 'public-read' // only bucket owners are allowed to create folder with ACL or bucket owner enforcement must be disabled
-            ]);
+            ] );
 
-            if (($folder instanceof ResultInterface) and $folder['@metadata']['statusCode'] === 200) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName));
-                }
+            if ( ( $folder instanceof ResultInterface ) and $folder[ '@metadata' ][ 'statusCode' ] === 200 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( 'Folder \'%s\' was successfully created in \'%s\' bucket', $keyName, $bucketName ) );
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during creation of \'%s\' folder inside \'%s\' bucket', $keyName, $bucketName ), 'warning' );
 
             return false;
-        } catch (S3Exception $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( S3Exception $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -76,11 +69,10 @@ class CreateFolder extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] )
         );
     }
 }

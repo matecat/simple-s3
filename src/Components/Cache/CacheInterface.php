@@ -2,41 +2,40 @@
 
 namespace Matecat\SimpleS3\Components\Cache;
 
-interface CacheInterface
-{
-    const HASH_ALGORITHM      = 'crc32b'; // 8 chars
-    const HASH_SAFE_SEPARATOR = '::';
-    const TTL_STANDARD        = 10800; // 3 hours
+interface CacheInterface {
+    const string HASH_ALGORITHM      = 'crc32b'; // 8 chars
+    const string HASH_SAFE_SEPARATOR = '::';
+    const int    TTL_STANDARD        = 10800; // 3 hours
 
     /**
      * @return bool
      */
-    public function flushAll();
+    public function flushAll(): bool;
 
     /**
-     * @param string $bucket
-     * @param string $keyname
-     * @param null $version
+     * @param string      $bucket
+     * @param string      $keyname
+     * @param string|null $version
      *
      * @return mixed
      */
-    public function get($bucket, $keyname, $version = null);
+    public function get( string $bucket, string $keyname, ?string $version = null ): mixed;
 
     /**
-     * @param string $bucket
-     * @param string $keyname
-     * @param null $version
+     * @param string      $bucket
+     * @param string      $keyname
+     * @param string|null $version
      *
      * @return bool
      */
-    public function has($bucket, $keyname, $version = null);
+    public function has( string $bucket, string $keyname, ?string $version = null ): bool;
 
     /**
-     * @param string $bucket
-     * @param string $keyname
-     * @param null $version
+     * @param string      $bucket
+     * @param string      $keyname
+     * @param string|null $version
      */
-    public function remove($bucket, $keyname, $version = null);
+    public function remove( string $bucket, string $keyname, ?string $version = null ): bool;
 
     /**
      * @param string $bucket
@@ -44,28 +43,28 @@ interface CacheInterface
      *
      * @return array
      */
-    public function search($bucket, $keyname);
+    public function search( string $bucket, string $keyname ): array;
 
     /**
-     * @param string $bucket
-     * @param string $keyname
-     * @param mixed  $content
-     * @param null   $version
-     * @param null   $ttl
+     * @param string      $bucket
+     * @param string      $keyname
+     * @param mixed       $content
+     * @param string|null $version
+     * @param int         $ttl
      */
-    public function set($bucket, $keyname, $content, $version = null, $ttl = null);
+    public function set( string $bucket, string $keyname, mixed $content, ?string $version = null, int $ttl = 0 );
 
     /**
      * @param string $separator
      */
-    public function setPrefixSeparator($separator);
+    public function setPrefixSeparator( string $separator );
 
     /**
-     * @param string $bucket
-     * @param string $keyname
-     * @param null $version
+     * @param string      $bucket
+     * @param string      $keyname
+     * @param string|null $version
      *
      * @return int
      */
-    public function ttl($bucket, $keyname, $version = null);
+    public function ttl( string $bucket, string $keyname, ?string $version = null ): int;
 }

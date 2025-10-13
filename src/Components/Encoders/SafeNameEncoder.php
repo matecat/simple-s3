@@ -11,16 +11,14 @@
 
 namespace Matecat\SimpleS3\Components\Encoders;
 
-abstract class SafeNameEncoder implements SafeNameEncoderInterface
-{
+abstract class SafeNameEncoder implements SafeNameEncoderInterface {
     /**
      * @param string $string
      *
      * @return bool
      */
-    protected function isASafeString($string)
-    {
-        if (!preg_match('/^[a-zA-Z 0-9\/\!\-\_\.\'\*\(\)]*$/', $string)) {
+    protected function isASafeString( string $string ): bool {
+        if ( !preg_match( '~^[a-zA-Z 0-9/!\-_.\'*()]*$~', $string ) ) {
             return false;
         }
 

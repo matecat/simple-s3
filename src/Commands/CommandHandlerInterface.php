@@ -11,19 +11,18 @@
 
 namespace Matecat\SimpleS3\Commands;
 
-interface CommandHandlerInterface
-{
+interface CommandHandlerInterface {
     /**
      * @param array $params
      *
      * @return mixed
      */
-    public function handle($params = []);
+    public function handle( array $params = [] ): mixed;
 
     /**
      * @param array $params
      *
      * @return bool
      */
-    public function validateParams($params = []);
+    public function validateParams( array $params = [] ): bool;
 }

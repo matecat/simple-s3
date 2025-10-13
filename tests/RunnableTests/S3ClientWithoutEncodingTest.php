@@ -13,7 +13,7 @@ class S3ClientWithoutEncodingTest extends BaseTest {
     /**
      * @var Client
      */
-    protected $s3Client;
+    protected Client $s3Client;
 
     /**
      * @var string

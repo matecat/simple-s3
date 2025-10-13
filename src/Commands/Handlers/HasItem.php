@@ -13,8 +13,7 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class HasItem extends CommandHandler
-{
+class HasItem extends CommandHandler {
     /**
      * Check if a item already exists.
      * For a complete reference:
@@ -24,20 +23,19 @@ class HasItem extends CommandHandler
      *
      * @return bool
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if ( $this->client->hasEncoder() ) {
+            $keyName = $this->client->getEncoder()->encode( $keyName );
         }
 
-        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName)) {
+        if ( $this->client->hasCache() and $this->client->getCache()->has( $bucketName, $keyName ) ) {
             return true;
         }
 
-        return $this->client->getConn()->doesObjectExist($bucketName, $keyName);
+        return $this->client->getConn()->doesObjectExist( $bucketName, $keyName );
     }
 
     /**
@@ -45,11 +43,10 @@ class HasItem extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] )
         );
     }
 }

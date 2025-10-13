@@ -13,10 +13,10 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
 use Aws\S3\Exception\S3Exception;
+use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class DownloadItem extends CommandHandler
-{
+class DownloadItem extends CommandHandler {
     /**
      * Downaload an item.
      * For a complete reference:
@@ -25,41 +25,34 @@ class DownloadItem extends CommandHandler
      * @param array $params
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if ( $this->client->hasEncoder() ) {
+            $keyName = $this->client->getEncoder()->encode( $keyName );
         }
 
         try {
-            $download = $this->client->getConn()->getObject([
-                'Bucket'  => $bucketName,
-                'Key'     => $keyName,
-                'SaveAs'  => (isset($params['save_as'])) ? $params['save_as'] : $params['key'],
-            ]);
+            $download = $this->client->getConn()->getObject( [
+                    'Bucket' => $bucketName,
+                    'Key'    => $keyName,
+                    'SaveAs' => ( isset( $params[ 'save_as' ] ) ) ? $params[ 'save_as' ] : $params[ 'key' ],
+            ] );
 
-            if (($download instanceof ResultInterface) and $download['@metadata']['statusCode'] === 200) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName));
-                }
+            if ( ( $download instanceof ResultInterface ) and $download[ '@metadata' ][ 'statusCode' ] === 200 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( '\'%s\' was successfully downloaded from bucket \'%s\'', $keyName, $bucketName ) );
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during downloading \'%s\' from bucket \'%s\'', $keyName, $bucketName ), 'warning' );
 
             return false;
-        } catch (S3Exception $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( S3Exception $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -70,11 +63,10 @@ class DownloadItem extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] )
         );
     }
 }

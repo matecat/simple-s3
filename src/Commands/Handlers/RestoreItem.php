@@ -12,11 +12,11 @@
 namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
-use Psr\Http\Message\UriInterface;
+use Exception;
+use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class RestoreItem extends CommandHandler
-{
+class RestoreItem extends CommandHandler {
     /**
      * Send a basic restore request for an archived copy of an object back into Amazon S3.
      * For a complete reference:
@@ -24,63 +24,56 @@ class RestoreItem extends CommandHandler
      *
      * @param array $params
      *
-     * @return mixed|UriInterface
-     * @throws \Exception
+     * @return bool
+     * @throws Exception
      */
-    public function handle($params = [])
-    {
-        $bucketName = $params['bucket'];
-        $keyName = $params['key'];
-        $days =(isset($params['days'])) ? $params['days'] : 5;
-        $tier = (isset($params['tier'])) ? $params['tier'] : 'Expedited';
+    public function handle( array $params = [] ): bool {
+        $bucketName = $params[ 'bucket' ];
+        $keyName    = $params[ 'key' ];
+        $days       = ( isset( $params[ 'days' ] ) ) ? $params[ 'days' ] : 5;
+        $tier       = ( isset( $params[ 'tier' ] ) ) ? $params[ 'tier' ] : 'Expedited';
 
-        if ($this->client->hasEncoder()) {
-            $keyName = $this->client->getEncoder()->encode($keyName);
+        if ( $this->client->hasEncoder() ) {
+            $keyName = $this->client->getEncoder()->encode( $keyName );
         }
 
         $allowedTiers = [
-            'Bulk',
-            'Expedited',
-            'Standard',
+                'Bulk',
+                'Expedited',
+                'Standard',
         ];
 
-        if ($tier and !in_array($tier, $allowedTiers)) {
-            throw new \InvalidArgumentException(sprintf('%s is not a valid tier value. Allowed values are: ['.implode(',', $allowedTiers).']', $tier));
+        if ( $tier and !in_array( $tier, $allowedTiers ) ) {
+            throw new InvalidArgumentException( sprintf( '%s is not a valid tier value. Allowed values are: [' . implode( ',', $allowedTiers ) . ']', $tier ) );
         }
 
         try {
-            $request = $this->client->getConn()->restoreObject([
-                'Bucket' => $bucketName,
-                'Key' => $keyName,
-                'RestoreRequest' => [
-                    'Days'       => $days,
-                    'GlacierJobParameters' => [
-                        'Tier'  => $tier,
+            $request = $this->client->getConn()->restoreObject( [
+                    'Bucket'         => $bucketName,
+                    'Key'            => $keyName,
+                    'RestoreRequest' => [
+                            'Days'                 => $days,
+                            'GlacierJobParameters' => [
+                                    'Tier' => $tier,
+                            ],
                     ],
-                ],
-            ]);
+            ] );
 
-            if (($request instanceof ResultInterface) and $request['@metadata']['statusCode'] === 202) {
-                if (null !== $this->commandHandlerLogger) {
-                    $this->commandHandlerLogger->log($this, sprintf('A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyName, $bucketName));
-                }
+            if ( ( $request instanceof ResultInterface ) and $request[ '@metadata' ][ 'statusCode' ] === 202 ) {
+                $this->commandHandlerLogger?->log( $this, sprintf( 'A request for restore \'%s\' item in \'%s\' bucket was successfully sended', $keyName, $bucketName ) );
 
-                if ($this->client->hasCache()) {
-                    $this->client->getCache()->set($bucketName, $keyName, '');
+                if ( $this->client->hasCache() ) {
+                    $this->client->getCache()->set( $bucketName, $keyName, '' );
                 }
 
                 return true;
             }
 
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->log($this, sprintf('Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName), 'warning');
-            }
+            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during sending restore questo for \'%s\' item in \'%s\' bucket', $keyName, $bucketName ), 'warning' );
 
             return false;
-        } catch (\Exception $e) {
-            if (null !== $this->commandHandlerLogger) {
-                $this->commandHandlerLogger->logExceptionAndReturnFalse($e);
-            }
+        } catch ( Exception $e ) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
 
             throw $e;
         }
@@ -91,11 +84,10 @@ class RestoreItem extends CommandHandler
      *
      * @return bool
      */
-    public function validateParams($params = [])
-    {
+    public function validateParams( array $params = [] ): bool {
         return (
-            isset($params['bucket']) and
-            isset($params['key'])
+                isset( $params[ 'bucket' ] ) and
+                isset( $params[ 'key' ] )
         );
     }
 }
