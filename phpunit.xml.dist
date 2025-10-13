@@ -7,20 +7,20 @@
          processIsolation="false"
          stopOnError="false"
          stopOnFailure="false"
-         syntaxCheck="true"
-         beStrictAboutTestSize="true"
          beStrictAboutTestsThatDoNotTestAnything="true">
 
     <testsuites>
+
         <testsuite name="Simple S3 ClientTest Suite">
-            <directory>tests</directory>
+            <directory>tests/RunnableTests</directory>
         </testsuite>
+
     </testsuites>
 
-    <filter>
-        <whitelist>
+    <coverage>
+        <include>
             <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </coverage>
 
 </phpunit>

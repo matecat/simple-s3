@@ -10,16 +10,16 @@
 namespace Matecat\SimpleS3\Tests;
 
 use Matecat\SimpleS3\Client;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class BaseTest extends PHPUnit_Framework_TestCase {
+abstract class BaseTest extends TestCase {
 
     /**
      * @var Client
      */
     protected $s3Client;
 
-    protected $base_bucket_name = 'matecat-phpunit-tests-s3-3';
+    protected $base_bucket_name = 'matecat-phpunit-tests-s3-4';
 
     /**
      * @return Client
@@ -29,15 +29,15 @@ abstract class BaseTest extends PHPUnit_Framework_TestCase {
         parent::setUp();
 
         $config = [];
-        if ( file_exists( __DIR__ . '/../config/credentials.ini' ) ) {
-            $config = parse_ini_file( __DIR__ . '/../config/credentials.ini' );
+        if ( file_exists( Constants::TEST_CREDENTIALS_CONFIG ) ) {
+            $config = parse_ini_file( Constants::TEST_CREDENTIALS_CONFIG );
         }
 
         if ( !empty( getenv( 'AWS_ACCESS_KEY_ID' ) ) && !empty( getenv( 'AWS_SECRET_ACCESS_KEY' ) ) ) {
 
             $this->s3Client = new Client( [
-                    'version'     => '2006-03-01',
-                    'region'      => 'eu-central-1',
+                    'version' => '2006-03-01',
+                    'region'  => 'eu-central-1',
             ] );
 
         } elseif ( !empty( $config[ 'AWS_ACCESS_KEY_ID' ] ) && !empty( $config[ 'AWS_SECRET_ACCESS_KEY' ] ) ) {

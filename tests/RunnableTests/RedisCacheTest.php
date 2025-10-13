@@ -1,10 +1,11 @@
 <?php
 
-namespace Matecat\SimpleS3\Tests;
+namespace Matecat\SimpleS3\Tests\RunnableTests;
 
 use Exception;
 use Matecat\SimpleS3\Components\Cache\RedisCache;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
+use Matecat\SimpleS3\Tests\BaseTest;
 use Predis\Client;
 
 class RedisCacheTest extends BaseTest {
@@ -18,7 +19,7 @@ class RedisCacheTest extends BaseTest {
     /**
      * @throws Exception
      */
-    protected function setUp() {
+    protected function setUp(): void {
         parent::setUp();
 
         $this->cache = new RedisCache( new Client() );

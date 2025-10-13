@@ -25,18 +25,18 @@
   },
   "require": {
     "php": ">=5.6",
-    "predis/predis": "^2.0",
-    "aws/aws-sdk-php": "^3.322",
-    "ext-curl": "^7.3",
-    "ext-fileinfo": "^7.3",
+    "predis/predis": "^v3.0",
+    "aws/aws-sdk-php": "^3.356.37",
+    "ext-curl": ">=5.6",
+    "ext-fileinfo": ">=5.6",
     "ext-redis": "*",
     "ext-json": "*"
   },
   "require-dev": {
     "symfony/console": "^3.4.17 || ^4.1.6",
     "friendsofphp/php-cs-fixer": "^2.3",
-    "monolog/monolog": "^1.24",
-    "phpunit/phpunit": "~5.7",
-    "phpstan/phpstan": "^0.11.8"
+    "monolog/monolog": "^2",
+    "phpunit/phpunit": "~9",
+    "phpstan/phpstan": "^1.10"
   }
 }
