@@ -248,6 +248,10 @@ class File
         );
 
         foreach ($files as $fileInfo) {
+            if ($fileInfo->getFilename() == '.keep') {
+                $removeItself = false;
+                continue;
+            }
             $todo = ($fileInfo->isDir() ? 'rmdir' : 'unlink');
             $todo($fileInfo->getRealPath());
         }
