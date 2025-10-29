@@ -24,8 +24,8 @@
     "psr-4": { "Matecat\\SimpleS3\\Tests\\": "tests/" }
   },
   "require": {
-    "php": ">=5.6",
-    "predis/predis": "^v3.0",
+    "php": ">=8.3",
+    "predis/predis": "^v3",
     "aws/aws-sdk-php": "^3.356.37",
     "ext-curl": ">=5.6",
     "ext-fileinfo": ">=5.6",
@@ -35,8 +35,8 @@
   "require-dev": {
     "symfony/console": "^3.4.17 || ^4.1.6",
     "friendsofphp/php-cs-fixer": "^2.3",
-    "monolog/monolog": "^2",
-    "phpunit/phpunit": "~9",
-    "phpstan/phpstan": "^1.10"
+    "monolog/monolog": "^3",
+    "phpunit/phpunit": "~12",
+    "phpstan/phpstan": "^2.1"
   }
 }

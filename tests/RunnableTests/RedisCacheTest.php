@@ -6,6 +6,7 @@ use Exception;
 use Matecat\SimpleS3\Components\Cache\RedisCache;
 use Matecat\SimpleS3\Components\Encoders\UrlEncoder;
 use Matecat\SimpleS3\Tests\BaseTest;
+use PHPUnit\Framework\Attributes\Test;
 use Predis\Client;
 
 class RedisCacheTest extends BaseTest {
@@ -14,7 +15,7 @@ class RedisCacheTest extends BaseTest {
     /**
      * @var RedisCache
      */
-    private $cache;
+    private RedisCache $cache;
 
     /**
      * @throws Exception
@@ -28,6 +29,7 @@ class RedisCacheTest extends BaseTest {
     /**
      * @test
      */
+    #[test]
     public function set_and_retrieve_from_cache() {
         $this->cache->set( self::BUCKET_NAME, 'folder/to/file.txt', 'lorem ipsum' );
         $this->cache->set( self::BUCKET_NAME, 'folder/to/file2.txt', 'lorem ipsum fdfdsf' );
@@ -51,6 +53,7 @@ class RedisCacheTest extends BaseTest {
     /**
      * @test
      */
+    #[test]
     public function set_and_retrieve_from_cache_encoded_strings() {
         $unsafeStrings = [
                 'folder/仿宋人笔意.txt',
@@ -77,6 +80,7 @@ class RedisCacheTest extends BaseTest {
     /**
      * @test
      */
+    #[test]
     public function remove_from_cache() {
         $encoder = new UrlEncoder();
 
