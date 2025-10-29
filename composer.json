@@ -26,17 +26,17 @@
   "require": {
     "php": ">=8.3",
     "predis/predis": "^v3",
-    "aws/aws-sdk-php": "^3.356.37",
-    "ext-curl": ">=5.6",
-    "ext-fileinfo": ">=5.6",
+    "aws/aws-sdk-php": "^3.359",
+    "ext-curl": "*",
+    "ext-fileinfo": "*",
     "ext-redis": "*",
     "ext-json": "*"
   },
   "require-dev": {
-    "symfony/console": "^3.4.17 || ^4.1.6",
+    "symfony/console": "^v4.3",
     "friendsofphp/php-cs-fixer": "^2.3",
     "monolog/monolog": "^3",
-    "phpunit/phpunit": "~12",
-    "phpstan/phpstan": "^2.1"
+    "phpunit/phpunit": "^12",
+    "phpstan/phpstan": "^2"
   }
 }
