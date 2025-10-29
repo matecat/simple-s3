@@ -15,7 +15,8 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class GetCurrentItemVersion extends CommandHandler {
+class GetCurrentItemVersion extends CommandHandler
+{
     /**
      * Get the current version of an item.
      * For a complete reference:
@@ -26,28 +27,29 @@ class GetCurrentItemVersion extends CommandHandler {
      * @return null|string
      * @throws Exception
      */
-    public function handle( array $params = [] ): ?string {
+    public function handle(array $params = []): ?string
+    {
         $bucketName = $params[ 'bucket' ];
         $keyName    = $params[ 'key' ];
 
-        $fileInfo = File::getPathInfo( $keyName );
+        $fileInfo = File::getPathInfo($keyName);
         $prefix   = $fileInfo[ 'dirname' ] . $this->client->getPrefixSeparator();
 
-        $results = $this->client->getConn()->listObjectVersions( [
+        $results = $this->client->getConn()->listObjectVersions([
                 'Bucket' => $bucketName,
                 'Prefix' => $prefix
-        ] );
+        ]);
 
-        if ( false === isset( $results[ 'Versions' ] ) ) {
+        if (false === isset($results[ 'Versions' ])) {
             return null;
         }
 
-        if ( $this->client->hasEncoder() ) {
-            $keyName = $this->client->getEncoder()->encode( $keyName );
+        if ($this->client->hasEncoder()) {
+            $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
-        foreach ( $results[ 'Versions' ] as $result ) {
-            if ( true === $result[ 'IsLatest' ] and $keyName === $result[ 'Key' ] ) {
+        foreach ($results[ 'Versions' ] as $result) {
+            if (true === $result[ 'IsLatest' ] and $keyName === $result[ 'Key' ]) {
                 return $result[ 'VersionId' ];
             }
         }
@@ -60,10 +62,11 @@ class GetCurrentItemVersion extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'bucket' ] ) and
-                isset( $params[ 'key' ] )
+                isset($params[ 'bucket' ]) and
+                isset($params[ 'key' ])
         );
     }
 }

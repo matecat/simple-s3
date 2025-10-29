@@ -18,5 +18,5 @@ interface S3NameValidatorInterface
      *
      * @return array
      */
-    public static function validate( string $string): array;
+    public static function validate(string $string): array;
 }

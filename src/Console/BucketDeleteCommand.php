@@ -10,7 +10,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class BucketDeleteCommand extends Command {
+class BucketDeleteCommand extends Command
+{
     /**
      * @var Client
      */
@@ -22,36 +23,39 @@ class BucketDeleteCommand extends Command {
      * @param Client      $s3Client
      * @param string|null $name
      */
-    public function __construct( Client $s3Client, ?string $name = null ) {
-        parent::__construct( $name );
+    public function __construct(Client $s3Client, ?string $name = null)
+    {
+        parent::__construct($name);
 
         $this->s3Client = $s3Client;
     }
 
-    protected function configure(): void {
+    protected function configure(): void
+    {
         $this
-                ->setName( 'ss3:bucket:delete' )
-                ->setDescription( 'Deletes a bucket.' )
-                ->setHelp( 'This command deletes a bucket on S3.' )
-                ->addArgument( 'bucket', InputArgument::REQUIRED, 'The name of the bucket' );
+                ->setName('ss3:bucket:delete')
+                ->setDescription('Deletes a bucket.')
+                ->setHelp('This command deletes a bucket on S3.')
+                ->addArgument('bucket', InputArgument::REQUIRED, 'The name of the bucket');
     }
 
-    protected function execute( InputInterface $input, OutputInterface $output ): int {
-        $bucket = $input->getArgument( 'bucket' );
-        $io     = new SymfonyStyle( $input, $output );
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $bucket = $input->getArgument('bucket');
+        $io     = new SymfonyStyle($input, $output);
 
         try {
-            if ( true === $this->s3Client->deleteBucket( [ 'bucket' => $bucket ] ) ) {
-                $io->success( 'The bucket was successfully deleted' );
+            if (true === $this->s3Client->deleteBucket(['bucket' => $bucket])) {
+                $io->success('The bucket was successfully deleted');
 
                 return 0;
             } else {
-                $io->error( 'There was an error in deleting bucket' );
+                $io->error('There was an error in deleting bucket');
 
                 return 1;
             }
-        } catch ( Exception $e ) {
-            $io->error( $e->getMessage() );
+        } catch (Exception $e) {
+            $io->error($e->getMessage());
 
             return 1;
         }

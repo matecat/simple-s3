@@ -16,7 +16,8 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class GetItemsInABucket extends CommandHandler {
+class GetItemsInABucket extends CommandHandler
+{
     /**
      * Get the list of keys in a bucket.
      * If 'hydrate' parameter is set to true, an array of hydrated Aws\Result is returned instead.
@@ -26,7 +27,8 @@ class GetItemsInABucket extends CommandHandler {
      * @return array
      * @throws Exception
      */
-    public function handle( array $params = [] ): array {
+    public function handle(array $params = []): array
+    {
         $bucketName = $params[ 'bucket' ];
 
         try {
@@ -34,31 +36,30 @@ class GetItemsInABucket extends CommandHandler {
                     'Bucket' => $bucketName,
             ];
 
-            if ( isset( $params[ 'prefix' ] ) ) {
-
+            if (isset($params[ 'prefix' ])) {
                 // add a final slash to prefix
-                if ( false === File::endsWith( $params[ 'prefix' ], $this->client->getPrefixSeparator() ) ) {
+                if (false === File::endsWith($params[ 'prefix' ], $this->client->getPrefixSeparator())) {
                     $params[ 'prefix' ] .= $this->client->getPrefixSeparator();
                 }
 
-                $config[ 'Delimiter' ] = ( isset( $params[ 'delimiter' ] ) ) ? $params[ 'delimiter' ] : $this->client->getPrefixSeparator();
+                $config[ 'Delimiter' ] = (isset($params[ 'delimiter' ])) ? $params[ 'delimiter' ] : $this->client->getPrefixSeparator();
                 $config[ 'Prefix' ]    = $params[ 'prefix' ];
             }
 
             // 1. If 'exclude-cache' is set, return records always from S3
-            if ( isset( $params[ 'exclude-cache' ] ) and true === $params[ 'exclude-cache' ] ) {
-                return $this->returnItemsFromS3( $bucketName, $config, ( isset( $params[ 'hydrate' ] ) ) ? $params[ 'hydrate' ] : null );
+            if (isset($params[ 'exclude-cache' ]) and true === $params[ 'exclude-cache' ]) {
+                return $this->returnItemsFromS3($bucketName, $config, (isset($params[ 'hydrate' ])) ? $params[ 'hydrate' ] : null);
             }
 
             // 2. If the cache is set and there is a prefix, return records from cache
-            if ( $this->client->hasCache() and isset( $config[ 'Prefix' ] ) ) {
-                return $this->returnItemsFromCache( $bucketName, $config, ( isset( $params[ 'hydrate' ] ) ) ? $params[ 'hydrate' ] : null );
+            if ($this->client->hasCache() and isset($config[ 'Prefix' ])) {
+                return $this->returnItemsFromCache($bucketName, $config, (isset($params[ 'hydrate' ])) ? $params[ 'hydrate' ] : null);
             }
 
             // 3. Otherwise, return records from S3
-            return $this->returnItemsFromS3( $bucketName, $config, ( isset( $params[ 'hydrate' ] ) ) ? $params[ 'hydrate' ] : null );
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+            return $this->returnItemsFromS3($bucketName, $config, (isset($params[ 'hydrate' ])) ? $params[ 'hydrate' ] : null);
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -69,8 +70,9 @@ class GetItemsInABucket extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return ( isset( $params[ 'bucket' ] ) );
+    public function validateParams(array $params = []): bool
+    {
+        return (isset($params[ 'bucket' ]));
     }
 
     /**
@@ -80,41 +82,42 @@ class GetItemsInABucket extends CommandHandler {
      *
      * @return array
      */
-    protected function returnItemsFromCache( string $bucketName, array $config, ?bool $hydrate = null ): array {
-        $itemsFromCache = $this->client->getCache()->search( $bucketName, $config[ 'Prefix' ] );
+    protected function returnItemsFromCache(string $bucketName, array $config, ?bool $hydrate = null): array
+    {
+        $itemsFromCache = $this->client->getCache()->search($bucketName, $config[ 'Prefix' ]);
 
         // no data was found, try to retrieve data from S3
-        if ( count( $itemsFromCache ) == 0 ) {
-            return $this->returnItemsFromS3( $bucketName, $config, $hydrate );
+        if (count($itemsFromCache) == 0) {
+            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
         }
 
         // no hydrate, simply return the array of keys stored in redis
-        if ( null == $hydrate ) {
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName ) );
+        if (null == $hydrate) {
+            $this->commandHandlerLogger?->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
             return $itemsFromCache;
         }
 
         // hydrate the key with the entire AWS\Result Object
         $items = [];
-        foreach ( $itemsFromCache as $key ) {
+        foreach ($itemsFromCache as $key) {
             $version     = null;
             $originalKey = $key;
 
-            if ( str_contains( $key, '<VERSION_ID:' ) ) {
-                $v       = explode( '<VERSION_ID:', $key );
-                $version = str_replace( '>', '', $v[ 1 ] );
+            if (str_contains($key, '<VERSION_ID:')) {
+                $v       = explode('<VERSION_ID:', $key);
+                $version = str_replace('>', '', $v[ 1 ]);
                 $key     = $v[ 0 ];
             }
 
-            if ( $this->client->hasEncoder() ) {
-                $key = $this->client->getEncoder()->decode( $key );
+            if ($this->client->hasEncoder()) {
+                $key = $this->client->getEncoder()->decode($key);
             }
 
-            $items[ $originalKey ] = $this->client->getItem( [ 'bucket' => $bucketName, 'key' => $key, 'version' => $version ] );
+            $items[ $originalKey ] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]);
         }
 
-        $this->commandHandlerLogger?->log( $this, sprintf( 'Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName ) );
+        $this->commandHandlerLogger?->log($this, sprintf('Files of \'%s\' bucket were successfully obtained from CACHE', $bucketName));
 
         return $items;
     }
@@ -126,40 +129,41 @@ class GetItemsInABucket extends CommandHandler {
      *
      * @return array
      */
-    protected function returnItemsFromS3( string $bucketName, array $config, ?bool $hydrate = null ): array {
-        if ( $this->client->isBucketVersioned( [ 'bucket' => $bucketName ] ) ) {
-            return $this->returnVersionedItemsFromS3( $bucketName, $config, $hydrate );
+    protected function returnItemsFromS3(string $bucketName, array $config, ?bool $hydrate = null): array
+    {
+        if ($this->client->isBucketVersioned(['bucket' => $bucketName])) {
+            return $this->returnVersionedItemsFromS3($bucketName, $config, $hydrate);
         }
 
-        $resultPaginator = $this->client->getConn()->getPaginator( 'ListObjects', $config );
+        $resultPaginator = $this->client->getConn()->getPaginator('ListObjects', $config);
         $items           = [];
 
-        foreach ( $resultPaginator as $result ) {
-            if ( is_array( $contents = $result->get( 'Contents' ) ) ) {
-                for ( $i = 0; $i < count( $contents ); $i++ ) {
+        foreach ($resultPaginator as $result) {
+            if (is_array($contents = $result->get('Contents'))) {
+                for ($i = 0; $i < count($contents); $i++) {
                     $key = $contents[ $i ][ 'Key' ];
 
-                    if ( false === File::endsWith( $key, $this->client->getPrefixSeparator() ) ) {
-                        if ( $this->client->hasEncoder() ) {
-                            $key = $this->client->getEncoder()->decode( $key );
+                    if (false === File::endsWith($key, $this->client->getPrefixSeparator())) {
+                        if ($this->client->hasEncoder()) {
+                            $key = $this->client->getEncoder()->decode($key);
                         }
 
-                        if ( null != $hydrate and true === $hydrate ) {
-                            $items[ $key ] = $this->client->getItem( [ 'bucket' => $bucketName, 'key' => $key ] );
+                        if (null != $hydrate and true === $hydrate) {
+                            $items[ $key ] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
                         } else {
                             $items[] = $key;
                         }
 
                         // send to cache, just to be sure that S3 is syncronized with cache
-                        if ( $this->client->hasCache() ) {
-                            $this->client->getCache()->set( $bucketName, $contents[ $i ][ 'Key' ], $this->client->getItem( [ 'bucket' => $bucketName, 'key' => $key ] ) );
+                        if ($this->client->hasCache()) {
+                            $this->client->getCache()->set($bucketName, $contents[ $i ][ 'Key' ], $this->client->getItem(['bucket' => $bucketName, 'key' => $key]));
                         }
                     }
                 }
             }
         }
 
-        $this->commandHandlerLogger?->log( $this, sprintf( 'Files were successfully obtained from \'%s\' bucket', $bucketName ) );
+        $this->commandHandlerLogger?->log($this, sprintf('Files were successfully obtained from \'%s\' bucket', $bucketName));
 
         return $items;
     }
@@ -171,39 +175,40 @@ class GetItemsInABucket extends CommandHandler {
      *
      * @return array
      */
-    protected function returnVersionedItemsFromS3( string $bucketName, array $config, ?bool $hydrate = null ): array {
-        $results = $this->client->getConn()->listObjectVersions( $config );
+    protected function returnVersionedItemsFromS3(string $bucketName, array $config, ?bool $hydrate = null): array
+    {
+        $results = $this->client->getConn()->listObjectVersions($config);
         $items   = [];
 
-        if ( false === isset( $results[ 'Versions' ] ) ) {
+        if (false === isset($results[ 'Versions' ])) {
             return $items;
         }
 
-        foreach ( $results[ 'Versions' ] as $result ) {
+        foreach ($results[ 'Versions' ] as $result) {
             $key     = $result[ 'Key' ];
             $version = $result[ 'VersionId' ];
 
-            if ( false === File::endsWith( $key, $this->client->getPrefixSeparator() ) ) {
-                if ( $this->client->hasEncoder() ) {
-                    $key = $this->client->getEncoder()->decode( $key );
+            if (false === File::endsWith($key, $this->client->getPrefixSeparator())) {
+                if ($this->client->hasEncoder()) {
+                    $key = $this->client->getEncoder()->decode($key);
                 }
 
                 $index = $key . '<VERSION_ID:' . $version . '>';
 
-                if ( null != $hydrate and true === $hydrate ) {
-                    $items[ $index ] = $this->client->getItem( [ 'bucket' => $bucketName, 'key' => $key, 'version' => $version ] );
+                if (null != $hydrate and true === $hydrate) {
+                    $items[ $index ] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]);
                 } else {
                     $items[] = $index;
                 }
 
                 // send to cache, just to be sure that S3 is syncronized with cache
-                if ( $this->client->hasCache() ) {
-                    $this->client->getCache()->set( $bucketName, $result[ 'Key' ], $this->client->getItem( [ 'bucket' => $bucketName, 'key' => $key, 'version' => $version ] ), $version );
+                if ($this->client->hasCache()) {
+                    $this->client->getCache()->set($bucketName, $result[ 'Key' ], $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]), $version);
                 }
             }
         }
 
-        $this->commandHandlerLogger?->log( $this, sprintf( 'Files (versioned) were successfully obtained from \'%s\' bucket', $bucketName ) );
+        $this->commandHandlerLogger?->log($this, sprintf('Files (versioned) were successfully obtained from \'%s\' bucket', $bucketName));
 
         return $items;
     }

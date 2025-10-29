@@ -28,42 +28,43 @@ use Psr\Log\LoggerInterface;
  *
  * Method list:
  *
- * @method bool clearBucket( array $input )
- * @method bool copyFolder( array $input )
- * @method bool copyInBatch( array $input )
- * @method bool copyItem( array $input )
- * @method bool createBucketIfItDoesNotExist( array $input )
- * @method bool createFolder( array $input )
- * @method bool deleteBucket( array $input )
- * @method bool deleteBucketPolicy( array $input )
- * @method bool deleteFolder( array $input )
- * @method bool deleteItem( array $input )
- * @method bool downloadItem( array $input )
- * @method bool enableAcceleration( array $input )
- * @method ResultInterface|mixed getBucketLifeCycleConfiguration( array $input )
- * @method mixed getBucketPolicy( array $input )
- * @method int|mixed getBucketSize( array $input )
- * @method null|string getCurrentItemVersion( array $input )
- * @method ResultInterface|mixed getItem( array $input )
- * @method array getItemsInABucket( array $input )
- * @method array getItemsInAVersionedBucket( array $input )
- * @method UriInterface getPublicItemLink( array $input )
- * @method bool hasBucket( array $input )
- * @method bool hasFolder( array $input )
- * @method bool hasItem( array $input )
- * @method bool isBucketVersioned( array $input )
- * @method mixed|UriInterface openItem( array $input )
- * @method bool restoreItem( array $input )
- * @method bool setBucketLifecycleConfiguration( array $input )
- * @method bool setBucketPolicy( array $input )
- * @method bool setBucketVersioning( array $input )
- * @method bool transfer( array $input )
- * @method bool uploadItem( array $input )
- * @method bool uploadItemFromBody( array $input )
+ * @method bool clearBucket(array $input)
+ * @method bool copyFolder(array $input)
+ * @method bool copyInBatch(array $input)
+ * @method bool copyItem(array $input)
+ * @method bool createBucketIfItDoesNotExist(array $input)
+ * @method bool createFolder(array $input)
+ * @method bool deleteBucket(array $input)
+ * @method bool deleteBucketPolicy(array $input)
+ * @method bool deleteFolder(array $input)
+ * @method bool deleteItem(array $input)
+ * @method bool downloadItem(array $input)
+ * @method bool enableAcceleration(array $input)
+ * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
+ * @method mixed getBucketPolicy(array $input)
+ * @method int|mixed getBucketSize(array $input)
+ * @method null|string getCurrentItemVersion(array $input)
+ * @method ResultInterface|mixed getItem(array $input)
+ * @method array getItemsInABucket(array $input)
+ * @method array getItemsInAVersionedBucket(array $input)
+ * @method UriInterface getPublicItemLink(array $input)
+ * @method bool hasBucket(array $input)
+ * @method bool hasFolder(array $input)
+ * @method bool hasItem(array $input)
+ * @method bool isBucketVersioned(array $input)
+ * @method mixed|UriInterface openItem(array $input)
+ * @method bool restoreItem(array $input)
+ * @method bool setBucketLifecycleConfiguration(array $input)
+ * @method bool setBucketPolicy(array $input)
+ * @method bool setBucketVersioning(array $input)
+ * @method bool transfer(array $input)
+ * @method bool uploadItem(array $input)
+ * @method bool uploadItemFromBody(array $input)
  *
  * @package SimpleS3
  */
-final class Client {
+final class Client
+{
     /**
      * @var string
      */
@@ -104,8 +105,9 @@ final class Client {
      *
      * @param array $config
      */
-    public function __construct( array $config ) {
-        $this->s3              = ClientFactory::create( $config );
+    public function __construct(array $config)
+    {
+        $this->s3              = ClientFactory::create($config);
         $this->filenameMaxSize = 255;
     }
 
@@ -114,138 +116,155 @@ final class Client {
      * It checks if the class exists and
      * if the passed parameters are valid
      *
-     * @param string $name
-     * @param array  $args
+     * @param string                      $name
+     * @param array<array<string,string>> $args
      *
      * @return mixed
      */
-    public function __call( string $name, array $args ) {
+    public function __call(string $name, array $args)
+    {
         $params = $args[ 0 ] ?? [];
 
-        $commandHandler = 'Matecat\\SimpleS3\\Commands\\Handlers\\' . ucfirst( $name );
+        $commandHandler = 'Matecat\\SimpleS3\\Commands\\Handlers\\' . ucfirst($name);
 
-        if ( false === class_exists( $commandHandler ) ) {
-            throw new InvalidArgumentException( $commandHandler . ' is not a valid command name. Please refer to README to get the complete command list.' );
+        if (false === class_exists($commandHandler)) {
+            throw new InvalidArgumentException($commandHandler . ' is not a valid command name. Please refer to README to get the complete command list.');
         }
 
         /** @var CommandHandler $commandHandler */
-        $commandHandler = new $commandHandler( $this );
+        $commandHandler = new $commandHandler($this);
 
-        if ( $commandHandler->validateParams( $params ) ) {
-            return $commandHandler->handle( $params );
+        if ($commandHandler->validateParams($params)) {
+            return $commandHandler->handle($params);
         }
     }
 
     /**
      * @param CacheInterface $cache
      */
-    public function addCache( CacheInterface $cache ): void {
+    public function addCache(CacheInterface $cache): void
+    {
         $this->cache = $cache;
-        $this->cache->setPrefixSeparator( $this->prefixSeparator );
+        $this->cache->setPrefixSeparator($this->prefixSeparator);
     }
 
     /**
      * @return bool
      */
-    public function hasCache(): bool {
+    public function hasCache(): bool
+    {
         return null !== $this->cache;
     }
 
     /**
      * @return CacheInterface|null
      */
-    public function getCache(): ?CacheInterface {
+    public function getCache(): ?CacheInterface
+    {
         return $this->cache;
     }
 
     /**
      * @param SafeNameEncoderInterface $encoder
      */
-    public function addEncoder( SafeNameEncoderInterface $encoder ): void {
+    public function addEncoder(SafeNameEncoderInterface $encoder): void
+    {
         $this->encoder = $encoder;
     }
 
     /**
      * @return bool
      */
-    public function hasEncoder(): bool {
+    public function hasEncoder(): bool
+    {
         return null !== $this->encoder;
     }
 
     /**
      * @return SafeNameEncoderInterface|null
      */
-    public function getEncoder(): ?SafeNameEncoderInterface {
+    public function getEncoder(): ?SafeNameEncoderInterface
+    {
         return $this->encoder;
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function addLogger( LoggerInterface $logger ): void {
+    public function addLogger(LoggerInterface $logger): void
+    {
         $this->logger = $logger;
     }
 
     /**
      * @return bool
      */
-    public function hasLogger(): bool {
+    public function hasLogger(): bool
+    {
         return null !== $this->logger;
     }
 
     /**
      * @return LoggerInterface|null
      */
-    public function getLogger(): ?LoggerInterface {
+    public function getLogger(): ?LoggerInterface
+    {
         return $this->logger;
     }
 
     /**
      * @return S3Client
      */
-    public function getConn(): S3Client {
+    public function getConn(): S3Client
+    {
         return $this->s3;
     }
 
     /**
      * Disable SSL verify
      */
-    public function disableSslVerify() {
+    public function disableSslVerify(): void
+    {
         $this->sslVerify = false;
     }
 
     /**
      * @return bool
      */
-    public function hasSslVerify(): bool {
+    public function hasSslVerify(): bool
+    {
         return $this->sslVerify;
     }
 
     /**
      * @param string $separator
      */
-    public function setPrefixSeparator( string $separator ): void {
+    public function setPrefixSeparator(string $separator): void
+    {
         $this->prefixSeparator = $separator;
     }
 
     /**
      * @return string
      */
-    public function getPrefixSeparator(): string {
+    public function getPrefixSeparator(): string
+    {
         return $this->prefixSeparator;
     }
 
     /**
      * @return int
      */
-    public function getFilenameMaxSize(): int {
+    public function getFilenameMaxSize(): int
+    {
         return $this->filenameMaxSize;
     }
 
     /**
      * @param int $filenameMaxSize
      */
-    public function setFilenameMaxSize( int $filenameMaxSize ): void {
+    public function setFilenameMaxSize(int $filenameMaxSize): void
+    {
         $this->filenameMaxSize = $filenameMaxSize;
     }
 }

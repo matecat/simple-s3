@@ -16,7 +16,8 @@ use Aws\S3\Exception\S3Exception;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class GetItem extends CommandHandler {
+class GetItem extends CommandHandler
+{
     /**
      * Get the details of an item.
      * For a complete reference:
@@ -27,20 +28,21 @@ class GetItem extends CommandHandler {
      * @return ResultInterface|mixed
      * @throws Exception
      */
-    public function handle( array $params = [] ): mixed {
+    public function handle(array $params = []): mixed
+    {
         $bucketName = $params[ 'bucket' ];
         $keyName    = $params[ 'key' ];
-        $version    = ( isset( $params[ 'version' ] ) ) ? $params[ 'version' ] : null;
+        $version    = (isset($params[ 'version' ])) ? $params[ 'version' ] : null;
 
-        if ( $this->client->hasEncoder() ) {
-            $keyName = $this->client->getEncoder()->encode( $keyName );
+        if ($this->client->hasEncoder()) {
+            $keyName = $this->client->getEncoder()->encode($keyName);
         }
 
-        if ( $this->client->hasCache() and $this->client->getCache()->has( $bucketName, $keyName, $version ) ) {
-            return $this->returnItemFromCache( $bucketName, $keyName, $version );
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $keyName, $version)) {
+            return $this->returnItemFromCache($bucketName, $keyName, $version);
         }
 
-        return $this->returnItemFromS3( $bucketName, $keyName, $version );
+        return $this->returnItemFromS3($bucketName, $keyName, $version);
     }
 
     /**
@@ -48,10 +50,11 @@ class GetItem extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'bucket' ] ) and
-                isset( $params[ 'key' ] )
+                isset($params[ 'bucket' ]) and
+                isset($params[ 'key' ])
         );
     }
 
@@ -62,22 +65,23 @@ class GetItem extends CommandHandler {
      *
      * @return mixed
      */
-    private function returnItemFromCache( string $bucketName, string $keyName, ?string $version = null ): mixed {
-        if ( '' === $this->client->getCache()->get( $bucketName, $keyName, $version ) ) {
+    private function returnItemFromCache(string $bucketName, string $keyName, ?string $version = null): mixed
+    {
+        if ('' === $this->client->getCache()->get($bucketName, $keyName, $version)) {
             $config = [
                     'Bucket' => $bucketName,
                     'Key'    => $keyName
             ];
 
-            if ( null != $version ) {
+            if (null != $version) {
                 $config[ 'VersionId' ] = $version;
             }
 
-            $file = $this->client->getConn()->getObject( $config );
-            $this->client->getCache()->set( $bucketName, $keyName, $file->toArray(), $version );
+            $file = $this->client->getConn()->getObject($config);
+            $this->client->getCache()->set($bucketName, $keyName, $file->toArray(), $version);
         }
 
-        return $this->client->getCache()->get( $bucketName, $keyName, $version );
+        return $this->client->getCache()->get($bucketName, $keyName, $version);
     }
 
     /**
@@ -87,28 +91,29 @@ class GetItem extends CommandHandler {
      *
      * @return array
      */
-    private function returnItemFromS3( string $bucketName, string $keyName, ?string $version = null ): array {
+    private function returnItemFromS3(string $bucketName, string $keyName, ?string $version = null): array
+    {
         try {
             $config = [
                     'Bucket' => $bucketName,
                     'Key'    => $keyName
             ];
 
-            if ( null != $version ) {
+            if (null != $version) {
                 $config[ 'VersionId' ] = $version;
             }
 
-            $file = $this->client->getConn()->getObject( $config );
+            $file = $this->client->getConn()->getObject($config);
 
-            if ( $this->client->hasCache() ) {
-                $this->client->getCache()->set( $bucketName, $keyName, $file->toArray(), $version );
+            if ($this->client->hasCache()) {
+                $this->client->getCache()->set($bucketName, $keyName, $file->toArray(), $version);
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName ) );
+            $this->commandHandlerLogger?->log($this, sprintf('File \'%s\' was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
             return $file->toArray();
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }

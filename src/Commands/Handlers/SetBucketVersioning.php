@@ -15,7 +15,8 @@ use Aws\ResultInterface;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class SetBucketVersioning extends CommandHandler {
+class SetBucketVersioning extends CommandHandler
+{
     /**
      * Enable versioning for a bucket.
      * For a complete reference:
@@ -26,7 +27,8 @@ class SetBucketVersioning extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
         $config     = [
                 'Bucket'                  => $bucketName,
@@ -36,36 +38,36 @@ class SetBucketVersioning extends CommandHandler {
                 ],
         ];
 
-        if ( isset( $params[ 'md5' ] ) ) {
+        if (isset($params[ 'md5' ])) {
             $config[ 'ContentMD5' ] = $params[ 'md5' ];
         }
 
-        if ( isset( $params[ 'mfa' ] ) ) {
+        if (isset($params[ 'mfa' ])) {
             $config[ 'MFA' ] = $params[ 'mfa' ];
         }
 
-        if ( isset( $params[ 'mfa_delete' ] ) ) {
+        if (isset($params[ 'mfa_delete' ])) {
             $config[ 'VersioningConfiguration' ][ 'MFADelete' ] = $params[ 'mfa_delete' ];
         }
 
-        if ( isset( $params[ 'status' ] ) ) {
+        if (isset($params[ 'status' ])) {
             $config[ 'VersioningConfiguration' ][ 'Status' ] = $params[ 'status' ];
         }
 
         try {
-            $versioning = $this->client->getConn()->putBucketVersioning( $config );
+            $versioning = $this->client->getConn()->putBucketVersioning($config);
 
-            if ( ( $versioning instanceof ResultInterface ) and $versioning[ '@metadata' ][ 'statusCode' ] === 200 ) {
-                $this->commandHandlerLogger?->log( $this, sprintf( 'Versioning was successfully enabled for \'%s\' bucket', $bucketName ) );
+            if (($versioning instanceof ResultInterface) and $versioning[ '@metadata' ][ 'statusCode' ] === 200) {
+                $this->commandHandlerLogger?->log($this, sprintf('Versioning was successfully enabled for \'%s\' bucket', $bucketName));
 
                 return true;
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during versioning of bucket \'%s\'', $bucketName ), 'warning' );
+            $this->commandHandlerLogger?->log($this, sprintf('Something went wrong during versioning of bucket \'%s\'', $bucketName), 'warning');
 
             return false;
-        } catch ( Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -76,7 +78,8 @@ class SetBucketVersioning extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return isset( $params[ 'bucket' ] );
+    public function validateParams(array $params = []): bool
+    {
+        return isset($params[ 'bucket' ]);
     }
 }

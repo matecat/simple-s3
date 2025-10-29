@@ -11,24 +11,26 @@
 
 namespace Matecat\SimpleS3\Components\Encoders;
 
-class UrlEncoder extends SafeNameEncoder {
+class UrlEncoder extends SafeNameEncoder
+{
     /**
      * @param string $string
      *
      * @return string
      */
-    public function decode( string $string ): string {
+    public function decode(string $string): string
+    {
         $decoded = [];
 
-        foreach ( explode( DIRECTORY_SEPARATOR, $string ) as $word ) {
-            if ( false === $this->isASafeString( $word ) ) {
-                $word = urldecode( $word );
+        foreach (explode(DIRECTORY_SEPARATOR, $string) as $word) {
+            if (false === $this->isASafeString($word)) {
+                $word = urldecode($word);
             }
 
             $decoded[] = $word;
         }
 
-        return implode( DIRECTORY_SEPARATOR, $decoded );
+        return implode(DIRECTORY_SEPARATOR, $decoded);
     }
 
     /**
@@ -36,17 +38,18 @@ class UrlEncoder extends SafeNameEncoder {
      *
      * @return string
      */
-    public function encode( string $string ): string {
+    public function encode(string $string): string
+    {
         $encoded = [];
 
-        foreach ( explode( DIRECTORY_SEPARATOR, $string ) as $word ) {
-            if ( false === $this->isASafeString( $word ) ) {
-                $word = urlencode( $word );
+        foreach (explode(DIRECTORY_SEPARATOR, $string) as $word) {
+            if (false === $this->isASafeString($word)) {
+                $word = urlencode($word);
             }
 
             $encoded[] = $word;
         }
 
-        return implode( DIRECTORY_SEPARATOR, $encoded );
+        return implode(DIRECTORY_SEPARATOR, $encoded);
     }
 }

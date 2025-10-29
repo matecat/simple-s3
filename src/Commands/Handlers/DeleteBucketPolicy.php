@@ -16,7 +16,8 @@ use Aws\S3\Exception\S3Exception;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class DeleteBucketPolicy extends CommandHandler {
+class DeleteBucketPolicy extends CommandHandler
+{
     /**
      * Delete the bucket policy.
      * For a complete reference:
@@ -27,29 +28,30 @@ class DeleteBucketPolicy extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
 
-        if ( false === $this->client->hasBucket( [ 'bucket' => $bucketName ] ) ) {
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Bucket \'%s\' does not exists', $bucketName ), 'warning' );
+        if (false === $this->client->hasBucket(['bucket' => $bucketName])) {
+            $this->commandHandlerLogger?->log($this, sprintf('Bucket \'%s\' does not exists', $bucketName), 'warning');
 
             return false;
         }
 
         try {
-            $delete = $this->client->getConn()->deleteBucketPolicy( [ 'Bucket' => $bucketName ] );
+            $delete = $this->client->getConn()->deleteBucketPolicy(['Bucket' => $bucketName]);
 
-            if ( ( $delete instanceof ResultInterface ) and $delete[ '@metadata' ][ 'statusCode' ] === 204 ) {
-                $this->commandHandlerLogger?->log( $this, sprintf( 'Policy was successfully deleted for bucket \'%s\'', $bucketName ) );
+            if (($delete instanceof ResultInterface) and $delete[ '@metadata' ][ 'statusCode' ] === 204) {
+                $this->commandHandlerLogger?->log($this, sprintf('Policy was successfully deleted for bucket \'%s\'', $bucketName));
 
                 return true;
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong in deleting policy of bucket \'%s\'', $bucketName ), 'warning' );
+            $this->commandHandlerLogger?->log($this, sprintf('Something went wrong in deleting policy of bucket \'%s\'', $bucketName), 'warning');
 
             return false;
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -60,7 +62,8 @@ class DeleteBucketPolicy extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return ( isset( $params[ 'bucket' ] ) );
+    public function validateParams(array $params = []): bool
+    {
+        return (isset($params[ 'bucket' ]));
     }
 }

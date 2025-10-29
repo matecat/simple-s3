@@ -13,7 +13,8 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class HasBucket extends CommandHandler {
+class HasBucket extends CommandHandler
+{
     /**
      * Check if a bucket already exists.
      * For a complete reference:
@@ -23,10 +24,11 @@ class HasBucket extends CommandHandler {
      *
      * @return bool
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
 
-        return $this->client->getConn()->doesBucketExist( $bucketName );
+        return $this->client->getConn()->doesBucketExist($bucketName);
     }
 
     /**
@@ -34,7 +36,8 @@ class HasBucket extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return isset( $params[ 'bucket' ] );
+    public function validateParams(array $params = []): bool
+    {
+        return isset($params[ 'bucket' ]);
     }
 }

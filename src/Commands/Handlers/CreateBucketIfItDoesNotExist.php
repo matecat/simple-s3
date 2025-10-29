@@ -18,7 +18,8 @@ use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Components\Validators\S3BucketNameValidator;
 use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
 
-class CreateBucketIfItDoesNotExist extends CommandHandler {
+class CreateBucketIfItDoesNotExist extends CommandHandler
+{
     /**
      * Create a bucket if it does not exists.
      * For a complete reference:
@@ -30,43 +31,44 @@ class CreateBucketIfItDoesNotExist extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
 
-        if ( false === S3BucketNameValidator::isValid( $bucketName ) ) {
-            throw new InvalidS3NameException( sprintf( '%s is not a valid bucket name. [' . implode( ', ', S3BucketNameValidator::validate( $bucketName ) ) . ']', $bucketName ) );
+        if (false === S3BucketNameValidator::isValid($bucketName)) {
+            throw new InvalidS3NameException(sprintf('%s is not a valid bucket name. [' . implode(', ', S3BucketNameValidator::validate($bucketName)) . ']', $bucketName));
         }
 
-        if ( true === $this->client->hasBucket( [ 'bucket' => $bucketName ] ) ) {
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Bucket \'%s\' already exists', $bucketName ), 'warning' );
+        if (true === $this->client->hasBucket(['bucket' => $bucketName])) {
+            $this->commandHandlerLogger?->log($this, sprintf('Bucket \'%s\' already exists', $bucketName), 'warning');
 
             return false;
         }
 
         try {
-            $bucket = $this->client->getConn()->createBucket( [
+            $bucket = $this->client->getConn()->createBucket([
                     'Bucket' => $bucketName
-            ] );
+            ]);
 
-            if ( isset( $params[ 'rules' ] ) and count( $params[ 'rules' ] ) > 0 ) {
-                $this->client->setBucketLifecycleConfiguration( [ 'bucket' => $bucketName, 'rules' => $params[ 'rules' ] ] );
+            if (isset($params[ 'rules' ]) and count($params[ 'rules' ]) > 0) {
+                $this->client->setBucketLifecycleConfiguration(['bucket' => $bucketName, 'rules' => $params[ 'rules' ]]);
             }
 
-            if ( isset( $params[ 'accelerate' ] ) and true === $params[ 'accelerate' ] ) {
-                $this->client->enableAcceleration( [ 'bucket' => $bucketName ] );
+            if (isset($params[ 'accelerate' ]) and true === $params[ 'accelerate' ]) {
+                $this->client->enableAcceleration(['bucket' => $bucketName]);
             }
 
-            if ( ( $bucket instanceof ResultInterface ) and $bucket[ '@metadata' ][ 'statusCode' ] === 200 ) {
-                $this->commandHandlerLogger?->log( $this, sprintf( 'Bucket \'%s\' was successfully created', $bucketName ) );
+            if (($bucket instanceof ResultInterface) and $bucket[ '@metadata' ][ 'statusCode' ] === 200) {
+                $this->commandHandlerLogger?->log($this, sprintf('Bucket \'%s\' was successfully created', $bucketName));
 
                 return true;
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during creation of bucket \'%s\'', $bucketName ), 'warning' );
+            $this->commandHandlerLogger?->log($this, sprintf('Something went wrong during creation of bucket \'%s\'', $bucketName), 'warning');
 
             return false;
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -77,7 +79,8 @@ class CreateBucketIfItDoesNotExist extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return isset( $params[ 'bucket' ] );
+    public function validateParams(array $params = []): bool
+    {
+        return isset($params[ 'bucket' ]);
     }
 }

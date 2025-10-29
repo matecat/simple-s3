@@ -16,7 +16,8 @@ use Aws\S3\Exception\S3Exception;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class GetBucketLifeCycleConfiguration extends CommandHandler {
+class GetBucketLifeCycleConfiguration extends CommandHandler
+{
     /**
      * Get the lifecycle configuration of a bucket.
      * For a complete reference:
@@ -27,19 +28,20 @@ class GetBucketLifeCycleConfiguration extends CommandHandler {
      * @return Result
      * @throws Exception
      */
-    public function handle( array $params = [] ): Result {
+    public function handle(array $params = []): Result
+    {
         $bucketName = $params[ 'bucket' ];
 
         try {
-            $result = $this->client->getConn()->getBucketLifecycle( [
+            $result = $this->client->getConn()->getBucketLifecycle([
                     'Bucket' => $bucketName
-            ] );
+            ]);
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName ) );
+            $this->commandHandlerLogger?->log($this, sprintf('LifeCycleConfiguration of \'%s\' bucket was successfully obtained', $bucketName));
 
             return $result;
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -50,7 +52,8 @@ class GetBucketLifeCycleConfiguration extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return isset( $params[ 'bucket' ] );
+    public function validateParams(array $params = []): bool
+    {
+        return isset($params[ 'bucket' ]);
     }
 }

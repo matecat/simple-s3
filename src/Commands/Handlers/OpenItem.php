@@ -15,7 +15,8 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class OpenItem extends CommandHandler {
+class OpenItem extends CommandHandler
+{
     /**
      * Open an item and return the content of it.
      *
@@ -24,25 +25,26 @@ class OpenItem extends CommandHandler {
      * @return string|null
      * @throws Exception
      */
-    public function handle( array $params = [] ): ?string {
+    public function handle(array $params = []): ?string
+    {
         $bucketName = $params[ 'bucket' ];
         $keyName    = $params[ 'key' ];
 
         try {
-            $url     = $this->client->getPublicItemLink( [ 'bucket' => $bucketName, 'key' => $keyName ] );
-            $content = File::loadFile( $url, $this->client->hasSslVerify() );
+            $url     = $this->client->getPublicItemLink(['bucket' => $bucketName, 'key' => $keyName]);
+            $content = File::loadFile($url, $this->client->hasSslVerify());
 
-            if ( false === $content ) {
-                $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during getting content of \'%s\' item from \'%s\' bucket', $keyName, $bucketName ), 'warning' );
+            if (false === $content) {
+                $this->commandHandlerLogger?->log($this, sprintf('Something went wrong during getting content of \'%s\' item from \'%s\' bucket', $keyName, $bucketName), 'warning');
 
                 return null;
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyName, $bucketName ) );
+            $this->commandHandlerLogger?->log($this, sprintf('Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
             return $content;
-        } catch ( Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -53,10 +55,11 @@ class OpenItem extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'bucket' ] ) and
-                isset( $params[ 'key' ] )
+                isset($params[ 'bucket' ]) and
+                isset($params[ 'key' ])
         );
     }
 }

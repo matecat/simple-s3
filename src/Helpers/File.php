@@ -15,14 +15,16 @@ use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class File {
+class File
+{
     /**
      * @param string $path
      *
      * @return bool
      */
-    public static function checkIfIsADir( string $path ): bool {
-        if ( str_contains( $path, DIRECTORY_SEPARATOR ) ) {
+    public static function checkIfIsADir(string $path): bool
+    {
+        if (str_contains($path, DIRECTORY_SEPARATOR)) {
             return true;
         }
 
@@ -35,8 +37,9 @@ class File {
      *
      * @return bool
      */
-    public static function endsWith( string $string, string $separator ): bool {
-        return substr( $string, -1 ) === $separator;
+    public static function endsWith(string $string, string $separator): bool
+    {
+        return substr($string, -1) === $separator;
     }
 
     /**
@@ -44,12 +47,13 @@ class File {
      *
      * @return string
      */
-    public static function getBaseName( string $path ): string {
-        if ( !self::checkIfIsADir( $path ) ) {
+    public static function getBaseName(string $path): string
+    {
+        if (!self::checkIfIsADir($path)) {
             return $path;
         }
 
-        return self::getPathInfo( $path )[ 'basename' ];
+        return self::getPathInfo($path)[ 'basename' ];
     }
 
     /**
@@ -57,8 +61,9 @@ class File {
      *
      * @return string|null
      */
-    public static function getExtension( string $filename ): ?string {
-        return self::getPathInfo( $filename )[ 'extension' ];
+    public static function getExtension(string $filename): ?string
+    {
+        return self::getPathInfo($filename)[ 'extension' ];
     }
 
     /**
@@ -67,7 +72,8 @@ class File {
      *
      * @return string
      */
-    public static function getMimeType( string $filename, int $mode = 0 ): string {
+    public static function getMimeType(string $filename, int $mode = 0): string
+    {
         // mode 0 = full check
         // mode 1 = extension check only
 
@@ -132,24 +138,24 @@ class File {
                 'ods'  => 'application/vnd.oasis.opendocument.spreadsheet',
         ];
 
-        if ( function_exists( 'mime_content_type' ) and $mode === 0 ) {
-            return mime_content_type( $filename );
+        if (function_exists('mime_content_type') and $mode === 0) {
+            return mime_content_type($filename);
         }
 
-        if ( function_exists( 'finfo_open' ) and $mode === 0 ) {
-            $finfo = finfo_open( FILEINFO_MIME );
+        if (function_exists('finfo_open') and $mode === 0) {
+            $finfo = finfo_open(FILEINFO_MIME);
 
-            if ( false !== $finfo ) {
-                $mimetype = finfo_file( $finfo, $filename );
-                finfo_close( $finfo );
+            if (false !== $finfo) {
+                $mimetype = finfo_file($finfo, $filename);
+                finfo_close($finfo);
             }
 
             return $mimetype;
         }
 
-        $ext = self::getExtension( $filename );
+        $ext = self::getExtension($filename);
 
-        if ( null !== $ext and array_key_exists( $ext, $mime_types ) ) {
+        if (null !== $ext and array_key_exists($ext, $mime_types)) {
             return $mime_types[ $ext ];
         }
 
@@ -161,8 +167,9 @@ class File {
      *
      * @return array
      */
-    public static function getPathInfo( string $path ): array {
-        return pathinfo( $path );
+    public static function getPathInfo(string $path): array
+    {
+        return pathinfo($path);
     }
 
     /**
@@ -170,8 +177,9 @@ class File {
      *
      * @return false|int
      */
-    public static function getSize( string $filename ): false|int {
-        return filesize( $filename );
+    public static function getSize(string $filename): false|int
+    {
+        return filesize($filename);
     }
 
     /**
@@ -180,33 +188,34 @@ class File {
      *
      * @return bool|string
      */
-    public static function loadFile( string $url, bool $sslVerify = true ): bool|string {
-        if ( function_exists( 'curl_version' ) ) {
+    public static function loadFile(string $url, bool $sslVerify = true): bool|string
+    {
+        if (function_exists('curl_version')) {
             $ch = curl_init();
 
             $verifyPeer = $sslVerify ? 1 : 0;
             $verifyHost = $sslVerify ? 2 : 0;
 
-            curl_setopt( $ch, CURLOPT_HEADER, 0 );
-            curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-            curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, $verifyHost );
-            curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, $verifyPeer );
-            curl_setopt( $ch, CURLOPT_URL, $url );
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifyPeer);
+            curl_setopt($ch, CURLOPT_URL, $url);
 
-            $data = curl_exec( $ch );
-            curl_close( $ch );
+            $data = curl_exec($ch);
+            curl_close($ch);
 
             return $data;
         }
 
-        $context = stream_context_create( [
+        $context = stream_context_create([
                 'ssl' => [
                         'verify_peer'      => $sslVerify,
                         'verify_peer_name' => $sslVerify,
                 ]
-        ] );
+        ]);
 
-        return file_get_contents( $url, false, $context );
+        return file_get_contents($url, false, $context);
     }
 
     /**
@@ -215,35 +224,36 @@ class File {
      *
      * @return bool|resource
      */
-    public static function open( string $filename, bool $sslVerify = true ) {
-        $context = stream_context_create( [
+    public static function open(string $filename, bool $sslVerify = true)
+    {
+        $context = stream_context_create([
                 'ssl' => [
                         'verify_peer'      => $sslVerify,
                         'verify_peer_name' => $sslVerify,
                 ]
-        ] );
+        ]);
 
-        return fopen( $filename, 'r', false, $context );
+        return fopen($filename, 'r', false, $context);
     }
 
     /**
      * @param string $dir
      * @param bool   $removeItself
      */
-    public static function cleanDir( string $dir, bool $removeItself = false ): void {
+    public static function cleanDir(string $dir, bool $removeItself = false): void
+    {
         $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator( $dir, FilesystemIterator::SKIP_DOTS ),
+                new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
                 RecursiveIteratorIterator::CHILD_FIRST
         );
 
-        foreach ( $files as $fileInfo ) {
-            $todo = ( $fileInfo->isDir() ? 'rmdir' : 'unlink' );
-            $todo( $fileInfo->getRealPath() );
+        foreach ($files as $fileInfo) {
+            $todo = ($fileInfo->isDir() ? 'rmdir' : 'unlink');
+            $todo($fileInfo->getRealPath());
         }
 
-        if ( $removeItself ) {
-            rmdir( $dir );
+        if ($removeItself) {
+            rmdir($dir);
         }
-
     }
 }

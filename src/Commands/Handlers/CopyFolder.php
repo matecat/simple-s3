@@ -15,75 +15,84 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class CopyFolder extends CommandHandler {
+class CopyFolder extends CommandHandler
+{
     /**
-     * @param array $params
+     * @param array{
+     *     target_bucket: ?string,
+     *     target_folder: string,
+     *     source_bucket: string,
+     *     source_folder: string,
+     *     delete_source: ?bool,
+     * } $params
      *
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
-        $targetBucketName = ( isset( $params[ 'target_bucket' ] ) ) ? $params[ 'target_bucket' ] : $params[ 'source_bucket' ];
+    public function handle(array $params = ['source_bucket' => '', 'source_folder' => '', 'target_bucket' => null, 'target_folder' => '', 'delete_source' => false]): bool
+    {
+        $targetBucketName = (isset($params[ 'target_bucket' ])) ? $params[ 'target_bucket' ] : $params[ 'source_bucket' ];
         $targetFolder     = $params[ 'target_folder' ];
         $sourceBucketName = $params[ 'source_bucket' ];
         $sourceFolder     = $params[ 'source_folder' ];
 
         try {
-            $sourceItems = $this->client->getItemsInABucket( [
+            $sourceItems = $this->client->getItemsInABucket([
                     'bucket' => $sourceBucketName,
                     'prefix' => $sourceFolder,
-            ] );
+            ]);
 
             $success = true;
 
-            foreach ( $sourceItems as $sourceItem ) {
-                if ( false === File::endsWith( $sourceFolder, $this->client->getPrefixSeparator() ) ) {
+            foreach ($sourceItems as $sourceItem) {
+                if (false === File::endsWith($sourceFolder, $this->client->getPrefixSeparator())) {
                     $sourceFolder = $sourceFolder . $this->client->getPrefixSeparator();
                 }
 
-                $targetKeyName = $targetFolder . $this->client->getPrefixSeparator() . str_replace( $sourceFolder, "", $sourceItem );
+                $targetKeyName = $targetFolder . $this->client->getPrefixSeparator() . str_replace($sourceFolder, "", $sourceItem);
 
-                $copiedSourceItems = $this->client->copyItem( [
+                $copiedSourceItems = $this->client->copyItem([
                         'target_bucket' => $targetBucketName,
                         'target'        => $targetKeyName,
                         'source_bucket' => $sourceBucketName,
                         'source'        => $sourceItem,
-                ] );
+                ]);
 
-                if ( $copiedSourceItems === false ) {
+                if ($copiedSourceItems === false) {
                     $success = false;
                 }
             }
 
-            if ( isset( $params[ 'delete_source' ] ) and true === $params[ 'delete_source' ] ) {
-                $deleteSource = $this->client->deleteFolder( [
+            if (isset($params[ 'delete_source' ]) and true === $params[ 'delete_source' ]) {
+                $deleteSource = $this->client->deleteFolder([
                         'bucket' => $sourceBucketName,
                         'prefix' => $sourceFolder,
-                ] );
+                ]);
 
-                if ( $deleteSource === true ) {
+                if ($deleteSource === true) {
                     $success = false;
                 }
             }
 
             return $success;
-        } catch ( Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
     }
 
     /**
-     * @param array $params
+     * @param array<string, string> $params
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'target_folder' ] ) and
-                isset( $params[ 'source_bucket' ] ) and
-                isset( $params[ 'source_folder' ] )
+                isset($params[ 'target_folder' ]) and
+                isset($params[ 'source_bucket' ]) and
+                isset($params[ 'source_folder' ])
         );
     }
 }

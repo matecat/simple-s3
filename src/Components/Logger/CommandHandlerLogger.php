@@ -15,7 +15,8 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Psr\Log\LoggerInterface;
 
-class CommandHandlerLogger {
+class CommandHandlerLogger
+{
     /**
      * @var LoggerInterface
      */
@@ -26,7 +27,8 @@ class CommandHandlerLogger {
      *
      * @param LoggerInterface $logger
      */
-    public function __construct( LoggerInterface $logger ) {
+    public function __construct(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -35,9 +37,10 @@ class CommandHandlerLogger {
      * @param string         $message
      * @param string         $level
      */
-    public function log( CommandHandler $commandHandler, string $message, string $level = 'info' ): void {
-        $msg = '[' . get_class( $commandHandler ) . '] ' . $message;
-        $this->logger->{$level}( $msg );
+    public function log(CommandHandler $commandHandler, string $message, string $level = 'info'): void
+    {
+        $msg = '[' . get_class($commandHandler) . '] ' . $message;
+        $this->logger->{$level}($msg);
     }
 
     /**
@@ -45,8 +48,9 @@ class CommandHandlerLogger {
      *
      * @return bool
      */
-    public function logExceptionAndReturnFalse( Exception $exception ): bool {
-        $this->logger->error( $exception->getMessage() );
+    public function logExceptionAndReturnFalse(Exception $exception): bool
+    {
+        $this->logger->error($exception->getMessage());
 
         return false;
     }

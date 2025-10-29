@@ -29,36 +29,38 @@ namespace Matecat\SimpleS3\Components\Validators;
  *
  * @package SimpleS3
  */
-final class S3BucketNameValidator extends S3NameValidator {
+final class S3BucketNameValidator extends S3NameValidator
+{
     /**
      * @param string $string
      *
      * @return array
      */
-    public static function validate( string $string ): array {
+    public static function validate(string $string): array
+    {
         $errors = [];
 
-        if ( strlen( $string ) < 3 ) {
+        if (strlen($string) < 3) {
             $errors[] = 'The string is too short';
         }
 
-        if ( strlen( $string ) > 64 ) {
+        if (strlen($string) > 64) {
             $errors[] = 'The string is too long';
         }
 
-        if ( filter_var( $string, FILTER_VALIDATE_IP ) ) {
+        if (filter_var($string, FILTER_VALIDATE_IP)) {
             $errors[] = 'The string is an IP address';
         }
 
-        if ( strtolower( $string ) !== $string ) {
+        if (strtolower($string) !== $string) {
             $errors[] = 'The string contains capital letters';
         }
 
-        if ( preg_match( '/[^a-z.\-0-9]/i', $string ) ) {
+        if (preg_match('/[^a-z.\-0-9]/i', $string)) {
             $errors[] = 'The string contains a not allowed character';
         }
 
-        if ( str_ends_with( $string, '-' ) ) {
+        if (str_ends_with($string, '-')) {
             $errors[] = 'The string ends with a -';
         }
 
@@ -68,8 +70,8 @@ final class S3BucketNameValidator extends S3NameValidator {
                 '.-'
         ];
 
-        foreach ( $notAllowedCombos as $notAllowedCombo ) {
-            if ( strpos( $string, $notAllowedCombo ) ) {
+        foreach ($notAllowedCombos as $notAllowedCombo) {
+            if (strpos($string, $notAllowedCombo)) {
                 $errors[] = 'The string contains a not allowed character combination';
             }
         }

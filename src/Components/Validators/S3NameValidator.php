@@ -11,13 +11,15 @@
 
 namespace Matecat\SimpleS3\Components\Validators;
 
-abstract class S3NameValidator implements S3NameValidatorInterface {
+abstract class S3NameValidator implements S3NameValidatorInterface
+{
     /**
      * @param string $string
      *
      * @return bool
      */
-    public static function isValid( string $string ): bool {
-        return ( count( static::validate( $string ) ) === 0 );
+    public static function isValid(string $string): bool
+    {
+        return (count(static::validate($string)) === 0);
     }
 }

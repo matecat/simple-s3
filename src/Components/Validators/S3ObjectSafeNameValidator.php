@@ -11,8 +11,6 @@
 
 namespace Matecat\SimpleS3\Components\Validators;
 
-use Override;
-
 /**
  * This class check if a string is a valid S3 object Name
  *
@@ -27,21 +25,23 @@ use Override;
  *
  * @package SimpleS3
  */
-final class S3ObjectSafeNameValidator extends S3NameValidator {
+final class S3ObjectSafeNameValidator extends S3NameValidator
+{
     /**
      * @param string $string
      *
      * @return array
      */
-    public static function validate( string $string ): array {
+    public static function validate(string $string): array
+    {
         $errors = [];
 
-        if ( str_starts_with( $string, '.' ) ) {
+        if (str_starts_with($string, '.')) {
             $errors[] = 'The string cannot starts with .';
         }
 
         // check for string length
-        if ( strlen( urlencode( $string ) ) > 221 ) {
+        if (strlen(urlencode($string)) > 221) {
             $errors[] = 'The string is too long (max length of urlencoded string is 221 bytes)';
         }
 

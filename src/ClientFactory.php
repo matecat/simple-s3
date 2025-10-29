@@ -56,7 +56,8 @@ final class ClientFactory
      *
      * @return S3Client
      */
-    public static function create(array $config = []): S3Client {
+    public static function create(array $config = []): S3Client
+    {
         self::validateConfig($config);
 
         return new S3Client(self::createConfigArray($config));
@@ -67,18 +68,19 @@ final class ClientFactory
      *
      * @return array
      */
-    private static function createConfigArray(array $config): array {
+    private static function createConfigArray(array $config): array
+    {
         $credentials = self::getCredentials($config);
         if (!empty($credentials)) {
-            $config['credentials'] = new Credentials(
-                $credentials['key'],
-                $credentials['secret'],
-                $credentials['token']
+            $config[ 'credentials' ] = new Credentials(
+                    $credentials[ 'key' ],
+                    $credentials[ 'secret' ],
+                    $credentials[ 'token' ]
             );
         }
 
         // Temp fix: suppressing PHP < 8.1 warnings
-        $config['suppress_php_deprecation_warning'] = true;
+        $config[ 'suppress_php_deprecation_warning' ] = true;
 
         return $config;
     }
@@ -86,31 +88,32 @@ final class ClientFactory
     /**
      * @param array $config
      */
-    private static function validateConfig(array $config): void {
+    private static function validateConfig(array $config): void
+    {
         $allowedKeys = [
-            'api_provider',
-            'credentials',
-            'debug',
-            'endpoint',
-            'endpoint_provider',
-            'endpoint_discovery',
-            'handler',
-            'http',
-            'http_handler',
-            'iam',
-            'profile',
-            'region',
-            'retries',
-            'scheme',
-            'service',
-            'signature_provider',
-            'signature_version',
-            'stats',
-            'ua_append',
-            'validate',
-            'version',
+                'api_provider',
+                'credentials',
+                'debug',
+                'endpoint',
+                'endpoint_provider',
+                'endpoint_discovery',
+                'handler',
+                'http',
+                'http_handler',
+                'iam',
+                'profile',
+                'region',
+                'retries',
+                'scheme',
+                'service',
+                'signature_provider',
+                'signature_version',
+                'stats',
+                'ua_append',
+                'validate',
+                'version',
         ];
-        
+
         foreach (array_keys($config) as $key) {
             if (!in_array($key, $allowedKeys)) {
                 throw new InvalidArgumentException(sprintf('%s is not an allowed key', $key));
@@ -123,42 +126,43 @@ final class ClientFactory
      *
      * @return array
      */
-    private static function getCredentials(array $config): array {
+    private static function getCredentials(array $config): array
+    {
         // 1. credentials
-        if (isset($config['credentials']['key']) and isset($config['credentials']['secret'])) {
+        if (isset($config[ 'credentials' ][ 'key' ]) and isset($config[ 'credentials' ][ 'secret' ])) {
             return [
-                'key'    => $config['credentials']['key'],
-                'secret' => $config['credentials']['secret'],
-                'token'  => $config[ 'credentials' ][ 'token' ] ?? null
+                    'key'    => $config[ 'credentials' ][ 'key' ],
+                    'secret' => $config[ 'credentials' ][ 'secret' ],
+                    'token'  => $config[ 'credentials' ][ 'token' ] ?? null
             ];
         }
 
         // 2. IAM
-        if (isset($config['iam'])) {
+        if (isset($config[ 'iam' ])) {
             $stsClient = new StsClient([
-                'profile' => (isset($config['profile'])) ? $config['profile'] : 'default',
-                'region' => $config['region'],
-                'version' => $config['version']
+                    'profile' => (isset($config[ 'profile' ])) ? $config[ 'profile' ] : 'default',
+                    'region'  => $config[ 'region' ],
+                    'version' => $config[ 'version' ]
             ]);
 
             $result = $stsClient->assumeRole([
-                'RoleArn' => $config['iam']['arn'],
-                'RoleSessionName' => $config['iam']['session'],
+                    'RoleArn'         => $config[ 'iam' ][ 'arn' ],
+                    'RoleSessionName' => $config[ 'iam' ][ 'session' ],
             ]);
 
             return [
-                'key'    => $result['Credentials']['AccessKeyId'],
-                'secret' => $result['Credentials']['SecretAccessKey'],
-                'token'  => isset($result['Credentials']['SessionToken']) ? $result['Credentials']['SessionToken'] : null
+                    'key'    => $result[ 'Credentials' ][ 'AccessKeyId' ],
+                    'secret' => $result[ 'Credentials' ][ 'SecretAccessKey' ],
+                    'token'  => isset($result[ 'Credentials' ][ 'SessionToken' ]) ? $result[ 'Credentials' ][ 'SessionToken' ] : null
             ];
         }
 
         // 3. env
         if (false !== getenv('AWS_ACCESS_KEY_ID') and false !== getenv('AWS_SECRET_ACCESS_KEY')) {
             return [
-                'key'    => getenv('AWS_ACCESS_KEY_ID'),
-                'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
-                'token'  => (false !== getenv('AWS_SESSION_TOKEN')) ? getenv('AWS_SESSION_TOKEN') : null
+                    'key'    => getenv('AWS_ACCESS_KEY_ID'),
+                    'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
+                    'token'  => (false !== getenv('AWS_SESSION_TOKEN')) ? getenv('AWS_SESSION_TOKEN') : null
             ];
         }
 

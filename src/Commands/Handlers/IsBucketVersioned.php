@@ -14,7 +14,8 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class IsBucketVersioned extends CommandHandler {
+class IsBucketVersioned extends CommandHandler
+{
     /**
      * Check if is enabled versioning for a bucket.
      * For a complete reference:
@@ -25,15 +26,16 @@ class IsBucketVersioned extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): mixed {
+    public function handle(array $params = []): mixed
+    {
         try {
-            $ver = $this->client->getConn()->getBucketVersioning( [
+            $ver = $this->client->getConn()->getBucketVersioning([
                     'Bucket' => $params[ 'bucket' ]
-            ] );
+            ]);
 
             return $ver[ 'Status' ] === 'Enabled';
-        } catch ( Exception $e ) {
-            return $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e ) ?? false;
+        } catch (Exception $e) {
+            return $this->commandHandlerLogger?->logExceptionAndReturnFalse($e) ?? false;
         }
     }
 
@@ -42,7 +44,8 @@ class IsBucketVersioned extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return isset( $params[ 'bucket' ] );
+    public function validateParams(array $params = []): bool
+    {
+        return isset($params[ 'bucket' ]);
     }
 }

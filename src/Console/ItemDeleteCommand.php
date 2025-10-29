@@ -10,7 +10,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ItemDeleteCommand extends Command {
+class ItemDeleteCommand extends Command
+{
     /**
      * @var Client
      */
@@ -22,38 +23,41 @@ class ItemDeleteCommand extends Command {
      * @param Client  $s3Client
      * @param ?string $name
      */
-    public function __construct( Client $s3Client, ?string $name = null ) {
-        parent::__construct( $name );
+    public function __construct(Client $s3Client, ?string $name = null)
+    {
+        parent::__construct($name);
 
         $this->s3Client = $s3Client;
     }
 
-    protected function configure(): void {
+    protected function configure(): void
+    {
         $this
-                ->setName( 'ss3:item:delete' )
-                ->setDescription( 'Deletes an object from a bucket.' )
-                ->setHelp( 'This command allows you to delete an object from a S3 bucket.' )
-                ->addArgument( 'bucket', InputArgument::REQUIRED, 'The name of the bucket' )
-                ->addArgument( 'key', InputArgument::REQUIRED, 'The desired keyname' );
+                ->setName('ss3:item:delete')
+                ->setDescription('Deletes an object from a bucket.')
+                ->setHelp('This command allows you to delete an object from a S3 bucket.')
+                ->addArgument('bucket', InputArgument::REQUIRED, 'The name of the bucket')
+                ->addArgument('key', InputArgument::REQUIRED, 'The desired keyname');
     }
 
-    protected function execute( InputInterface $input, OutputInterface $output ): int {
-        $bucket = $input->getArgument( 'bucket' );
-        $key    = $input->getArgument( 'key' );
-        $io     = new SymfonyStyle( $input, $output );
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $bucket = $input->getArgument('bucket');
+        $key    = $input->getArgument('key');
+        $io     = new SymfonyStyle($input, $output);
 
         try {
-            if ( true === $this->s3Client->deleteItem( [ 'bucket' => $bucket, 'key' => $key ] ) ) {
-                $io->success( 'The item was successfully cleared' );
+            if (true === $this->s3Client->deleteItem(['bucket' => $bucket, 'key' => $key])) {
+                $io->success('The item was successfully cleared');
 
                 return 0;
             } else {
-                $io->error( 'There was an error in deleting the item' );
+                $io->error('There was an error in deleting the item');
 
                 return 1;
             }
-        } catch ( Exception $e ) {
-            $io->error( $e->getMessage() );
+        } catch (Exception $e) {
+            $io->error($e->getMessage());
 
             return 1;
         }

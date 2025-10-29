@@ -5,7 +5,8 @@ namespace Matecat\SimpleS3\Components\Cache;
 use Matecat\SimpleS3\Helpers\File;
 use Predis\Client as Redis;
 
-class RedisCache implements CacheInterface {
+class RedisCache implements CacheInterface
+{
     /**
      * @var string
      */
@@ -21,17 +22,19 @@ class RedisCache implements CacheInterface {
      *
      * @param Redis $redisClient
      */
-    public function __construct( Redis $redisClient ) {
+    public function __construct(Redis $redisClient)
+    {
         $this->redisClient = $redisClient;
     }
 
     /**
      * @return bool
      */
-    public function flushAll(): bool {
+    public function flushAll(): bool
+    {
         $flush = $this->redisClient->flushall();
 
-        if ( $flush->getPayload() === 'OK' ) {
+        if ($flush->getPayload() === 'OK') {
             return true;
         }
 
@@ -45,12 +48,13 @@ class RedisCache implements CacheInterface {
      *
      * @return mixed
      */
-    public function get( string $bucket, string $keyname, ?string $version = null ): mixed {
-        if ( null != $version ) {
+    public function get(string $bucket, string $keyname, ?string $version = null): mixed
+    {
+        if (null != $version) {
             $keyname .= '<VERSION_ID:' . $version . '>';
         }
 
-        return unserialize( $this->redisClient->hget( $this->getHashPrefix( $bucket, $keyname ), $keyname ) );
+        return unserialize($this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $keyname));
     }
 
     /**
@@ -60,12 +64,13 @@ class RedisCache implements CacheInterface {
      *
      * @return bool
      */
-    public function has( string $bucket, string $keyname, ?string $version = null ): bool {
-        if ( null != $version ) {
+    public function has(string $bucket, string $keyname, ?string $version = null): bool
+    {
+        if (null != $version) {
             $keyname .= '<VERSION_ID:' . $version . '>';
         }
 
-        return 1 === $this->redisClient->hexists( $this->getHashPrefix( $bucket, $keyname ), $keyname );
+        return 1 === $this->redisClient->hexists($this->getHashPrefix($bucket, $keyname), $keyname);
     }
 
     /**
@@ -75,12 +80,13 @@ class RedisCache implements CacheInterface {
      *
      * @return bool
      */
-    public function remove( string $bucket, string $keyname, ?string $version = null ): bool {
-        if ( null != $version ) {
+    public function remove(string $bucket, string $keyname, ?string $version = null): bool
+    {
+        if (null != $version) {
             $keyname .= '<VERSION_ID:' . $version . '>';
         }
 
-        return $this->redisClient->hdel( $this->getHashPrefix( $bucket, $keyname ), [ $keyname ] ) === 1;
+        return $this->redisClient->hdel($this->getHashPrefix($bucket, $keyname), [$keyname]) === 1;
     }
 
     /**
@@ -89,8 +95,9 @@ class RedisCache implements CacheInterface {
      *
      * @return array
      */
-    public function search( string $bucket, string $keyname ): array {
-        return $this->redisClient->hkeys( $this->getHashPrefix( $bucket, $keyname ) );
+    public function search(string $bucket, string $keyname): array
+    {
+        return $this->redisClient->hkeys($this->getHashPrefix($bucket, $keyname));
     }
 
     /**
@@ -102,15 +109,16 @@ class RedisCache implements CacheInterface {
      *
      * @return int
      */
-    public function set( string $bucket, string $keyname, mixed $content, ?string $version = null, int $ttl = 0 ): int {
-        if ( null != $version ) {
+    public function set(string $bucket, string $keyname, mixed $content, ?string $version = null, int $ttl = 0): int
+    {
+        if (null != $version) {
             $keyname .= '<VERSION_ID:' . $version . '>';
         }
 
-        $res = $this->redisClient->hset( $this->getHashPrefix( $bucket, $keyname ), $keyname, serialize( $content ) );
+        $res = $this->redisClient->hset($this->getHashPrefix($bucket, $keyname), $keyname, serialize($content));
 
-        if ( $this->ttl( $bucket, $keyname ) === -1 ) {
-            return $this->redisClient->expire( $this->getHashPrefix( $bucket, $keyname ), ( null != $ttl ) ? $ttl * 60 : self::TTL_STANDARD );
+        if ($this->ttl($bucket, $keyname) === -1) {
+            return $this->redisClient->expire($this->getHashPrefix($bucket, $keyname), (null != $ttl) ? $ttl * 60 : self::TTL_STANDARD);
         }
 
         return $res;
@@ -119,7 +127,8 @@ class RedisCache implements CacheInterface {
     /**
      * @param string $separator
      */
-    public function setPrefixSeparator( string $separator ): void {
+    public function setPrefixSeparator(string $separator): void
+    {
         $this->prefixSeparator = $separator;
     }
 
@@ -130,12 +139,13 @@ class RedisCache implements CacheInterface {
      *
      * @return int
      */
-    public function ttl( string $bucket, string $keyname, ?string $version = null ): int {
-        if ( null != $version ) {
+    public function ttl(string $bucket, string $keyname, ?string $version = null): int
+    {
+        if (null != $version) {
             $keyname .= '<VERSION_ID:' . $version . '>';
         }
 
-        return $this->redisClient->ttl( $this->getHashPrefix( $bucket, $keyname ) );
+        return $this->redisClient->ttl($this->getHashPrefix($bucket, $keyname));
     }
 
     /**
@@ -144,8 +154,9 @@ class RedisCache implements CacheInterface {
      *
      * @return string
      */
-    private function getHashPrefix( string $bucketName, string $keyName ): string {
-        return hash( self::HASH_ALGORITHM, $bucketName . self::HASH_SAFE_SEPARATOR . $this->getDirName( $keyName ) );
+    private function getHashPrefix(string $bucketName, string $keyName): string
+    {
+        return hash(self::HASH_ALGORITHM, $bucketName . self::HASH_SAFE_SEPARATOR . $this->getDirName($keyName));
     }
 
     /**
@@ -153,12 +164,13 @@ class RedisCache implements CacheInterface {
      *
      * @return string
      */
-    private function getDirName( string $item ): string {
-        if ( File::endsWith( $item, $this->prefixSeparator ) ) {
+    private function getDirName(string $item): string
+    {
+        if (File::endsWith($item, $this->prefixSeparator)) {
             return $item;
         }
 
-        $fileInfo = File::getPathInfo( $item );
+        $fileInfo = File::getPathInfo($item);
 
         return $fileInfo[ 'dirname' ] . $this->prefixSeparator;
     }

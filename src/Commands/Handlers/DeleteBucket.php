@@ -16,7 +16,8 @@ use Aws\S3\Exception\S3Exception;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class DeleteBucket extends CommandHandler {
+class DeleteBucket extends CommandHandler
+{
     /**
      * Delete the entire bucket.
      * For a complete reference:
@@ -27,30 +28,31 @@ class DeleteBucket extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
 
-        if ( false === $this->client->hasBucket( [ 'bucket' => $bucketName ] ) ) {
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Bucket \'%s\' does not exists', $bucketName ), 'warning' );
+        if (false === $this->client->hasBucket(['bucket' => $bucketName])) {
+            $this->commandHandlerLogger?->log($this, sprintf('Bucket \'%s\' does not exists', $bucketName), 'warning');
 
             return false;
         }
 
         try {
-            $this->client->clearBucket( [ 'bucket' => $bucketName ] );
-            $delete = $this->client->getConn()->deleteBucket( [ 'Bucket' => $bucketName ] );
+            $this->client->clearBucket(['bucket' => $bucketName]);
+            $delete = $this->client->getConn()->deleteBucket(['Bucket' => $bucketName]);
 
-            if ( ( $delete instanceof ResultInterface ) and $delete[ '@metadata' ][ 'statusCode' ] === 204 ) {
-                $this->commandHandlerLogger?->log( $this, sprintf( 'Bucket \'%s\' was successfully deleted', $bucketName ) );
+            if (($delete instanceof ResultInterface) and $delete[ '@metadata' ][ 'statusCode' ] === 204) {
+                $this->commandHandlerLogger?->log($this, sprintf('Bucket \'%s\' was successfully deleted', $bucketName));
 
                 return true;
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong in deleting bucket \'%s\'', $bucketName ), 'warning' );
+            $this->commandHandlerLogger?->log($this, sprintf('Something went wrong in deleting bucket \'%s\'', $bucketName), 'warning');
 
             return false;
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -61,7 +63,8 @@ class DeleteBucket extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
-        return ( isset( $params[ 'bucket' ] ) );
+    public function validateParams(array $params = []): bool
+    {
+        return (isset($params[ 'bucket' ]));
     }
 }

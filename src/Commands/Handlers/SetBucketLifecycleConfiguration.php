@@ -15,7 +15,8 @@ use Aws\ResultInterface;
 use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
-class SetBucketLifecycleConfiguration extends CommandHandler {
+class SetBucketLifecycleConfiguration extends CommandHandler
+{
     /**
      * Set bucket lifecycle configuration.
      * For a complete reference of bucket lifecycle rules:
@@ -26,7 +27,8 @@ class SetBucketLifecycleConfiguration extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
         $rules      = $params[ 'rules' ];
 
@@ -38,21 +40,21 @@ class SetBucketLifecycleConfiguration extends CommandHandler {
                     ]
             ];
 
-            $config = $this->client->getConn()->putBucketLifecycleConfiguration( $settings );
+            $config = $this->client->getConn()->putBucketLifecycleConfiguration($settings);
 
-            if ( ( $config instanceof ResultInterface ) and $config[ '@metadata' ][ 'statusCode' ] === 200 ) {
-                if ( null !== $this->commandHandlerLogger ) {
-                    $this->commandHandlerLogger->log( $this, sprintf( 'Lifecycle was successfully set for bucket \'%s\'', $bucketName ) );
+            if (($config instanceof ResultInterface) and $config[ '@metadata' ][ 'statusCode' ] === 200) {
+                if (null !== $this->commandHandlerLogger) {
+                    $this->commandHandlerLogger->log($this, sprintf('Lifecycle was successfully set for bucket \'%s\'', $bucketName));
                 }
 
                 return true;
             }
 
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Something went wrong during setting of lifecycle of \'%s\' bucket', $bucketName ), 'warning' );
+            $this->commandHandlerLogger?->log($this, sprintf('Something went wrong during setting of lifecycle of \'%s\' bucket', $bucketName), 'warning');
 
             return false;
-        } catch ( Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -63,10 +65,11 @@ class SetBucketLifecycleConfiguration extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'bucket' ] ) and
-                isset( $params[ 'rules' ] )
+                isset($params[ 'bucket' ]) and
+                isset($params[ 'rules' ])
         );
     }
 }

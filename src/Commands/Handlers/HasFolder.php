@@ -16,7 +16,8 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class HasFolder extends CommandHandler {
+class HasFolder extends CommandHandler
+{
     /**
      * Check if a folder already exists.
      * For a complete reference:
@@ -27,23 +28,24 @@ class HasFolder extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    public function handle( array $params = [] ): bool {
+    public function handle(array $params = []): bool
+    {
         $bucketName = $params[ 'bucket' ];
         $prefix     = $params[ 'prefix' ];
 
-        if ( $this->client->hasEncoder() ) {
-            $prefix = $this->client->getEncoder()->encode( $prefix );
+        if ($this->client->hasEncoder()) {
+            $prefix = $this->client->getEncoder()->encode($prefix);
         }
 
-        if ( false === File::endsWith( $prefix, $this->client->getPrefixSeparator() ) ) {
+        if (false === File::endsWith($prefix, $this->client->getPrefixSeparator())) {
             $prefix .= $this->client->getPrefixSeparator();
         }
 
-        if ( $this->client->hasCache() and $this->client->getCache()->has( $bucketName, $prefix ) ) {
+        if ($this->client->hasCache() and $this->client->getCache()->has($bucketName, $prefix)) {
             return true;
         }
 
-        return $this->returnItemFromS3( $bucketName, $prefix );
+        return $this->returnItemFromS3($bucketName, $prefix);
     }
 
     /**
@@ -51,10 +53,11 @@ class HasFolder extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'bucket' ] ) and
-                isset( $params[ 'prefix' ] )
+                isset($params[ 'bucket' ]) and
+                isset($params[ 'prefix' ])
         );
     }
 
@@ -65,21 +68,22 @@ class HasFolder extends CommandHandler {
      * @return bool
      * @throws Exception
      */
-    private function returnItemFromS3( string $bucketName, string $prefix ): bool {
+    private function returnItemFromS3(string $bucketName, string $prefix): bool
+    {
         $command = $this->client->getConn()->getCommand(
                 'listObjects',
                 [
-                        'Bucket'  => $bucketName,
-                        'Prefix'  => $prefix,
+                        'Bucket' => $bucketName,
+                        'Prefix' => $prefix,
                         'MaxKeys' => 1,
                 ]
         );
         try {
-            $result = $this->client->getConn()->execute( $command );
+            $result = $this->client->getConn()->execute($command);
 
             return $result[ 'Contents' ] || $result[ 'CommonPrefixes' ];
-        } catch ( S3Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (S3Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }

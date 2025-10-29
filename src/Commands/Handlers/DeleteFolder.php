@@ -15,7 +15,8 @@ use Exception;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
 
-class DeleteFolder extends CommandHandler {
+class DeleteFolder extends CommandHandler
+{
     /**
      * Delete a folder.
      * For a complete reference:
@@ -26,32 +27,33 @@ class DeleteFolder extends CommandHandler {
      * @return true
      * @throws Exception
      */
-    public function handle( array $params = [] ): true {
+    public function handle(array $params = []): true
+    {
         $bucketName = $params[ 'bucket' ];
         $prefix     = $params[ 'prefix' ];
 
-        if ( false === File::endsWith( $prefix, $this->client->getPrefixSeparator() ) ) {
+        if (false === File::endsWith($prefix, $this->client->getPrefixSeparator())) {
             $prefix .= $this->client->getPrefixSeparator();
         }
 
         try {
-            $this->client->getConn()->deleteMatchingObjects( $bucketName, $prefix );
-            $this->commandHandlerLogger?->log( $this, sprintf( 'Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName ) );
+            $this->client->getConn()->deleteMatchingObjects($bucketName, $prefix);
+            $this->commandHandlerLogger?->log($this, sprintf('Folder \'%s\' was successfully deleted from \'%s\' bucket', $prefix, $bucketName));
 
-            if ( $this->client->hasCache() ) {
-                $items = $this->client->getItemsInABucket( [
+            if ($this->client->hasCache()) {
+                $items = $this->client->getItemsInABucket([
                         'bucket' => $bucketName,
                         'prefix' => $prefix,
-                ] );
+                ]);
 
-                foreach ( $items as $key ) {
-                    $this->client->getCache()->remove( $bucketName, $key );
+                foreach ($items as $key) {
+                    $this->client->getCache()->remove($bucketName, $key);
                 }
             }
 
             return true;
-        } catch ( Exception $e ) {
-            $this->commandHandlerLogger?->logExceptionAndReturnFalse( $e );
+        } catch (Exception $e) {
+            $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
             throw $e;
         }
@@ -62,10 +64,11 @@ class DeleteFolder extends CommandHandler {
      *
      * @return bool
      */
-    public function validateParams( array $params = [] ): bool {
+    public function validateParams(array $params = []): bool
+    {
         return (
-                isset( $params[ 'bucket' ] ) and
-                isset( $params[ 'prefix' ] )
+                isset($params[ 'bucket' ]) and
+                isset($params[ 'prefix' ])
         );
     }
 }

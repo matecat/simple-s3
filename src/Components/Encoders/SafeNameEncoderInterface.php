@@ -42,18 +42,19 @@ namespace Matecat\SimpleS3\Components\Encoders;
  *
  * @package SimpleS3
  */
-interface SafeNameEncoderInterface {
+interface SafeNameEncoderInterface
+{
     /**
      * @param string $string
      *
      * @return string
      */
-    public function decode( string $string ): string;
+    public function decode(string $string): string;
 
     /**
      * @param string $string
      *
      * @return string
      */
-    public function encode( string $string ): string;
+    public function encode(string $string): string;
 }

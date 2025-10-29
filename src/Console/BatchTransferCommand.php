@@ -12,7 +12,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class BatchTransferCommand extends Command {
+class BatchTransferCommand extends Command
+{
     /**
      * @var Client
      */
@@ -24,50 +25,53 @@ class BatchTransferCommand extends Command {
      * @param Client      $s3Client
      * @param string|null $name
      */
-    public function __construct( Client $s3Client, ?string $name = null ) {
-        parent::__construct( $name );
+    public function __construct(Client $s3Client, ?string $name = null)
+    {
+        parent::__construct($name);
 
         $this->s3Client = $s3Client;
     }
 
-    protected function configure(): void {
+    protected function configure(): void
+    {
         $this
-                ->setName( 'ss3:batch:transfer' )
-                ->setDescription( 'Transfer files from/to a bucket.' )
-                ->setHelp( 'This command transfer files from/to a bucket on S3. Remember: IT\'S PERMITTED ONLY the transfer from local to remote or vice versa.' )
-                ->addArgument( 'src', InputArgument::REQUIRED, 'The source' )
-                ->addArgument( 'dest', InputArgument::REQUIRED, 'The destination' );
+                ->setName('ss3:batch:transfer')
+                ->setDescription('Transfer files from/to a bucket.')
+                ->setHelp('This command transfer files from/to a bucket on S3. Remember: IT\'S PERMITTED ONLY the transfer from local to remote or vice versa.')
+                ->addArgument('src', InputArgument::REQUIRED, 'The source')
+                ->addArgument('dest', InputArgument::REQUIRED, 'The destination');
     }
 
-    protected function execute( InputInterface $input, OutputInterface $output ): int {
-        $src  = $input->getArgument( 'src' );
-        $dest = $input->getArgument( 'dest' );
-        $io   = new SymfonyStyle( $input, $output );
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $src  = $input->getArgument('src');
+        $dest = $input->getArgument('dest');
+        $io   = new SymfonyStyle($input, $output);
 
-        $io->title( 'Starting the file transfer...(may take a while)' );
+        $io->title('Starting the file transfer...(may take a while)');
 
         $from = 'local filesystem';
         $to   = 'S3';
 
-        if ( str_contains( $src, 's3://' ) ) {
+        if (str_contains($src, 's3://')) {
             $from = 'S3';
             $to   = 'local filesystem';
         }
 
         try {
-            $manager = new Transfer( $this->s3Client->getConn(), $src, $dest, [
-                    'before' => function ( CommandInterface $command ) use ( $output, $from, $to ) {
-                        $output->writeln( 'Transferring <fg=green>[' . $command[ 'Key' ] . ']</> from ' . $from . ' to ' . $to );
+            $manager = new Transfer($this->s3Client->getConn(), $src, $dest, [
+                    'before' => function (CommandInterface $command) use ($output, $from, $to) {
+                        $output->writeln('Transferring <fg=green>[' . $command[ 'Key' ] . ']</> from ' . $from . ' to ' . $to);
                     }
-            ] );
+            ]);
             $manager->transfer();
 
-            $output->writeln( '' );
-            $io->success( 'The files were successfully transfered' );
+            $output->writeln('');
+            $io->success('The files were successfully transfered');
 
             return 0;
-        } catch ( Exception $e ) {
-            $io->error( $e->getMessage() );
+        } catch (Exception $e) {
+            $io->error($e->getMessage());
 
             return 1;
         }
