@@ -39,7 +39,12 @@ class DeleteBucket extends CommandHandler
         }
 
         try {
-            $this->client->clearBucket(['bucket' => $bucketName]);
+            if (false === $this->client->clearBucket(['bucket' => $bucketName])) {
+                $this->commandHandlerLogger?->log($this, sprintf('Bucket \'%s\' could not be cleared before deletion', $bucketName), 'warning');
+
+                return false;
+            }
+
             $delete = $this->client->getConn()->deleteBucket(['Bucket' => $bucketName]);
 
             if (($delete instanceof ResultInterface) and $delete[ '@metadata' ][ 'statusCode' ] === 204) {

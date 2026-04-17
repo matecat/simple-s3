@@ -51,6 +51,9 @@ class S3ClientWithVersioningTest extends BaseTest {
      * @test
      */
     public function test_the_client_upload_and_retrieve_versionated_items() {
+        // Flush stale cache entries from previous test runs to avoid NoSuchVersion errors
+        $this->s3Client->getCache()->flushAll();
+
         $this->s3Client->createBucketIfItDoesNotExist( [ 'bucket' => $this->bucket ] );
         $this->s3Client->setBucketVersioning( [ 'bucket' => $this->bucket ] );
         $versioning = $this->s3Client->isBucketVersioned( [ 'bucket' => $this->bucket ] );
@@ -139,6 +142,12 @@ class S3ClientWithVersioningTest extends BaseTest {
      * @throws Exception
      */
     public function test_the_client_deletes_the_bucket() {
+        $keyname = 'folder/delete-marker.txt';
+        $source  = Constants::TEST_SUPPORT_FILES . '/test.txt';
+
+        $this->assertTrue( $this->s3Client->uploadItem( [ 'bucket' => $this->bucket, 'key' => $keyname, 'source' => $source ] ) );
+        $this->assertTrue( $this->s3Client->deleteItem( [ 'bucket' => $this->bucket, 'key' => $keyname ] ) );
+
         $this->assertTrue( $this->s3Client->deleteBucket( [ 'bucket' => $this->bucket ] ) );
         $this->assertTrue( $this->s3Client->deleteBucket( [ 'bucket' => $this->bucket . '-copied' ] ) );
         $this->assertFalse( $this->s3Client->hasBucket( [ 'bucket' => $this->bucket ] ) );
