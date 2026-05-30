@@ -19,7 +19,6 @@ use Matecat\SimpleS3\Components\Validators\S3ObjectSafeNameValidator;
 use Matecat\SimpleS3\Components\Validators\S3StorageClassNameValidator;
 use Matecat\SimpleS3\Exceptions\InvalidS3NameException;
 use Matecat\SimpleS3\Helpers\File;
-use Matecat\SimpleS3\Helpers\FilenameValidator;
 
 class UploadItemFromBody extends CommandHandler
 {

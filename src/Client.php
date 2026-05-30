@@ -141,6 +141,8 @@ final class Client implements ClientInterface
         if ($commandHandler->validateParams($params)) {
             return $commandHandler->handle($params);
         }
+
+        return null;
     }
 
     /**
