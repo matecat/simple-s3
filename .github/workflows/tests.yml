@@ -1,0 +1,87 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CI: static analysis + unit/integration tests for the simple-s3 library.
+#
+# Runs on every push to master/develop and on every pull request.
+# No Docker images are built — PHP is provisioned via shivammathur/setup-php
+# and Redis is supplied as a GitHub Actions service container.
+#
+# AWS credentials are optional: if the repository secrets are not configured,
+# the live-S3 test suites will fail but the static analysis and the
+# infrastructure-free tests will still execute. Wire the secrets below to
+# enable the full PHPUnit run.
+# ─────────────────────────────────────────────────────────────────────────────
+name: Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} – PHPStan & PHPUnit
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '8.3', '8.4' ]
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, fileinfo, json, redis
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php${{ matrix.php }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan analyse --no-progress
+
+      - name: Run PHPUnit
+        env:
+          # The AWS SDK + tests/BaseTest both read these directly from the
+          # environment; no credentials.ini is needed. If the secrets are
+          # not configured, the live-S3 suites will fail but unit-only and
+          # Redis-backed tests will still run.
+          AWS_ACCESS_KEY_ID:     ${{ vars.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ vars.AWS_REGION || 'eu-central-1' }}
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+        run: ./vendor/bin/phpunit --colors=always
+
