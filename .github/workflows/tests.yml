@@ -25,6 +25,9 @@ jobs:
   tests:
     name: PHP ${{ matrix.php }} – PHPStan & PHPUnit
     runs-on: ubuntu-24.04
+    # The "master" GitHub Environment holds AWS_ACCESS_KEY_ID (var) and
+    # AWS_SECRET_ACCESS_KEY (secret) used by the live-S3 test suites.
+    environment: master
 
     strategy:
       fail-fast: false
