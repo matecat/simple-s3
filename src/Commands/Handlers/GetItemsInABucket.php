@@ -13,18 +13,19 @@ namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\S3\Exception\S3Exception;
 use Exception;
+use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Helpers\File;
-
+use UnexpectedValueException;
 class GetItemsInABucket extends CommandHandler
 {
     /**
      * Get the list of keys in a bucket.
      * If 'hydrate' parameter is set to true, an array of hydrated Aws\Result is returned instead.
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
-     * @return array
+     * @return array<int|string, mixed>
      * @throws Exception
      */
     public function handle(array $params = []): array
@@ -66,7 +67,7 @@ class GetItemsInABucket extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -76,15 +77,24 @@ class GetItemsInABucket extends CommandHandler
     }
 
     /**
-     * @param string    $bucketName
-     * @param array     $config
-     * @param bool|null $hydrate
+     * @param string               $bucketName
+     * @param array<string, mixed> $config
+     * @param bool|null            $hydrate
      *
-     * @return array
+     * @return array<int|string, mixed>
+     * @throws InvalidArgumentException
+     * @throws UnexpectedValueException
+     * @throws Exception
      */
     protected function returnItemsFromCache(string $bucketName, array $config, ?bool $hydrate = null): array
     {
-        $itemsFromCache = $this->client->getCache()->search($bucketName, $config[ 'Prefix' ]);
+        $cache = $this->client->getCache();
+        if (null === $cache) {
+            // Defensive: this method is only invoked when hasCache() is true.
+            return $this->returnItemsFromS3($bucketName, $config, $hydrate);
+        }
+
+        $itemsFromCache = $cache->search($bucketName, $config[ 'Prefix' ]);
 
         // no data was found, try to retrieve data from S3
         if (count($itemsFromCache) == 0) {
@@ -123,11 +133,14 @@ class GetItemsInABucket extends CommandHandler
     }
 
     /**
-     * @param string    $bucketName
-     * @param array     $config
-     * @param bool|null $hydrate
+     * @param string               $bucketName
+     * @param array<string, mixed> $config
+     * @param bool|null            $hydrate
      *
-     * @return array
+     * @return array<int|string, mixed>
+     * @throws InvalidArgumentException
+     * @throws UnexpectedValueException
+     * @throws Exception
      */
     protected function returnItemsFromS3(string $bucketName, array $config, ?bool $hydrate = null): array
     {
@@ -148,7 +161,7 @@ class GetItemsInABucket extends CommandHandler
                             $key = $this->client->getEncoder()->decode($key);
                         }
 
-                        if (null != $hydrate and true === $hydrate) {
+                        if (true === $hydrate) {
                             $items[ $key ] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key]);
                         } else {
                             $items[] = $key;
@@ -169,11 +182,13 @@ class GetItemsInABucket extends CommandHandler
     }
 
     /**
-     * @param string    $bucketName
-     * @param array     $config
-     * @param bool|null $hydrate
+     * @param string               $bucketName
+     * @param array<string, mixed> $config
+     * @param bool|null            $hydrate
      *
-     * @return array
+     * @return array<int|string, mixed>
+     * @throws Exception
+     * @throws InvalidArgumentException
      */
     protected function returnVersionedItemsFromS3(string $bucketName, array $config, ?bool $hydrate = null): array
     {
@@ -195,7 +210,7 @@ class GetItemsInABucket extends CommandHandler
 
                 $index = $key . '<VERSION_ID:' . $version . '>';
 
-                if (null != $hydrate and true === $hydrate) {
+                if (true === $hydrate) {
                     $items[ $index ] = $this->client->getItem(['bucket' => $bucketName, 'key' => $key, 'version' => $version]);
                 } else {
                     $items[] = $index;

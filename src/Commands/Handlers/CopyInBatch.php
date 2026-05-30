@@ -25,7 +25,7 @@ class CopyInBatch extends CopyItem
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/copy-object.html?highlight=copy
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * Example:
      * $input = [
@@ -137,7 +137,7 @@ class CopyInBatch extends CopyItem
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

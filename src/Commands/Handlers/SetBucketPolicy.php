@@ -22,7 +22,7 @@ class SetBucketPolicy extends CommandHandler
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-policy.html?highlight=put%20policy
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception
@@ -65,7 +65,7 @@ class SetBucketPolicy extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

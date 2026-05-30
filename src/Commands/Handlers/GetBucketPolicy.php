@@ -19,7 +19,7 @@ class GetBucketPolicy extends CommandHandler
     /**
      * Get the policy of a bucket.
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return int|mixed
      * @throws Exception
@@ -38,7 +38,7 @@ class GetBucketPolicy extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

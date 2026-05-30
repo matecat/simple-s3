@@ -28,7 +28,7 @@ class UploadItemFromBody extends CommandHandler
      * For a complete reference of put object see:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-object.html?highlight=put
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception
@@ -59,7 +59,7 @@ class UploadItemFromBody extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -73,13 +73,15 @@ class UploadItemFromBody extends CommandHandler
     }
 
     /**
-     * @param string      $bucketName
-     * @param string      $keyName
-     * @param resource    $body
-     * @param string|null $storage
-     * @param array|null  $meta
+     * @param string                    $bucketName
+     * @param string                    $keyName
+     * @param resource                  $body
+     * @param string|null               $storage
+     * @param array<string, mixed>|null $meta
      *
      * @return bool
+     * @throws Exception
+     * @throws InvalidArgumentException
      */
     private function upload(string $bucketName, string $keyName, $body, ?string $storage = null, ?array $meta = null): bool
     {

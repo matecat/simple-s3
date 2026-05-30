@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Matecat\SimpleS3\Client;
 use Matecat\SimpleS3\Helpers\File;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidArgumentException as ConsoleInvalidArgumentException;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,6 +34,9 @@ class CacheStatsCommand extends Command
         $this->s3Client = $s3Client;
     }
 
+    /**
+     * @throws ConsoleInvalidArgumentException
+     */
     protected function configure(): void
     {
         $this
@@ -44,6 +48,8 @@ class CacheStatsCommand extends Command
     }
 
     /**
+     * @throws ConsoleInvalidArgumentException
+     * @throws InvalidArgumentException
      * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int

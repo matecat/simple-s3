@@ -22,7 +22,7 @@ class GetPublicItemLink extends CommandHandler
      * Get the temporary public link of an item.
      * It return a presigned URL.
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return UriInterface
      * @throws Exception
@@ -56,7 +56,7 @@ class GetPublicItemLink extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

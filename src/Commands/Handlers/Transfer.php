@@ -18,7 +18,7 @@ use RuntimeException;
 class Transfer extends CommandHandler
 {
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception
@@ -33,7 +33,7 @@ class Transfer extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -47,8 +47,8 @@ class Transfer extends CommandHandler
 
     /**
      * @param string $dest
-     * @param string $source
-     * @param array  $options
+     * @param string               $source
+     * @param array<string, mixed> $options
      *
      * @return bool
      * @throws Exception

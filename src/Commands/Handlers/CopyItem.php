@@ -23,7 +23,7 @@ class CopyItem extends CommandHandler
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/copy-object.html?highlight=copy
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception
@@ -79,7 +79,7 @@ class CopyItem extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -103,16 +103,21 @@ class CopyItem extends CommandHandler
      */
     protected function getCopySource(string $sourceBucket, string $sourceKeyname): string
     {
+        $separator = $this->client->getPrefixSeparator();
+        if ('' === $separator) {
+            $separator = DIRECTORY_SEPARATOR;
+        }
+
         if ($this->client->hasEncoder()) {
-            return $sourceBucket . $this->client->getPrefixSeparator() . $sourceKeyname;
+            return $sourceBucket . $separator . $sourceKeyname;
         }
 
         $encoded = [];
 
-        foreach (explode($this->client->getPrefixSeparator(), $sourceKeyname) as $word) {
+        foreach (explode($separator, $sourceKeyname) as $word) {
             $encoded[] = urlencode($word);
         }
 
-        return $sourceBucket . $this->client->getPrefixSeparator() . implode($this->client->getPrefixSeparator(), $encoded);
+        return $sourceBucket . $separator . implode($separator, $encoded);
     }
 }

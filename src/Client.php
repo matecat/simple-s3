@@ -13,13 +13,13 @@ namespace Matecat\SimpleS3;
 
 use Aws\ResultInterface;
 use Aws\S3\S3Client;
+use Exception;
 use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
 use Matecat\SimpleS3\Components\Cache\CacheInterface;
 use Matecat\SimpleS3\Components\Encoders\SafeNameEncoderInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
-
 /**
  * Class Client
  *
@@ -28,42 +28,42 @@ use Psr\Log\LoggerInterface;
  *
  * Method list:
  *
- * @method bool clearBucket(array $input)
- * @method bool copyFolder(array $input)
- * @method bool copyInBatch(array $input)
- * @method bool copyItem(array $input)
- * @method bool createBucketIfItDoesNotExist(array $input)
- * @method bool createFolder(array $input)
- * @method bool deleteBucket(array $input)
- * @method bool deleteBucketPolicy(array $input)
- * @method bool deleteFolder(array $input)
- * @method bool deleteItem(array $input)
- * @method bool downloadItem(array $input)
- * @method bool enableAcceleration(array $input)
- * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array $input)
- * @method mixed getBucketPolicy(array $input)
- * @method int|mixed getBucketSize(array $input)
- * @method null|string getCurrentItemVersion(array $input)
- * @method ResultInterface|mixed getItem(array $input)
- * @method array getItemsInABucket(array $input)
- * @method array getItemsInAVersionedBucket(array $input)
- * @method UriInterface getPublicItemLink(array $input)
- * @method bool hasBucket(array $input)
- * @method bool hasFolder(array $input)
- * @method bool hasItem(array $input)
- * @method bool isBucketVersioned(array $input)
- * @method mixed|UriInterface openItem(array $input)
- * @method bool restoreItem(array $input)
- * @method bool setBucketLifecycleConfiguration(array $input)
- * @method bool setBucketPolicy(array $input)
- * @method bool setBucketVersioning(array $input)
- * @method bool transfer(array $input)
- * @method bool uploadItem(array $input)
- * @method bool uploadItemFromBody(array $input)
+ * @method bool clearBucket(array<string, mixed> $input)
+ * @method bool copyFolder(array<string, mixed> $input)
+ * @method bool copyInBatch(array<string, mixed> $input)
+ * @method bool copyItem(array<string, mixed> $input)
+ * @method bool createBucketIfItDoesNotExist(array<string, mixed> $input)
+ * @method bool createFolder(array<string, mixed> $input)
+ * @method bool deleteBucket(array<string, mixed> $input)
+ * @method bool deleteBucketPolicy(array<string, mixed> $input)
+ * @method bool deleteFolder(array<string, mixed> $input)
+ * @method bool deleteItem(array<string, mixed> $input)
+ * @method bool downloadItem(array<string, mixed> $input)
+ * @method bool enableAcceleration(array<string, mixed> $input)
+ * @method ResultInterface|mixed getBucketLifeCycleConfiguration(array<string, mixed> $input)
+ * @method mixed getBucketPolicy(array<string, mixed> $input)
+ * @method int|mixed getBucketSize(array<string, mixed> $input)
+ * @method null|string getCurrentItemVersion(array<string, mixed> $input)
+ * @method ResultInterface|mixed getItem(array<string, mixed> $input)
+ * @method array<int|string, mixed> getItemsInABucket(array<string, mixed> $input)
+ * @method array<int|string, mixed> getItemsInAVersionedBucket(array<string, mixed> $input)
+ * @method UriInterface getPublicItemLink(array<string, mixed> $input)
+ * @method bool hasBucket(array<string, mixed> $input)
+ * @method bool hasFolder(array<string, mixed> $input)
+ * @method bool hasItem(array<string, mixed> $input)
+ * @method bool isBucketVersioned(array<string, mixed> $input)
+ * @method mixed|UriInterface openItem(array<string, mixed> $input)
+ * @method bool restoreItem(array<string, mixed> $input)
+ * @method bool setBucketLifecycleConfiguration(array<string, mixed> $input)
+ * @method bool setBucketPolicy(array<string, mixed> $input)
+ * @method bool setBucketVersioning(array<string, mixed> $input)
+ * @method bool transfer(array<string, mixed> $input)
+ * @method bool uploadItem(array<string, mixed> $input)
+ * @method bool uploadItemFromBody(array<string, mixed> $input)
  *
  * @package SimpleS3
  */
-final class Client
+final class Client implements ClientInterface
 {
     /**
      * @var string
@@ -103,7 +103,10 @@ final class Client
     /**
      * Client constructor.
      *
-     * @param array $config
+     * @param array<string, mixed> $config
+     *
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function __construct(array $config)
     {
@@ -120,6 +123,7 @@ final class Client
      * @param array<array<string,string>> $args
      *
      * @return mixed
+     * @throws InvalidArgumentException
      */
     public function __call(string $name, array $args)
     {
@@ -149,6 +153,9 @@ final class Client
     }
 
     /**
+     * @phpstan-assert-if-true !null $this->cache
+     * @phpstan-assert-if-true !null $this->getCache()
+     *
      * @return bool
      */
     public function hasCache(): bool
@@ -173,6 +180,9 @@ final class Client
     }
 
     /**
+     * @phpstan-assert-if-true !null $this->encoder
+     * @phpstan-assert-if-true !null $this->getEncoder()
+     *
      * @return bool
      */
     public function hasEncoder(): bool
@@ -197,6 +207,9 @@ final class Client
     }
 
     /**
+     * @phpstan-assert-if-true !null $this->logger
+     * @phpstan-assert-if-true !null $this->getLogger()
+     *
      * @return bool
      */
     public function hasLogger(): bool

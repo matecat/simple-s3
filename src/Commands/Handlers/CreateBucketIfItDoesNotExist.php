@@ -26,7 +26,7 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
      *
      *
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception
@@ -75,7 +75,7 @@ class CreateBucketIfItDoesNotExist extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

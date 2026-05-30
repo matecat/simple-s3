@@ -20,7 +20,7 @@ class OpenItem extends CommandHandler
     /**
      * Open an item and return the content of it.
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return string|null
      * @throws Exception
@@ -42,7 +42,7 @@ class OpenItem extends CommandHandler
 
             $this->commandHandlerLogger?->log($this, sprintf('Content from \'%s\' item was successfully obtained from \'%s\' bucket', $keyName, $bucketName));
 
-            return $content;
+            return is_string($content) ? $content : null;
         } catch (Exception $e) {
             $this->commandHandlerLogger?->logExceptionAndReturnFalse($e);
 
@@ -51,7 +51,7 @@ class OpenItem extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

@@ -23,7 +23,7 @@ class GetItem extends CommandHandler
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/get-object.html
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return ResultInterface|mixed
      * @throws Exception
@@ -46,7 +46,7 @@ class GetItem extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -64,10 +64,17 @@ class GetItem extends CommandHandler
      * @param string|null $version
      *
      * @return mixed
+     * @throws Exception
      */
     private function returnItemFromCache(string $bucketName, string $keyName, ?string $version = null): mixed
     {
-        if ('' === $this->client->getCache()->get($bucketName, $keyName, $version)) {
+        $cache = $this->client->getCache();
+        if (null === $cache) {
+            // Defensive: this private method is only invoked when hasCache() is true.
+            return $this->returnItemFromS3($bucketName, $keyName, $version);
+        }
+
+        if ('' === $cache->get($bucketName, $keyName, $version)) {
             $config = [
                     'Bucket' => $bucketName,
                     'Key'    => $keyName
@@ -78,10 +85,10 @@ class GetItem extends CommandHandler
             }
 
             $file = $this->client->getConn()->getObject($config);
-            $this->client->getCache()->set($bucketName, $keyName, $file->toArray(), $version);
+            $cache->set($bucketName, $keyName, $file->toArray(), $version);
         }
 
-        return $this->client->getCache()->get($bucketName, $keyName, $version);
+        return $cache->get($bucketName, $keyName, $version);
     }
 
     /**
@@ -89,7 +96,9 @@ class GetItem extends CommandHandler
      * @param string      $keyName
      * @param string|null $version
      *
-     * @return array
+     * @return array<int|string, mixed>
+     * @throws Exception
+     * @throws S3Exception
      */
     private function returnItemFromS3(string $bucketName, string $keyName, ?string $version = null): array
     {

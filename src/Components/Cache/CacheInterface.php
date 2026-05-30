@@ -42,7 +42,7 @@ interface CacheInterface
      * @param string $bucket
      * @param string $keyname
      *
-     * @return array
+     * @return array<int, string>
      */
     public function search(string $bucket, string $keyname): array;
 
@@ -52,13 +52,15 @@ interface CacheInterface
      * @param mixed       $content
      * @param string|null $version
      * @param int         $ttl
+     *
+     * @return int
      */
-    public function set(string $bucket, string $keyname, mixed $content, ?string $version = null, int $ttl = 0);
+    public function set(string $bucket, string $keyname, mixed $content, ?string $version = null, int $ttl = 0): int;
 
     /**
      * @param string $separator
      */
-    public function setPrefixSeparator(string $separator);
+    public function setPrefixSeparator(string $separator): void;
 
     /**
      * @param string      $bucket

@@ -23,9 +23,9 @@ class GetBucketLifeCycleConfiguration extends CommandHandler
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/get-bucket-lifecycle-configuration.html
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
-     * @return Result
+     * @return Result<string, mixed>
      * @throws Exception
      */
     public function handle(array $params = []): Result
@@ -48,7 +48,7 @@ class GetBucketLifeCycleConfiguration extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

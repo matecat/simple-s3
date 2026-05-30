@@ -30,7 +30,7 @@ final class S3ObjectSafeNameValidator extends S3NameValidator
     /**
      * @param string $string
      *
-     * @return array
+     * @return array<int, string>
      */
     public static function validate(string $string): array
     {

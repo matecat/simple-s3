@@ -33,7 +33,7 @@ class UploadItem extends CommandHandler
      * For a complete reference of put object see:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-object.html?highlight=put
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception
@@ -69,7 +69,7 @@ class UploadItem extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -83,10 +83,10 @@ class UploadItem extends CommandHandler
     }
 
     /**
-     * @param string $bucketName
-     * @param string $keyName
-     * @param string $source
-     * @param array  $params
+     * @param string               $bucketName
+     * @param string               $keyName
+     * @param string               $source
+     * @param array<string, mixed> $params
      *
      * @return bool
      * @throws Exception

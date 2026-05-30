@@ -14,6 +14,7 @@ namespace Matecat\SimpleS3;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Aws\Sts\StsClient;
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -52,9 +53,11 @@ use InvalidArgumentException;
 final class ClientFactory
 {
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      *
      * @return S3Client
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public static function create(array $config = []): S3Client
     {
@@ -64,9 +67,11 @@ final class ClientFactory
     }
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      *
-     * @return array
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     private static function createConfigArray(array $config): array
     {
@@ -86,7 +91,9 @@ final class ClientFactory
     }
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
+     *
+     * @throws InvalidArgumentException
      */
     private static function validateConfig(array $config): void
     {
@@ -122,9 +129,11 @@ final class ClientFactory
     }
 
     /**
-     * @param array $config
+     * @param array<string, mixed> $config
      *
-     * @return array
+     * @return array<string, mixed>
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
     private static function getCredentials(array $config): array
     {

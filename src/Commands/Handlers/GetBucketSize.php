@@ -12,6 +12,7 @@
 namespace Matecat\SimpleS3\Commands\Handlers;
 
 use Aws\ResultInterface;
+use InvalidArgumentException;
 use Matecat\SimpleS3\Commands\CommandHandler;
 
 class GetBucketSize extends CommandHandler
@@ -19,9 +20,10 @@ class GetBucketSize extends CommandHandler
     /**
      * Get the total size of items in a bucket.
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return int
+     * @throws InvalidArgumentException
      */
     public function handle(array $params = []): int
     {
@@ -45,7 +47,7 @@ class GetBucketSize extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

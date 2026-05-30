@@ -20,9 +20,9 @@ class GetItemsInAVersionedBucket extends GetItemsInABucket
      * Get the list of keys in a versioned bucket.
      * If 'hydrate' parameter is set to true, an array of hydrated Aws\Result is returned instead.
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
-     * @return array
+     * @return array<int|string, mixed>
      */
     public function handle(array $params = []): array
     {

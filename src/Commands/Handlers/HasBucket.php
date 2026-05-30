@@ -20,7 +20,7 @@ class HasBucket extends CommandHandler
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/head-bucket.html
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */
@@ -32,7 +32,7 @@ class HasBucket extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

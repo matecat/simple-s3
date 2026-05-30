@@ -54,7 +54,9 @@ class RedisCache implements CacheInterface
             $keyname .= '<VERSION_ID:' . $version . '>';
         }
 
-        return unserialize($this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $keyname));
+        $raw = $this->redisClient->hget($this->getHashPrefix($bucket, $keyname), $keyname);
+
+        return null === $raw ? null : unserialize($raw);
     }
 
     /**
@@ -93,7 +95,7 @@ class RedisCache implements CacheInterface
      * @param string $bucket
      * @param string $keyname
      *
-     * @return array
+     * @return array<int, string>
      */
     public function search(string $bucket, string $keyname): array
     {

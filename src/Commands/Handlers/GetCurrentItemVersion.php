@@ -22,7 +22,7 @@ class GetCurrentItemVersion extends CommandHandler
      * For a complete reference:
      * https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-versioning.html?highlight=versioning%20bucket
      *
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return null|string
      * @throws Exception
@@ -58,7 +58,7 @@ class GetCurrentItemVersion extends CommandHandler
     }
 
     /**
-     * @param array $params
+     * @param array<string, mixed> $params
      *
      * @return bool
      */

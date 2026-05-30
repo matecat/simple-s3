@@ -12,9 +12,10 @@
 namespace Matecat\SimpleS3\Helpers;
 
 use FilesystemIterator;
+use InvalidArgumentException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-
+use UnexpectedValueException;
 class File
 {
     /**
@@ -139,18 +140,21 @@ class File
         ];
 
         if (function_exists('mime_content_type') and $mode === 0) {
-            return mime_content_type($filename);
+            $mt = mime_content_type($filename);
+
+            return false !== $mt ? $mt : 'application/octet-stream';
         }
 
         if (function_exists('finfo_open') and $mode === 0) {
-            $finfo = finfo_open(FILEINFO_MIME);
+            $finfo    = finfo_open(FILEINFO_MIME);
+            $mimetype = false;
 
             if (false !== $finfo) {
                 $mimetype = finfo_file($finfo, $filename);
                 finfo_close($finfo);
             }
 
-            return $mimetype;
+            return false !== $mimetype ? $mimetype : 'application/octet-stream';
         }
 
         $ext = self::getExtension($filename);
@@ -165,7 +169,7 @@ class File
     /**
      * @param string $path
      *
-     * @return array
+     * @return array<string, string>
      */
     public static function getPathInfo(string $path): array
     {
@@ -187,19 +191,21 @@ class File
      * @param bool   $sslVerify
      *
      * @return bool|string
+     * @throws InvalidArgumentException
      */
     public static function loadFile(string $url, bool $sslVerify = true): bool|string
     {
+        if ('' === $url) {
+            throw new InvalidArgumentException('URL cannot be empty');
+        }
+
         if (function_exists('curl_version')) {
             $ch = curl_init();
 
-            $verifyPeer = $sslVerify ? 1 : 0;
-            $verifyHost = $sslVerify ? 2 : 0;
-
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $verifyPeer);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $sslVerify ? 2 : 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $sslVerify);
             curl_setopt($ch, CURLOPT_URL, $url);
 
             $data = curl_exec($ch);
@@ -239,6 +245,8 @@ class File
     /**
      * @param string $dir
      * @param bool   $removeItself
+     *
+     * @throws UnexpectedValueException
      */
     public static function cleanDir(string $dir, bool $removeItself = false): void
     {
