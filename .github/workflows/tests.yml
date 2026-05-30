@@ -31,6 +31,10 @@ jobs:
 
     strategy:
       fail-fast: false
+      # Serialise the matrix: both jobs share the same AWS account/buckets,
+      # so running them concurrently causes CreateBucket/NoSuchKey/Glacier
+      # races. Drop this once bucket names are namespaced per matrix entry.
+      max-parallel: 1
       matrix:
         php: [ '8.3', '8.4' ]
 
