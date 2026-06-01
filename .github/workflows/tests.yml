@@ -120,6 +120,7 @@ jobs:
     name: SonarCloud Analysis
     runs-on: ubuntu-24.04
     needs: tests
+    environment: master
     # Skip SonarCloud on PRs from forks (they can't access secrets)
     if: >-
       github.event_name == 'push'
@@ -137,7 +138,7 @@ jobs:
           name: coverage-report
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

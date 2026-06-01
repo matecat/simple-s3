@@ -1,9 +1,12 @@
 # Simple S3 Client
 
+[![Tests](https://github.com/matecat/simple-s3/actions/workflows/tests.yml/badge.svg)](https://github.com/matecat/simple-s3/actions/workflows/tests.yml)
 [![license](https://img.shields.io/github/license/matecat/simple-s3.svg)]()
 [![Packagist](https://img.shields.io/packagist/v/matecat/simple-s3.svg)]()
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/matecat/simple-s3/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/matecat/simple-s3/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/matecat/simple-s3/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/matecat/simple-s3/?branch=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=matecat_simple-s3&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=matecat_simple-s3)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=matecat_simple-s3&metric=coverage)](https://sonarcloud.io/summary/new_code?id=matecat_simple-s3)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=matecat_simple-s3&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=matecat_simple-s3)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=matecat_simple-s3&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=matecat_simple-s3)
 
 **Simple S3 Client** is a simple wrapper of the official SDK PHP Client.
 
