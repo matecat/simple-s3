@@ -9,6 +9,9 @@
 # the live-S3 test suites will fail but the static analysis and the
 # infrastructure-free tests will still execute. Wire the secrets below to
 # enable the full PHPUnit run.
+#
+# SonarCloud analysis runs as a separate job after tests complete.
+# Required secrets: SONAR_TOKEN (generate at https://sonarcloud.io/account/security)
 # ─────────────────────────────────────────────────────────────────────────────
 name: Tests
 
@@ -58,7 +61,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: curl, fileinfo, json, redis
-          coverage: none
+          # Enable Xdebug only on the primary PHP version to generate coverage
+          coverage: ${{ matrix.php == '8.3' && 'xdebug' || 'none' }}
           tools: composer:v2
 
       - name: Get Composer cache directory
@@ -90,5 +94,51 @@ jobs:
           AWS_REGION:            ${{ vars.AWS_REGION || 'eu-central-1' }}
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
-        run: ./vendor/bin/phpunit --colors=always
+          XDEBUG_MODE: ${{ matrix.php == '8.3' && 'coverage' || 'off' }}
+        run: >-
+          ./vendor/bin/phpunit --colors=always
+          ${{ matrix.php == '8.3' && '--coverage-clover=coverage.xml' || '' }}
+
+      - name: Upload coverage artifact
+        if: matrix.php == '8.3'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 1
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # SonarCloud – runs once after tests, using the coverage from PHP 8.3.
+  #
+  # Improvements over the Travis-based approach:
+  #   • Uses the official SonarSource/sonarqube-scan-action (maintained, cached)
+  #   • Runs as a dedicated job — no repeated scans per matrix entry
+  #   • Static config lives in sonar-project.properties, not CLI flags
+  #   • fetch-depth: 0 enables proper blame/new-code detection
+  # ───────────────────────────────────────────────────────────────────────────
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-24.04
+    needs: tests
+    # Skip SonarCloud on PRs from forks (they can't access secrets)
+    if: >-
+      github.event_name == 'push'
+      || github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Checkout repository (full history for blame data)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
